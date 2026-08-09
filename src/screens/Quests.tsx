@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { C, F } from '../theme';
 import { useGame } from '../state/store';
-import { BADGES, BADGE_C, SKILLS, TITLES, skillById } from '../data/skills';
-import { boardRows, levelOf, palierPct, pxOf } from '../state/selectors';
-import { LEAGUES } from '../data/social';
+import { BADGES, BADGE_C, SKILLS, TITLES } from '../data/skills';
+import { RARITY, isInstant } from '../data/quests';
+import { boardRows, levelOf, pxOf, skillRank, skillNextRank } from '../state/selectors';
+import { FRIENDS_RANK } from '../data/social';
 import AvatarCut from '../components/avatar/AvatarCut';
-import { Bar, Check, Kicker, Star, Tap, Bolt } from '../components/ui';
+import { Bar, Check, Kicker, Star, Tap } from '../components/ui';
 import type { Nav } from '../App';
 
 type Sub = 'board' | 'perso' | 'coll' | 'amis';
@@ -13,16 +14,24 @@ const SUBS: [Sub, string][] = [['board', 'PLATEAU'], ['perso', 'PERSO'], ['coll'
 
 export default function Quests({ nav }: { nav: Nav }) {
   const { s, d } = useGame();
-  const [ix, setIx] = useState(0);
+  const [ix, setIx] = useState(() => Math.max(0, SKILLS.findIndex((k) => k.id === s.startSkill)));
   const [sub, setSub] = useState<Sub>('board');
   const [newTask, setNewTask] = useState('');
+  const [help, setHelp] = useState(false);
   const sk = SKILLS[ix];
   const rows = boardRows(s, sk.id);
   const lvl = levelOf(s, sk.id);
-  const pct = palierPct(s, sk.id);
+  const rank = skillRank(s, sk.id);
+  const next = skillNextRank(s, sk.id);
   const now = rows.find((r) => r.state === 'now');
 
-  const friends = useMemo(() => LEAGUES.amis.slice(0, 5), []);
+  const friends = FRIENDS_RANK.filter((f) => f[0] !== 'moi').slice(0, 5);
+
+  const act = (row: (typeof rows)[number]) => {
+    if (row.state !== 'now') return;
+    if (isInstant(row.rarity)) d({ t: 'VALIDATE', skill: sk.id, ix: row.ix, name: row.name, px: row.px, rarity: row.rarity });
+    else nav.open('validate', { skill: sk.id, ix: row.ix, name: row.name, px: row.px, rarity: row.rarity });
+  };
 
   return (
     <div>
@@ -48,8 +57,8 @@ export default function Quests({ nav }: { nav: Nav }) {
                 }}
               >
                 <span style={{ font: `800 20px ${F.display}`, color: on ? k.txt : '#fff', letterSpacing: '-.02em' }}>{k.short}</span>
-                <span style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.1em', color: on ? k.txt : 'rgba(255,255,255,.45)', opacity: on ? .7 : 1 }}>
-                  NIV {levelOf(s, k.id)}
+                <span style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.08em', color: on ? k.txt : 'rgba(255,255,255,.45)', opacity: on ? .7 : 1 }}>
+                  {skillRank(s, k.id).short}
                 </span>
               </Tap>
             );
@@ -58,16 +67,22 @@ export default function Quests({ nav }: { nav: Nav }) {
 
         <div style={{ padding: '10px 22px 0', textAlign: 'center' }}>
           <div style={{ font: `800 40px/1 ${F.display}`, color: sk.c, letterSpacing: '-.03em' }}>{sk.name}</div>
-          <div style={{ font: `400 13px ${F.body}`, color: 'rgba(255,255,255,.6)', marginTop: 8 }}>{sk.title} · {pxOf(s, sk.id)} PX</div>
-          <div style={{ display: 'inline-flex', gap: 8, marginTop: 12 }}>
-            {sk.elo ? <span style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sk.c, padding: '7px 13px', borderRadius: 99, letterSpacing: '.08em' }}>{sk.elo}</span> : null}
-            <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.6)', border: '1px solid rgba(255,255,255,.16)', padding: '7px 13px', borderRadius: 99, letterSpacing: '.1em' }}>SÉRIE {s.streak} J</span>
+          <div style={{ font: `400 13px ${F.body}`, color: 'rgba(255,255,255,.6)', marginTop: 8 }}>{rank.label} · {pxOf(s, sk.id)} PX</div>
+          <div style={{ display: 'inline-flex', gap: 8, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Tap onTap={() => nav.open('path', { skill: sk.id })} style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sk.c, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 36, display: 'flex', alignItems: 'center' }}>
+              VOIR LE CHEMIN
+            </Tap>
+            {s.onFire ? (
+              <span style={{ font: `700 10px ${F.mono}`, color: '#fff', background: C.coral, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em' }}>EN FEU · PX ×2</span>
+            ) : (
+              <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.6)', border: '1px solid rgba(255,255,255,.16)', padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em' }}>ÉNERGIE {s.energy}%</span>
+            )}
           </div>
         </div>
       </div>
 
       {/* Feuille claire */}
-      <div style={{ background: C.paper, borderRadius: '34px 34px 0 0', marginTop: 18, padding: '20px 22px 30px', minHeight: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ background: C.paper, borderRadius: '34px 34px 0 0', marginTop: 18, padding: '20px 22px', paddingBottom: sub === 'board' && now ? 96 : 30, minHeight: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', gap: 7 }}>
           {SUBS.map(([k, label]) => (
             <Tap
@@ -84,25 +99,43 @@ export default function Quests({ nav }: { nav: Nav }) {
 
         {sub === 'board' && (
           <>
+            {/* Règle de validation */}
+            <div style={{ background: '#fff', borderRadius: 20, padding: '14px 16px' }}>
+              <Tap onTap={() => { setHelp((h) => !h); if (!s.seen.questHelp) d({ t: 'SEEN', key: 'questHelp' }); }} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ width: 24, height: 24, borderRadius: 99, background: C.ink, color: C.paper, font: `800 13px ${F.display}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>?</span>
+                <span style={{ flex: 1, font: `700 13px ${F.body}`, color: C.ink }}>Valider une quête, ça veut dire quoi ?</span>
+                <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(11,11,12,.4)' }}>{help ? '−' : '+'}</span>
+              </Tap>
+              {help || !s.seen.questHelp ? (
+                <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(11,11,12,.65)', marginTop: 10, textWrap: 'pretty' }}>
+                  <b style={{ fontWeight: 700, color: C.ink }}>Quête simple (commune ou rare)</b> : tu l’as faite, tu tapes une fois. Les PX tombent tout de suite.<br />
+                  <b style={{ fontWeight: 700, color: C.ink }}>Palier important (légendaire)</b> : tu coches les étapes et tu ajoutes une preuve photo. C’est ce qui déclenche une carte partageable.
+                </div>
+              ) : null}
+            </div>
+
+            {/* Rang de la compétence */}
             <div style={{ background: '#fff', borderRadius: 20, padding: '14px 16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <Kicker dark>PALIER EN COURS</Kicker>
-                <span style={{ font: `700 11px ${F.mono}`, color: C.ink }}>{pxOf(s, sk.id)} / {sk.cap} PX</span>
+                <Kicker dark>RANG · {rank.label}</Kicker>
+                <span style={{ font: `700 11px ${F.mono}`, color: C.ink }}>{isFinite(rank.pxNeed) ? `${rank.pxIn} / ${rank.pxNeed} PX` : 'MAX'}</span>
               </div>
-              <div style={{ display: 'flex', marginTop: 10 }}><Bar pct={pct} c={sk.c} h={10} track="rgba(11,11,12,.09)" /></div>
+              <div style={{ display: 'flex', marginTop: 10 }}><Bar pct={rank.pct} c={sk.c} h={10} track="rgba(11,11,12,.09)" /></div>
               <div style={{ font: `400 11.5px ${F.body}`, color: 'rgba(11,11,12,.55)', marginTop: 8 }}>
-                {lvl} paliers validés sur {rows.length} · niveau {lvl}
+                {next ? `Prochain rang : ${next.label}` : 'Rang maximal'} · {lvl}/{rows.length} paliers validés
               </div>
             </div>
 
             <div>
               {rows.map((r, i) => {
                 const done = r.state === 'done', isNow = r.state === 'now';
+                const rar = RARITY[r.rarity];
                 return (
                   <Tap
                     key={r.name + i}
-                    onTap={() => { if (isNow) nav.open('validate', { skill: sk.id, ix: r.ix, name: r.name, px: r.px }); }}
+                    onTap={() => act(r)}
                     sound={isNow}
+                    haptic={isNow && isInstant(r.rarity) ? 'levelup' : 'tap'}
                     style={{ display: 'flex', gap: 14, position: 'relative', paddingBottom: 10, opacity: r.state === 'lock' ? .55 : 1 }}
                   >
                     {i < rows.length - 1 ? (
@@ -122,14 +155,14 @@ export default function Quests({ nav }: { nav: Nav }) {
                     <span style={{ flex: 1, background: isNow ? '#fff' : 'transparent', borderRadius: 18, padding: isNow ? '13px 15px' : '10px 0', boxShadow: isNow ? '0 10px 24px -18px rgba(11,11,12,.9)' : 'none' }}>
                       <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
                         <span style={{ font: `${isNow ? 800 : 700} ${isNow ? 16 : 14}px ${isNow ? F.display : F.body}`, color: C.ink, letterSpacing: isNow ? '-.01em' : 0, textDecoration: done ? 'line-through' : 'none' }}>{r.name}</span>
-                        <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(11,11,12,.4)' : C.ink, whiteSpace: 'nowrap' }}>+{r.px}</span>
+                        <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(11,11,12,.4)' : C.ink, whiteSpace: 'nowrap' }}>+{s.onFire && isNow ? r.px * 2 : r.px}</span>
                       </span>
-                      <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(11,11,12,.5)', marginTop: 3 }}>
-                        {done ? 'Validé' : isNow ? 'À valider maintenant' : 'Se débloque au palier ' + (r.ix)}
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 6, flexWrap: 'wrap' }}>
+                        <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: rar.c, padding: '4px 8px', borderRadius: 7 }}>{rar.label}</span>
+                        <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(11,11,12,.5)' }}>
+                          {done ? 'Validé' : isNow ? (isInstant(r.rarity) ? 'Un tap suffit' : 'Preuve à l’appui') : 'Se débloque au palier ' + r.ix}
+                        </span>
                       </span>
-                      {r.major ? (
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, font: `700 8.5px ${F.mono}`, letterSpacing: '.12em', color: C.ink, background: C.honey, padding: '4px 8px', borderRadius: 7, marginTop: 8 }}>★ PALIER MAJEUR</span>
-                      ) : null}
                     </span>
                   </Tap>
                 );
@@ -142,7 +175,7 @@ export default function Quests({ nav }: { nav: Nav }) {
               </span>
               <span style={{ flex: 1 }}>
                 <span style={{ display: 'block', font: `700 13.5px ${F.body}`, color: '#fff' }}>Créer une quête perso</span>
-                <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 2 }}>Nom, énergie, moment de la journée</span>
+                <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 2 }}>Nom, effort, moment de la journée</span>
               </span>
             </Tap>
           </>
@@ -152,12 +185,12 @@ export default function Quests({ nav }: { nav: Nav }) {
           <>
             <div style={{ background: '#fff', borderRadius: 22, padding: '15px 17px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <Kicker dark>ÉNERGIE DU JOUR</Kicker>
-                <span style={{ font: `700 12px ${F.mono}`, color: C.ink }}>{s.energy}%</span>
+                <Kicker dark>ÉNERGIE</Kicker>
+                <span style={{ font: `700 12px ${F.mono}`, color: s.onFire ? C.coral : C.ink }}>{s.energy}%</span>
               </div>
-              <div style={{ display: 'flex', marginTop: 11 }}><Bar pct={s.energy} c={C.lime} h={14} track="rgba(11,11,12,.08)" /></div>
+              <div style={{ display: 'flex', marginTop: 11 }}><Bar pct={s.energy} c={s.onFire ? C.coral : C.lime} h={14} track="rgba(11,11,12,.08)" /></div>
               <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(11,11,12,.58)', marginTop: 10, textWrap: 'pretty' }}>
-                Chaque tâche cochée recharge ta barre de vie sur l’accueil. Ici, pas d’élo, pas de ligue, pas de comparaison.
+                Chaque quête et chaque tâche cochée remplit la jauge. Pleine, tu passes en feu : PX doublés jusqu’à ce qu’elle se vide. Sans rien valider pendant 24 h, elle retombe à zéro.
               </div>
             </div>
 
@@ -171,9 +204,14 @@ export default function Quests({ nav }: { nav: Nav }) {
                     {t.done ? <Check size={14} w={3.6} /> : null}
                   </span>
                   <span style={{ flex: 1, font: `${t.done ? 400 : 700} 13.5px ${F.body}`, color: t.done ? 'rgba(11,11,12,.42)' : C.ink, textDecoration: t.done ? 'line-through' : 'none' }}>{t.label}</span>
-                  <span style={{ font: `700 11px ${F.mono}`, color: t.done ? 'rgba(11,11,12,.35)' : C.ink }}>+{t.px} ⚡</span>
+                  <span style={{ font: `700 11px ${F.mono}`, color: t.done ? 'rgba(11,11,12,.35)' : C.ink }}>+{t.px} PX</span>
                 </Tap>
               ))}
+              {!s.tasks.length ? (
+                <div style={{ font: `400 12.5px/1.5 ${F.body}`, color: 'rgba(11,11,12,.5)', padding: '4px 2px' }}>
+                  Rien pour l’instant. Ajoute une tâche du quotidien : elle compte comme une quête commune.
+                </div>
+              ) : null}
             </div>
 
             <form
@@ -194,7 +232,7 @@ export default function Quests({ nav }: { nav: Nav }) {
             <Kicker dark>TITRES</Kicker>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {(TITLES[sk.id] || []).map(([name, req], i) => {
-                const got = i <= Math.min(3, Math.floor(lvl / 2));
+                const got = i <= Math.min(3, Math.floor(lvl / 2)) && lvl > 0;
                 return (
                   <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 12, background: got ? '#fff' : 'rgba(11,11,12,.04)', borderRadius: 18, padding: '13px 15px' }}>
                     <span style={{ width: 10, height: 10, borderRadius: '50%', background: got ? sk.c : 'rgba(11,11,12,.2)', flex: 'none' }} />
@@ -229,24 +267,22 @@ export default function Quests({ nav }: { nav: Nav }) {
         {sub === 'amis' && (
           <>
             <div style={{ font: `400 12.5px/1.4 ${F.body}`, color: 'rgba(11,11,12,.6)' }}>
-              Progression sur <b style={{ fontWeight: 700, color: C.ink }}>{sk.soft}</b> cette saison.
+              Progression sur <b style={{ fontWeight: 700, color: C.ink }}>{sk.soft}</b> chez tes amis. Défie-les : l’enjeu est en PX.
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {friends.map((f) => (
-                <div key={f[0]} style={{ display: 'flex', alignItems: 'center', gap: 12, background: f[0] === 'camille' ? C.ink : '#fff', borderRadius: 18, padding: '12px 14px' }}>
-                  <span style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', flex: 'none' }}><AvatarCut who={f[0] === 'camille' ? undefined : f[0]} av={f[0] === 'camille' ? s.profile.av : undefined} crop="face" /></span>
+                <div key={f[0]} style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#fff', borderRadius: 18, padding: '12px 14px' }}>
+                  <span style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', flex: 'none' }}><AvatarCut who={f[0]} crop="face" /></span>
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ font: `700 13px ${F.body}`, color: f[0] === 'camille' ? '#fff' : C.ink }}>{f[1]}</span>
-                      <span style={{ font: `700 11px ${F.mono}`, color: f[0] === 'camille' ? 'rgba(255,255,255,.6)' : 'rgba(11,11,12,.65)' }}>{f[4]}%</span>
+                    <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+                      <span style={{ font: `700 13px ${F.body}`, color: C.ink }}>{f[1]}</span>
+                      <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(11,11,12,.55)' }}>{f[2]}</span>
                     </span>
-                    <span style={{ display: 'block', height: 8, borderRadius: 99, background: f[0] === 'camille' ? 'rgba(255,255,255,.14)' : 'rgba(11,11,12,.08)', marginTop: 7, overflow: 'hidden' }}>
+                    <span style={{ display: 'block', height: 8, borderRadius: 99, background: 'rgba(11,11,12,.08)', marginTop: 7, overflow: 'hidden' }}>
                       <span style={{ display: 'block', height: '100%', width: f[4] + '%', background: sk.c, borderRadius: 99 }} />
                     </span>
                   </span>
-                  {f[0] !== 'camille' ? (
-                    <Tap onTap={() => nav.open('quiz', { who: f[0], name: f[1], skill: sk.id })} style={{ font: `700 9px ${F.mono}`, letterSpacing: '.08em', color: C.ink, background: C.lime, padding: '10px 11px', borderRadius: 10, flex: 'none', minHeight: 40, display: 'flex', alignItems: 'center' }}>DÉFIER</Tap>
-                  ) : null}
+                  <Tap onTap={() => nav.open('quiz', { who: f[0], name: f[1], skill: sk.id })} style={{ font: `700 9px ${F.mono}`, letterSpacing: '.08em', color: C.ink, background: C.lime, padding: '10px 11px', borderRadius: 10, flex: 'none', minHeight: 40, display: 'flex', alignItems: 'center' }}>DÉFIER</Tap>
                 </div>
               ))}
             </div>
@@ -257,7 +293,7 @@ export default function Quests({ nav }: { nav: Nav }) {
       {/* Action au pouce */}
       {sub === 'board' && now ? (
         <Tap
-          onTap={() => nav.open('validate', { skill: sk.id, ix: now.ix, name: now.name, px: now.px })}
+          onTap={() => act(now)}
           haptic="soft"
           style={{
             position: 'fixed', left: 18, right: 18, bottom: 'calc(var(--nav-h) + var(--safe-bottom) + 12px)', zIndex: 30,

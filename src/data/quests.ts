@@ -16,6 +16,19 @@ export const RARITY: Record<Rarity, { label: string; c: string; mult: number; we
   legendaire: { label: 'LÉGENDAIRE', c: '#FFC93C', mult: 2.5, weight: 5 }
 };
 
+/**
+ * Rareté d'un palier de plateau.
+ * Règle de validation : commune et rare se valident d'un tap,
+ * légendaire demande une preuve (photo + étapes).
+ */
+export function rarityOfBoard(px: number, major: boolean): Rarity {
+  if (major) return 'legendaire';
+  return px >= 50 ? 'rare' : 'commune';
+}
+
+/** Une quête se valide-t-elle instantanément ? */
+export const isInstant = (r: Rarity) => r !== 'legendaire';
+
 export function rollRarity(rand = Math.random): Rarity {
   const r = rand() * 100;
   if (r < RARITY.legendaire.weight) return 'legendaire';

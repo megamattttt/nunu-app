@@ -1,14 +1,15 @@
 import React from 'react';
 import { C, F } from '../theme';
 import { useGame } from '../state/store';
-import { SKILLS, skillById, PSHORT, DIVW } from '../data/skills';
+import { SKILLS, skillById } from '../data/skills';
 import { QUOTES, CHALLENGES } from '../data/quests';
-import { ownedObjects, questsDone, totalPx } from '../state/selectors';
+import { globalLevel, globalPct, ownedObjects, questsDone, skillRank, pxOf, totalPx } from '../state/selectors';
 import { DIO_OBJ } from '../data/diorama';
 import AvatarCut from '../components/avatar/AvatarCut';
 import DioramaScene from '../components/DioramaScene';
+import Logo from '../components/Logo';
 import { CADRE_C } from '../data/quiz';
-import { Kicker, Star, Tap } from '../components/ui';
+import { Bar, Kicker, Star, Tap } from '../components/ui';
 import type { Nav } from '../App';
 
 export default function Profile({ nav }: { nav: Nav }) {
@@ -28,11 +29,15 @@ export default function Profile({ nav }: { nav: Nav }) {
             </span>
           </Tap>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: 'block', font: `800 32px/1 ${F.display}`, color: C.ink, letterSpacing: '-.025em' }}>{s.profile.pseudo}</span>
-            <span style={{ display: 'block', font: `400 12.5px ${F.body}`, color: 'rgba(11,11,12,.62)', marginTop: 6 }}>{s.profile.atelier}</span>
+            <span style={{ display: 'block', font: `800 32px/1 ${F.display}`, color: C.ink, letterSpacing: '-.025em' }}>@{s.profile.gamertag}</span>
+            <span style={{ display: 'block', font: `400 12.5px ${F.body}`, color: 'rgba(11,11,12,.62)', marginTop: 6 }}>{s.profile.firstName} · {s.profile.atelier}</span>
             <span style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 6, marginTop: 9 }}>
-              <span style={{ font: `700 10px ${F.mono}`, color: C.paper, background: C.ink, padding: '5px 10px', borderRadius: 99, letterSpacing: '.1em' }}>{PSHORT[s.pal]} {DIVW[s.div]}</span>
-              <span style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sig, padding: '5px 10px', borderRadius: 99, letterSpacing: '.06em' }}>SÉRIE {s.streak} J</span>
+              <span style={{ font: `700 10px ${F.mono}`, color: C.paper, background: C.ink, padding: '5px 10px', borderRadius: 99, letterSpacing: '.1em' }}>NIVEAU {globalLevel(s)}</span>
+              {s.onFire ? (
+                <span style={{ font: `700 10px ${F.mono}`, color: '#fff', background: C.coral, padding: '5px 10px', borderRadius: 99, letterSpacing: '.06em' }}>EN FEU · PX ×2</span>
+              ) : (
+                <span style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sig, padding: '5px 10px', borderRadius: 99, letterSpacing: '.06em' }}>ÉNERGIE {s.energy}%</span>
+              )}
             </span>
           </span>
         </div>
@@ -47,6 +52,46 @@ export default function Profile({ nav }: { nav: Nav }) {
       </header>
 
       <div style={{ padding: '18px 22px 26px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {/* Niveau global */}
+        <section style={{ background: C.paper, borderRadius: 26, padding: '16px 18px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <Kicker dark>NIVEAU DE PERSONNAGE</Kicker>
+            <Logo size={20} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8 }}>
+            <span style={{ font: `800 44px/1 ${F.display}`, color: C.ink, letterSpacing: '-.04em' }}>{globalLevel(s)}</span>
+            <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(11,11,12,.45)', letterSpacing: '.1em' }}>/ 999</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
+            <Bar pct={globalPct(s)} c={C.ink} h={10} track="rgba(11,11,12,.1)" />
+            <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(11,11,12,.5)', flex: 'none' }}>{globalPct(s)}%</span>
+          </div>
+        </section>
+
+        {/* Rangs par compétence */}
+        <section style={{ background: C.night, border: '1px solid rgba(255,255,255,.08)', borderRadius: 26, padding: '16px 18px' }}>
+          <Kicker>RANGS PAR COMPÉTENCE</Kicker>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
+            {SKILLS.map((sk) => {
+              const r = skillRank(s, sk.id);
+              return (
+                <Tap key={sk.id} onTap={() => nav.open('path', { skill: sk.id })} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                  <span style={{ width: 30, height: 30, borderRadius: 10, background: sk.c, color: sk.txt, font: `800 12px ${F.display}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>{sk.short}</span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+                      <span style={{ font: `700 12.5px ${F.body}`, color: '#fff' }}>{r.label}</span>
+                      <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.45)' }}>{pxOf(s, sk.id)} PX</span>
+                    </span>
+                    <span style={{ display: 'block', height: 6, borderRadius: 99, background: 'rgba(255,255,255,.1)', marginTop: 6, overflow: 'hidden' }}>
+                      <span style={{ display: 'block', height: '100%', width: r.pct + '%', background: sk.c, borderRadius: 99 }} />
+                    </span>
+                  </span>
+                </Tap>
+              );
+            })}
+          </div>
+        </section>
+
         {/* Diorama */}
         <div style={{ background: '#EADFC9', borderRadius: 26, padding: 9 }}>
           <DioramaScene height={230} onPick={() => nav.open('diorama')} />
@@ -82,7 +127,7 @@ export default function Profile({ nav }: { nav: Nav }) {
                 <span key={p} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff', borderRadius: 99, padding: '7px 12px' }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: sk.c }} />
                   <span style={{ font: `700 11px ${F.body}`, color: C.ink }}>{sk.name}</span>
-                  <span style={{ font: `700 9px ${F.mono}`, color: 'rgba(11,11,12,.45)' }}>{sk.elo || 'SOLO'}</span>
+                  <span style={{ font: `700 9px ${F.mono}`, color: 'rgba(11,11,12,.45)' }}>{skillRank(s, p).short}</span>
                 </span>
               );
             })}

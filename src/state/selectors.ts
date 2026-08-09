@@ -1,11 +1,21 @@
-import { BOARDS, DONE0, MAJOR, PALIERS, PSHORT, DIVW, skillById, SKILLS } from '../data/skills';
+import { BOARDS, MAJOR, skillById, SKILLS } from '../data/skills';
+import { rarityOfBoard, type Rarity } from '../data/quests';
+import { rankOf, nextRank, levelFromPx, levelPct, type Rank } from '../data/ranks';
 import type { GameState } from './types';
 
-export const levelOf = (s: GameState, skill: string) => DONE0[skill] + (s.progress[skill]?.done || 0);
+export const levelOf = (s: GameState, skill: string) => s.progress[skill]?.done || 0;
 export const pxOf = (s: GameState, skill: string) => s.progress[skill]?.px || 0;
 
+/** Rang d'une compétence, déduit des PX gagnés dans cette compétence. */
+export const skillRank = (s: GameState, skill: string): Rank => rankOf(pxOf(s, skill));
+export const skillNextRank = (s: GameState, skill: string) => nextRank(pxOf(s, skill));
+
+/** Niveau global du personnage (1 → 999), agrégat de tous les PX. */
+export const globalLevel = (s: GameState) => levelFromPx(s.px);
+export const globalPct = (s: GameState) => levelPct(s.px);
+
 export type BoardRow = {
-  ix: number; name: string; px: number; major: boolean;
+  ix: number; name: string; px: number; major: boolean; rarity: Rarity;
   state: 'done' | 'now' | 'lock';
 };
 
@@ -13,12 +23,19 @@ export function boardRows(s: GameState, skill: string): BoardRow[] {
   const lvl = levelOf(s, skill);
   const custom = s.customQuests.filter((q) => q.skill === skill);
   const base = BOARDS[skill] || [];
-  const rows: BoardRow[] = base.map(([name, px], ix) => ({
-    ix, name, px, major: (MAJOR[skill] || []).includes(ix),
-    state: ix < lvl ? 'done' : ix === lvl ? 'now' : 'lock'
-  }));
+  const rows: BoardRow[] = base.map(([name, px], ix) => {
+    const major = (MAJOR[skill] || []).includes(ix);
+    return {
+      ix, name, px, major, rarity: rarityOfBoard(px, major),
+      state: ix < lvl ? 'done' : ix === lvl ? 'now' : 'lock'
+    };
+  });
   custom.forEach((q, i) =>
-    rows.push({ ix: base.length + i, name: q.name, px: q.px, major: false, state: q.done ? 'done' : 'now' })
+    rows.push({
+      ix: base.length + i, name: q.name, px: q.px, major: false,
+      rarity: q.rarity || rarityOfBoard(q.px, false),
+      state: q.done ? 'done' : 'now'
+    })
   );
   return rows;
 }
@@ -28,9 +45,13 @@ export function currentQuest(s: GameState, skill: string) {
   return boardRows(s, skill).find((r) => r.state === 'now') || null;
 }
 
-/** Quête du jour : la compétence la plus avancée qui a encore un palier ouvert. */
+/** Quête du jour : compétence de départ en priorité, sinon la plus avancée. */
 export function todayQuest(s: GameState) {
-  const ranked = [...SKILLS].sort((a, b) => pxOf(s, b.id) - pxOf(s, a.id));
+  const ranked = [...SKILLS].sort((a, b) => {
+    if (a.id === s.startSkill) return -1;
+    if (b.id === s.startSkill) return 1;
+    return pxOf(s, b.id) - pxOf(s, a.id);
+  });
   for (const sk of ranked) {
     const q = currentQuest(s, sk.id);
     if (q) return { skill: sk.id, quest: q };
@@ -38,28 +59,15 @@ export function todayQuest(s: GameState) {
   return null;
 }
 
-export function palierPct(s: GameState, skill: string) {
-  const sk = skillById(skill);
-  return Math.min(100, Math.round((pxOf(s, skill) / sk.cap) * 100));
-}
+/** Progression dans le rang courant d'une compétence (0..100). */
+export const rankPct = (s: GameState, skill: string) => skillRank(s, skill).pct;
 
-export const palierName = (s: GameState) => PALIERS[s.pal][0];
-export const palierColor = (s: GameState) => PALIERS[s.pal][1];
-export const divLabel = (s: GameState) => 'DIV ' + DIVW[s.div];
-export const eloLabel = (s: GameState) => PSHORT[s.pal] + ' ' + DIVW[s.div];
+export const totalPx = (s: GameState) => s.px;
 
-/** Progression LP dans la division courante (0..100). */
-export const lpPct = (s: GameState) => Math.min(100, Math.round((s.lp / 100) * 100));
-
-export const totalPx = (s: GameState) =>
-  Object.values(s.progress).reduce((a, p) => a + p.px, 0);
-
-export const questsDone = (s: GameState) =>
-  s.stats.questsDone + Object.keys(s.progress).reduce((a, k) => a + (s.progress[k].done || 0), 0);
+export const questsDone = (s: GameState) => s.stats.questsDone;
 
 export const badgeUnlocked = (s: GameState, skill: string, ix: number) => s.badges.includes(skill + ':' + ix);
 
 export const ownedObjects = (s: GameState) => s.owned.atelier.filter(Boolean).length;
 
-export const rankOf = (rows: [string, string, string, number, number][]) =>
-  rows.findIndex((r) => r[0] === 'camille');
+export const skillColor = (skill: string) => skillById(skill).c;

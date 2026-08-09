@@ -1,24 +1,28 @@
 import React, { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
-import type { GameState } from './types';
+import type { GameState, ShareData } from './types';
 import { initialState } from './initial';
 import { adapter } from './persistence';
 import { BOARDS, MAJOR, OBJ, skillById } from '../data/skills';
+import { rankOf } from '../data/ranks';
+import type { Rarity } from '../data/quests';
 import { levelOf } from './selectors';
 import { buzz, setHaptics } from '../lib/haptics';
 import { sfx, setSound } from '../lib/sound';
 import { confetti } from '../lib/confetti';
 
 export type RewardEvent = {
-  kind: 'quest' | 'palier' | 'rare' | 'buy' | 'duel' | 'streak' | 'surprise';
-  title: string; sub?: string; px?: number; coins?: number; lp?: number; energy?: number;
-  color?: string; object?: string;
+  kind: 'quest' | 'palier' | 'rare' | 'buy' | 'duel' | 'fire' | 'surprise';
+  title: string; sub?: string; px?: number; coins?: number; energy?: number;
+  color?: string; object?: string; share?: ShareData; fire?: boolean;
 };
 
 type Action =
   | { t: 'HYDRATE'; state: Partial<GameState> }
-  | { t: 'LOGIN' } | { t: 'LOGOUT' } | { t: 'RESET' }
-  | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; witness?: string | null }
-  | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: any; when?: number }
+  | { t: 'IDENTITY'; firstName: string; gamertag: string }
+  | { t: 'LOGOUT' } | { t: 'RESET' }
+  | { t: 'START_SKILL'; skill: string }
+  | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null }
+  | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number }
   | { t: 'DRAW_USED' }
   | { t: 'TOGGLE_TASK'; id: string }
   | { t: 'ADD_TASK'; label: string; px: number }
@@ -34,61 +38,121 @@ type Action =
   | { t: 'COMMENT'; id: string; text: string }
   | { t: 'ACCEPT_INVIT'; ix: number; who: string; name: string; skill: string }
   | { t: 'DUEL'; id: string; win: boolean; my: number; their: number }
-  | { t: 'LP'; delta: number }
   | { t: 'BANNER'; patch: Record<string, any> }
   | { t: 'PREF'; key: 'sound' | 'haptics' | 'confetti'; value: boolean }
+  | { t: 'SEEN'; key: 'onboarding' | 'questHelp' }
   | { t: 'EVENT'; event: RewardEvent | null }
+  | { t: 'SHARE'; data: ShareData | null }
   | { t: 'TOAST'; msg: string | null };
 
-type Runtime = { event: RewardEvent | null; toast: string | null; hydrated: boolean };
+type Runtime = { event: RewardEvent | null; share: ShareData | null; toast: string | null; hydrated: boolean };
 type Store = GameState & Runtime;
 
-const today = () => new Date().toISOString().slice(0, 10);
-const yesterday = () => new Date(Date.now() - 864e5).toISOString().slice(0, 10);
 const uid = () => Math.random().toString(36).slice(2, 9);
 
-function bumpStreak(s: Store): Partial<Store> {
-  const d = today();
-  if (s.lastDay === d) return {};
-  const streak = s.lastDay === yesterday() ? s.streak + 1 : 1;
-  return { lastDay: d, streak };
+/** Multiplicateur appliqué aux PX quand la jauge est pleine (« en feu »). */
+export const FIRE_MULT = 2;
+const DAY = 864e5;
+/** L'énergie retombe après 24 h sans quête validée. */
+const DECAY_MS = DAY;
+/** Énergie dépensée par quête quand l'état « en feu » est actif. */
+const FIRE_COST = 25;
+
+function decayed(s: Store): Pick<Store, 'energy' | 'onFire'> {
+  if (s.lastQuestAt && Date.now() - s.lastQuestAt > DECAY_MS) return { energy: 0, onFire: false };
+  return { energy: s.energy, onFire: s.onFire };
 }
+
+/** Énergie gagnée par une quête : proportionnelle à sa taille, plafonnée. */
+const energyGain = (px: number) => Math.min(34, 10 + Math.round(px / 4));
 
 function reducer(s: Store, a: Action): Store {
   switch (a.t) {
-    case 'HYDRATE':
-      return { ...s, ...a.state, hydrated: true } as Store;
+    case 'HYDRATE': {
+      const next = { ...s, ...a.state, hydrated: true } as Store;
+      return { ...next, ...decayed(next) };
+    }
 
-    case 'LOGIN': return { ...s, logged: true };
+    case 'IDENTITY':
+      return {
+        ...s, logged: true,
+        profile: { ...s.profile, firstName: a.firstName, gamertag: a.gamertag }
+      };
+
     case 'LOGOUT': return { ...s, logged: false };
-    case 'RESET': return { ...initialState, logged: true, hydrated: true, event: null, toast: 'Progression remise à zéro' } as Store;
+    case 'RESET': return { ...initialState, hydrated: true, event: null, share: null, toast: 'Progression remise à zéro' } as Store;
+
+    case 'START_SKILL': {
+      const sk = skillById(a.skill);
+      const first = (BOARDS[a.skill] || [])[0];
+      const quest = {
+        id: uid(), skill: a.skill,
+        name: 'Première session : ' + (first ? first[0].toLowerCase() : sk.soft),
+        px: 15, when: 0, rarity: 'commune' as Rarity,
+        desc: 'Un premier palier atteignable en une seule session. Un tap suffit pour le valider.',
+        done: false
+      };
+      return {
+        ...s,
+        startSkill: a.skill,
+        customQuests: [quest, ...s.customQuests],
+        banner: { ...s.banner, pins: [a.skill, 'perso'] },
+        seen: { ...s.seen, onboarding: true },
+        toast: 'Premier palier ajouté sur ' + sk.name.toLowerCase()
+      };
+    }
 
     case 'VALIDATE': {
       const base = (BOARDS[a.skill] || []).length;
       const isBase = a.ix < base;
-      const bonus = a.witness ? Math.round(a.px * 0.2) : 0;
-      const px = a.px + bonus;
+      const eng = decayed(s);
+      const witnessBonus = a.witness ? 0.2 : 0;
+      const mult = eng.onFire ? FIRE_MULT : 1;
+      const px = Math.round(a.px * mult * (1 + witnessBonus));
+
       const prog = s.progress[a.skill] || { px: 0, done: 0 };
       const major = isBase && (MAJOR[a.skill] || []).includes(a.ix);
+
+      const before = rankOf(prog.px);
+      const after = rankOf(prog.px + px);
+      const rankUp = after.step > before.step;
+
+      // Jauge d'énergie inversée : chaque quête la remplit ; en feu, elle se vide.
+      let energy = eng.energy, onFire = eng.onFire;
+      if (onFire) {
+        energy = Math.max(0, energy - FIRE_COST);
+        if (energy === 0) onFire = false;
+      } else {
+        energy = Math.min(100, energy + energyGain(a.px));
+        if (energy >= 100) onFire = true;
+      }
+
       const badgeIx = Math.min(5, levelOf(s, a.skill));
       const badge = a.skill + ':' + badgeIx;
+      const coins = major ? 60 : 15;
+
+      const share: ShareData | undefined = (major || rankUp)
+        ? { kind: rankUp ? 'rang' : 'palier', title: rankUp ? after.label : a.name, skill: a.skill, rank: after.label, px }
+        : undefined;
 
       return {
         ...s,
-        ...bumpStreak(s),
+        energy, onFire, lastQuestAt: Date.now(),
         progress: { ...s.progress, [a.skill]: { px: prog.px + px, done: prog.done + (isBase ? 1 : 0) } },
         customQuests: isBase ? s.customQuests : s.customQuests.map((q) => (q.name === a.name ? { ...q, done: true } : q)),
-        coins: s.coins + (major ? 60 : 15),
-        energy: a.skill === 'perso' ? Math.min(100, s.energy + 8) : s.energy,
+        px: s.px + px,
+        coins: s.coins + coins,
         badges: s.badges.includes(badge) ? s.badges : [...s.badges, badge],
         stats: { ...s.stats, questsDone: s.stats.questsDone + 1, totalPx: s.stats.totalPx + px },
         log: [{ name: a.name, tag: skillById(a.skill).name, val: '+' + px + ' PX', when: 'à l’instant' }, ...s.log].slice(0, 20),
         event: {
-          kind: major ? 'palier' : 'quest',
-          title: major ? 'PALIER MAJEUR' : 'QUÊTE VALIDÉE',
-          sub: a.name, px, coins: major ? 60 : 15,
+          kind: rankUp || major ? 'palier' : 'quest',
+          title: rankUp ? 'NOUVEAU RANG · ' + after.label : major ? 'PALIER MAJEUR' : 'QUÊTE VALIDÉE',
+          sub: a.name, px, coins,
           color: skillById(a.skill).c,
-          object: major ? OBJ[a.skill] : undefined
+          object: major ? OBJ[a.skill] : undefined,
+          fire: onFire && !eng.onFire,
+          share
         }
       };
     }
@@ -109,13 +173,18 @@ function reducer(s: Store, a: Action): Store {
       const task = s.tasks.find((t) => t.id === a.id);
       if (!task) return s;
       const on = !task.done;
+      const eng = decayed(s);
+      const mult = on && eng.onFire ? FIRE_MULT : 1;
+      const px = task.px * mult;
       return {
         ...s,
-        ...(on ? bumpStreak(s) : {}),
         tasks: s.tasks.map((t) => (t.id === a.id ? { ...t, done: on } : t)),
-        energy: Math.max(0, Math.min(100, s.energy + (on ? task.px : -task.px))),
-        progress: { ...s.progress, perso: { ...s.progress.perso, px: Math.max(0, s.progress.perso.px + (on ? task.px : -task.px)) } },
-        toast: on ? '+' + task.px + ' ⚡ énergie' : 'Tâche décochée'
+        px: Math.max(0, s.px + (on ? px : -px)),
+        progress: { ...s.progress, perso: { ...(s.progress.perso || { px: 0, done: 0 }), px: Math.max(0, (s.progress.perso?.px || 0) + (on ? px : -px)) } },
+        energy: on ? Math.min(100, eng.energy + Math.round(task.px / 2)) : eng.energy,
+        onFire: on ? eng.onFire || eng.energy + Math.round(task.px / 2) >= 100 : eng.onFire,
+        lastQuestAt: on ? Date.now() : s.lastQuestAt,
+        toast: on ? '+' + px + ' PX' : 'Tâche décochée'
       };
     }
 
@@ -149,17 +218,17 @@ function reducer(s: Store, a: Action): Store {
       return {
         ...s,
         feed: s.feed.map((p) => (p.id === a.id
-          ? { ...p, comments: [...p.comments, { who: 'camille', name: s.profile.pseudo.split(' ')[0], text: a.text }] }
+          ? { ...p, comments: [...p.comments, { who: 'moi', name: s.profile.firstName || 'Moi', text: a.text }] }
           : p))
       };
 
     case 'PUBLISH': {
       const post = {
-        id: uid(), who: 'camille', name: s.profile.pseudo, when: 'à l’instant',
+        id: uid(), who: 'moi', name: s.profile.gamertag || s.profile.firstName, when: 'à l’instant',
         tag: a.tag, tagC: a.tagC, text: a.text, px: '+40 PX', likes: 0, liked: false, comments: []
       };
       return {
-        ...s, feed: [post, ...s.feed], coins: s.coins + 10,
+        ...s, feed: [post, ...s.feed], coins: s.coins + 10, px: s.px + 40,
         stats: { ...s.stats, postsSent: s.stats.postsSent + 1, totalPx: s.stats.totalPx + 40 },
         event: { kind: 'quest', title: 'PUBLIÉ SUR LE MUR', sub: 'Tes amis peuvent te confirmer', px: 40, coins: 10 }
       };
@@ -174,33 +243,33 @@ function reducer(s: Store, a: Action): Store {
       };
 
     case 'DUEL': {
-      const lp = a.win ? 25 : -12;
+      // Les duels se jouent désormais sur les deux monnaies : PX et pièces.
+      const duel = s.duels.find((x) => x.id === a.id);
+      const stake = duel?.stake ?? 40;
+      const skill = duel?.skill || 'perso';
+      const px = a.win ? stake : Math.round(stake * 0.25);
+      const coins = a.win ? 40 : 0;
+      const prog = s.progress[skill] || { px: 0, done: 0 };
       return {
         ...s,
-        lp: Math.max(0, s.lp + lp),
+        px: s.px + px,
+        coins: s.coins + coins,
+        progress: { ...s.progress, [skill]: { ...prog, px: prog.px + px } },
         duels: s.duels.map((d) => (d.id === a.id ? { ...d, status: a.win ? 'gagné' : 'perdu', myScore: a.my, theirScore: a.their } : d)),
-        stats: { ...s.stats, duelsWon: s.stats.duelsWon + (a.win ? 1 : 0) },
-        coins: s.coins + (a.win ? 40 : 0),
-        log: [{ name: a.win ? 'Duel gagné' : 'Duel perdu', tag: 'DÉFI', val: (lp > 0 ? '+' : '') + lp + ' LP', when: 'à l’instant' }, ...s.log].slice(0, 20),
+        stats: { ...s.stats, duelsWon: s.stats.duelsWon + (a.win ? 1 : 0), totalPx: s.stats.totalPx + px },
+        log: [{ name: a.win ? 'Duel gagné' : 'Duel perdu', tag: 'DÉFI', val: '+' + px + ' PX', when: 'à l’instant' }, ...s.log].slice(0, 20),
         event: {
           kind: 'duel', title: a.win ? 'DUEL GAGNÉ' : 'DUEL PERDU',
-          sub: a.my + ' — ' + a.their, lp, coins: a.win ? 40 : 0
+          sub: a.my + ' — ' + a.their, px, coins
         }
       };
     }
 
-    case 'LP': {
-      let { lp, div, pal } = s;
-      lp += a.delta;
-      let event: RewardEvent | null = null;
-      while (lp >= 100) { lp -= 100; if (div > 1) div--; else if (pal < 4) { pal++; div = 4; } else lp = 100; event = { kind: 'palier', title: 'DIVISION SUPÉRIEURE', sub: 'Tu montes d’un cran', lp: a.delta }; }
-      while (lp < 0) { if (div < 4) { div++; lp += 100; } else if (pal > 0) { pal--; div = 1; lp += 100; } else lp = 0; }
-      return { ...s, lp, div, pal, event: event || s.event };
-    }
-
     case 'BANNER': return { ...s, banner: { ...s.banner, ...a.patch } };
     case 'PREF': return { ...s, prefs: { ...s.prefs, [a.key]: a.value } };
+    case 'SEEN': return { ...s, seen: { ...s.seen, [a.key]: true } };
     case 'EVENT': return { ...s, event: a.event };
+    case 'SHARE': return { ...s, share: a.data };
     case 'TOAST': return { ...s, toast: a.msg };
     default: return s;
   }
@@ -209,7 +278,7 @@ function reducer(s: Store, a: Action): Store {
 const Ctx = createContext<{ s: Store; d: React.Dispatch<Action> }>(null as any);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-  const [s, d] = useReducer(reducer, { ...initialState, event: null, toast: null, hydrated: false } as Store);
+  const [s, d] = useReducer(reducer, { ...initialState, event: null, share: null, toast: null, hydrated: false } as Store);
   const first = useRef(true);
 
   useEffect(() => {
@@ -222,7 +291,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!s.hydrated) return;
     if (first.current) { first.current = false; }
-    const { event, toast, hydrated, ...game } = s as any;
+    const { event, share, toast, hydrated, ...game } = s as any;
     const id = window.setTimeout(() => { adapter.save(game); }, 220);
     return () => window.clearTimeout(id);
   }, [s]);
@@ -234,7 +303,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!s.event) return;
     const e = s.event;
     if (e.kind === 'palier') { buzz('levelup'); sfx.levelup(); if (s.prefs.confetti) confetti(130); }
-    else if (e.kind === 'duel') { buzz(e.lp && e.lp > 0 ? 'success' : 'error'); e.lp && e.lp > 0 ? sfx.levelup() : sfx.error(); if (s.prefs.confetti && (e.lp || 0) > 0) confetti(90); }
+    else if (e.kind === 'duel') { buzz(e.px && e.coins ? 'success' : 'error'); e.coins ? sfx.levelup() : sfx.error(); if (s.prefs.confetti && e.coins) confetti(90); }
     else if (e.kind === 'rare' || e.kind === 'surprise') { buzz('success'); sfx.rare(); if (s.prefs.confetti) confetti(70); }
     else { buzz('success'); sfx.validate(); if (s.prefs.confetti) confetti(70); }
   }, [s.event]);

@@ -17,7 +17,6 @@ export default function Validate({ nav }: { nav: Nav }) {
   const sk = skillById(q.skill);
   const steps = STEPS[q.skill] || STEPS.perso;
 
-  const [stage, setStage] = useState(0); // 0 étapes · 1 preuve · 2 ressenti · 3 témoin
   const [done, setDone] = useState<boolean[]>(steps.map(() => false));
   const [proof, setProof] = useState<string | null>(null);
   const [note, setNote] = useState('');
@@ -34,6 +33,7 @@ export default function Validate({ nav }: { nav: Nav }) {
   }, [running]);
 
   const allDone = done.every(Boolean);
+  const ready = allDone && !!proof;
   const mmss = `${String(Math.floor(chrono / 60)).padStart(2, '0')}:${String(chrono % 60).padStart(2, '0')}`;
   const bonus = witness ? Math.round(q.px * 0.2) : 0;
 
@@ -43,13 +43,18 @@ export default function Validate({ nav }: { nav: Nav }) {
   };
 
   const finish = () => {
-    d({ t: 'VALIDATE', skill: q.skill, ix: q.ix, name: q.name, px: q.px, witness });
+    d({ t: 'VALIDATE', skill: q.skill, ix: q.ix, name: q.name, px: q.px, rarity: q.rarity || 'legendaire', witness });
     nav.back();
   };
 
   return (
     <div style={{ padding: '10px 22px 30px' }}>
-      <RouteHead title="VALIDER" sub={sk.name + ' · +' + q.px + ' PX'} onBack={nav.back} />
+      <RouteHead title="PALIER IMPORTANT" sub={sk.name + ' · +' + q.px + ' PX · preuve requise'} onBack={nav.back} />
+
+      <div style={{ background: 'rgba(255,201,60,.12)', border: '1px solid rgba(255,201,60,.35)', borderRadius: 18, padding: '13px 15px', marginTop: 14, font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.75)', textWrap: 'pretty' }}>
+        Les quêtes communes et rares se valident d’un tap. Celle-ci est un palier légendaire :
+        coche les étapes et ajoute une photo du résultat. C’est elle qui génère ta carte partageable.
+      </div>
 
       <div style={{ background: sk.c, borderRadius: 24, padding: '18px 20px', marginTop: 18, color: sk.txt }}>
         <Kicker dark={sk.txt !== '#FFFFFF'}>QUÊTE EN COURS</Kicker>
@@ -87,7 +92,7 @@ export default function Validate({ nav }: { nav: Nav }) {
 
       {/* Preuve */}
       <div style={{ background: C.night, borderRadius: 20, padding: '15px 16px', marginTop: 12 }}>
-        <Kicker>PREUVE</Kicker>
+        <Kicker>PREUVE · OBLIGATOIRE</Kicker>
         <input
           ref={fileRef} type="file" accept="image/*" capture="environment" hidden
           onChange={(e) => { const f = e.target.files?.[0]; if (f) setProof(URL.createObjectURL(f)); }}
@@ -138,7 +143,7 @@ export default function Validate({ nav }: { nav: Nav }) {
           Un ami confirme que c’est fait. Le bonus s’ajoute à tes PX.
         </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 12, overflowX: 'auto', paddingBottom: 4 }}>
-          {FRIENDS.filter((f) => f[0] !== 'camille').map(([who, name]) => (
+          {FRIENDS.map(([who, name]) => (
             <Tap
               key={who} onTap={() => setWitness(witness === who ? null : who)} haptic="soft"
               style={{ flex: 'none', width: 74, textAlign: 'center', padding: '10px 6px', borderRadius: 16, background: witness === who ? C.lime : 'rgba(255,255,255,.06)' }}
@@ -151,17 +156,19 @@ export default function Validate({ nav }: { nav: Nav }) {
       </div>
 
       <Tap
-        onTap={allDone ? finish : () => { buzz('error'); sfx.error(); }}
-        haptic={allDone ? 'levelup' : 'error'}
+        onTap={ready ? finish : () => { buzz('error'); sfx.error(); }}
+        haptic={ready ? 'levelup' : 'error'}
         style={{
           marginTop: 16, borderRadius: 22, padding: '18px 20px', minHeight: 62,
-          background: allDone ? C.lime : 'rgba(255,255,255,.09)',
-          color: allDone ? C.ink : 'rgba(255,255,255,.4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+          background: ready ? C.lime : 'rgba(255,255,255,.09)',
+          color: ready ? C.ink : 'rgba(255,255,255,.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12
         }}
       >
-        <span style={{ font: `800 18px ${F.display}`, letterSpacing: '-.01em' }}>{allDone ? 'VALIDER LA QUÊTE' : 'COCHE TOUTES LES ÉTAPES'}</span>
-        <span style={{ font: `700 12px ${F.mono}` }}>+{q.px + bonus} PX</span>
+        <span style={{ font: `800 17px ${F.display}`, letterSpacing: '-.01em' }}>
+          {ready ? 'VALIDER LE PALIER' : !allDone ? 'COCHE TOUTES LES ÉTAPES' : 'AJOUTE UNE PREUVE'}
+        </span>
+        <span style={{ font: `700 12px ${F.mono}`, flex: 'none' }}>+{q.px + bonus} PX</span>
       </Tap>
     </div>
   );

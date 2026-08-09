@@ -61,7 +61,7 @@ export default function AvatarStudio({ nav }: { nav: Nav }) {
             <AvatarCut av={av} crop={current.crop || 'bust'} />
           </span>
         </span>
-        <span style={{ font: `800 24px ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>{s.profile.pseudo}</span>
+        <span style={{ font: `800 24px ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>@{s.profile.gamertag}</span>
         <span style={{ font: `700 10px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: AV_SIG[s.profile.sig], padding: '6px 12px', borderRadius: 99 }}>
           {AV_TITLES[s.profile.titleIx][0].toUpperCase()}
         </span>
@@ -83,8 +83,8 @@ export default function AvatarStudio({ nav }: { nav: Nav }) {
         {isIdent ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginTop: 14 }}>
             <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 20, padding: '12px 16px' }}>
-              <div style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.14em' }}>PSEUDO</div>
-              <input value={s.profile.pseudo} onChange={(e) => d({ t: 'SET_PROFILE', patch: { pseudo: e.target.value } })} style={{ width: '100%', color: '#fff', font: `700 17px ${F.body}`, padding: '6px 0 0' }} />
+              <div style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.14em' }}>GAMERTAG</div>
+              <input value={s.profile.gamertag} onChange={(e) => d({ t: 'SET_PROFILE', patch: { gamertag: e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 16) } })} style={{ width: '100%', color: '#fff', font: `700 17px ${F.body}`, padding: '6px 0 0' }} />
             </div>
             <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 20, padding: '12px 16px' }}>
               <div style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.14em' }}>NOM D’ATELIER</div>

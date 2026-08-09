@@ -5,6 +5,10 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --nav-h: 76px;
+  /* Espace réservé sous le contenu pour le dock fixe (+ marge de respiration). */
+  --dock-space: calc(var(--nav-h) + var(--safe-bottom) + 20px);
+  /* Idem quand l'écran affiche aussi un bouton d'action flottant. */
+  --dock-space-cta: calc(var(--nav-h) + var(--safe-bottom) + 96px);
   color-scheme: dark;
 }
 

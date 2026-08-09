@@ -53,7 +53,7 @@ export default function Feed({ nav }: { nav: Nav }) {
           <article key={p.id} style={{ background: C.night, borderRadius: 26, padding: '16px 18px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
               <span style={{ width: 40, height: 40, borderRadius: '50%', overflow: 'hidden', flex: 'none' }}>
-                <AvatarCut who={p.who === 'camille' ? undefined : p.who} av={p.who === 'camille' ? s.profile.av : undefined} crop="face" />
+                <AvatarCut who={p.who === 'moi' ? undefined : p.who} av={p.who === 'moi' ? s.profile.av : undefined} crop="face" />
               </span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', font: `700 13.5px ${F.body}`, color: '#fff' }}>{p.name}</span>
@@ -78,7 +78,7 @@ export default function Feed({ nav }: { nav: Nav }) {
                 {p.comments.map((c, i) => (
                   <div key={i} style={{ display: 'flex', gap: 9, alignItems: 'flex-start' }}>
                     <span style={{ width: 26, height: 26, borderRadius: '50%', overflow: 'hidden', flex: 'none' }}>
-                      <AvatarCut who={c.who === 'camille' ? undefined : c.who} av={c.who === 'camille' ? s.profile.av : undefined} crop="face" />
+                      <AvatarCut who={c.who === 'moi' ? undefined : c.who} av={c.who === 'moi' ? s.profile.av : undefined} crop="face" />
                     </span>
                     <span style={{ font: `400 12px/1.4 ${F.body}`, color: 'rgba(255,255,255,.68)' }}>
                       <b style={{ fontWeight: 700, color: '#fff' }}>{c.name}</b> {c.text}

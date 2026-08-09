@@ -1,4 +1,5 @@
 import type { GameState } from './types';
+import { SAVE_VERSION } from './initial';
 
 /**
  * Couche de données isolée : l'app ne parle qu'à cette interface.
@@ -11,13 +12,20 @@ export interface DataAdapter {
   clear(): Promise<void>;
 }
 
-const KEY = 'nunu.save.v1';
+const KEY = 'nunu.save.v2';
+const LEGACY = ['nunu.save.v1'];
 
 export class LocalAdapter implements DataAdapter {
   async load() {
+    // La structure d'état a changé (deux monnaies, rangs par compétence) :
+    // les anciennes sauvegardes sont effacées plutôt que migrées de force.
+    LEGACY.forEach((k) => { try { localStorage.removeItem(k); } catch { /* ignoré */ } });
     try {
       const raw = localStorage.getItem(KEY);
-      return raw ? (JSON.parse(raw) as Partial<GameState>) : null;
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as Partial<GameState>;
+      if (parsed.version !== SAVE_VERSION) { localStorage.removeItem(KEY); return null; }
+      return parsed;
     } catch { return null; }
   }
   async save(state: GameState) {

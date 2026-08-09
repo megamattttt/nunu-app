@@ -65,10 +65,6 @@ export const BADGES: Record<string, [string, string][]> = {
 
 export const BADGE_C = ['#FF5C42','#FFC93C','#6C63FF','#C6F24E','#A8D8FF','#B06FF0'];
 
-export const PALIERS: [string, string][] = [['FER','#9AA0A6'],['BRONZE','#C98A4B'],['ARGENT','#B9C4C9'],['OR','#FFC93C'],['DIAMANT','#A8D8FF']];
-export const PSHORT = ['FER','BRZ','ARG','OR','DIA'];
-export const DIVW = ['','I','II','III','IV'];
-
 export const PERSO_TASKS: [string, string][] = [
   ['Ranger mon appart','+12 ⚡'], ['Sortir le vélo','+8 ⚡'], ['Appeler ma sœur','+6 ⚡'],
   ['Boire 1,5 L d’eau','+5 ⚡'], ['Dix minutes de lecture','+7 ⚡']

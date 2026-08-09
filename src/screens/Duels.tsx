@@ -53,7 +53,7 @@ export default function Duels({ nav }: { nav: Nav }) {
           </div>
         ))}
 
-        {!live.length ? <Empty title="AUCUN DUEL EN COURS" text="Accepte une invitation ou lance un duel éclair pour remettre des LP en jeu." /> : null}
+        {!live.length ? <Empty title="AUCUN DUEL EN COURS" text="Accepte une invitation ou lance un duel éclair pour remettre des PX en jeu." /> : null}
 
         <Tap
           onTap={() => nav.open('quiz', { who: 'lea', name: 'Léa Fontaine', skill: 'couture', flash: true })}

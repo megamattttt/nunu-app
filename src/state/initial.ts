@@ -1,16 +1,20 @@
 import type { GameState } from './types';
-import { PERSO_TASKS } from '../data/skills';
-import { FEED0, LOG0 } from '../data/social';
+import { SKILLS } from '../data/skills';
+import { FEED0 } from '../data/social';
 
+export const SAVE_VERSION = 2;
+
+/** Un compte neuf : aucune progression pré-remplie, tout se gagne. */
 export const initialState: GameState = {
-  version: 1,
+  version: SAVE_VERSION,
   logged: false,
   createdAt: Date.now(),
 
   profile: {
-    pseudo: 'Camille R.',
-    atelier: 'Atelier Fil Vert',
-    titleIx: 1,
+    firstName: '',
+    gamertag: '',
+    atelier: 'Atelier NUNU',
+    titleIx: 0,
     sig: 0,
     cadre: 0,
     av: {
@@ -20,52 +24,45 @@ export const initialState: GameState = {
     }
   },
 
-  progress: {
-    couture: { px: 1418, done: 0 },
-    course: { px: 812, done: 0 },
-    photo: { px: 340, done: 0 },
-    cuisine: { px: 604, done: 0 },
-    jardin: { px: 210, done: 0 },
-    perso: { px: 184, done: 0 }
-  },
+  progress: Object.fromEntries(SKILLS.map((s) => [s.id, { px: 0, done: 0 }])),
   customQuests: [],
   pioched: [],
-  tasks: PERSO_TASKS.map((t, i) => ({ id: 't' + i, label: t[0], px: Number(String(t[1]).replace(/\D/g, '')) || 8, done: false })),
+  tasks: [],
 
-  energy: 58,
-  coins: 480,
-  lp: 64,
-  pal: 2,
-  div: 2,
-  streak: 12,
-  lastDay: null,
+  startSkill: null,
+
+  px: 0,
+  coins: 120,
+
+  energy: 0,
+  onFire: false,
+  lastQuestAt: null,
+
   freeDraws: 5,
 
   owned: {
     acc: [false, false, false],
-    atelier: [true, true, true, false, false, false],
+    atelier: [true, false, false, false, false, false],
     cadre: [true, false, false, false]
   },
 
   banner: {
-    title: 'L’ATELIER DU MARDI',
-    quote: 1,
+    title: 'MON ATELIER',
+    quote: 0,
     pins: ['couture', 'course', 'photo'],
     chall: 0,
-    msg: 'Je couds le soir, je cours le matin. Je préfère finir proprement que finir vite.'
+    msg: ''
   },
 
   feed: FEED0.map((p) => ({ ...p })),
-  log: LOG0.map(([name, tag, val, when]) => ({ name, tag, val, when })),
+  log: [],
   invitsOpen: [0, 1, 2],
-  duels: [
-    { id: 'd1', who: 'nina', name: 'Nina Costa', skill: 'couture', stake: 60, status: 'en cours', deadline: '2 j 04 h' }
-  ],
-  badges: ['couture:0', 'couture:1', 'course:0', 'photo:0', 'cuisine:0', 'perso:0'],
+  duels: [],
+  badges: [],
 
   dio: { wall: 0, floor: 0, light: 0, pos: {}, out: {} },
 
-  stats: { questsDone: 138, totalPx: 3568, duelsWon: 7, postsSent: 3 },
+  stats: { questsDone: 0, totalPx: 0, duelsWon: 0, postsSent: 0 },
   prefs: { sound: false, haptics: true, confetti: true },
-  seen: { onboarding: false }
+  seen: { onboarding: false, questHelp: false }
 };

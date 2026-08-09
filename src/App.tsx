@@ -1,16 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import TabBar, { type Page } from './components/TabBar';
-import { RewardOverlay, Toast } from './components/Overlays';
+import { RewardOverlay, ResumeOverlay, Toast } from './components/Overlays';
+import ShareCard from './components/ShareCard';
 import { useGame } from './state/store';
 import Login from './screens/Login';
+import Onboarding from './screens/Onboarding';
 import Home from './screens/Home';
 import Quests from './screens/Quests';
 import Duels from './screens/Duels';
-import League from './screens/League';
 import Profile from './screens/Profile';
 import Discover from './screens/routes/Discover';
 import NewQuest from './screens/routes/NewQuest';
 import Validate from './screens/routes/Validate';
+import Path from './screens/routes/Path';
 import Feed from './screens/routes/Feed';
 import Shop from './screens/routes/Shop';
 import AvatarStudio from './screens/routes/AvatarStudio';
@@ -45,12 +47,14 @@ export default function App() {
 
   const nav: Nav = { page, route, go, open, back };
 
-  if (!s.logged) return (<><Login /><Toast /></>);
+  if (!s.logged) return (<><Login /><Toast /><ResumeOverlay /></>);
+  if (!s.seen.onboarding) return (<><Onboarding /><Toast /><ResumeOverlay /></>);
 
   const ROUTES: Record<string, JSX.Element> = {
     discover: <Discover nav={nav} />,
     newquest: <NewQuest nav={nav} />,
     validate: <Validate nav={nav} />,
+    path: <Path nav={nav} />,
     feed: <Feed nav={nav} />,
     shop: <Shop nav={nav} />,
     avatar: <AvatarStudio nav={nav} />,
@@ -63,7 +67,6 @@ export default function App() {
     home: <Home nav={nav} />,
     quests: <Quests nav={nav} />,
     duels: <Duels nav={nav} />,
-    league: <League nav={nav} />,
     profile: <Profile nav={nav} />
   };
 
@@ -76,7 +79,9 @@ export default function App() {
         style={{
           flex: 1, minHeight: '100dvh',
           paddingTop: 'var(--safe-top)',
-          paddingBottom: 'calc(var(--nav-h) + var(--safe-bottom))',
+          // Le dock est fixe : on réserve sa hauteur + une marge pour que
+          // la dernière section d'un écran ne passe jamais dessous.
+          paddingBottom: 'var(--dock-space)',
           animation: 'nuPage .3s cubic-bezier(.2,1,.3,1)'
         }}
       >
@@ -85,6 +90,8 @@ export default function App() {
       <TabBar page={page} onGo={go} badge={{ duels: openInvits || undefined }} />
       <Toast />
       <RewardOverlay />
+      <ShareCard />
+      <ResumeOverlay />
     </>
   );
 }

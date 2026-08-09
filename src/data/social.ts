@@ -1,15 +1,15 @@
 export const FRIENDS: [string, string][] = [
-  ['camille','Camille (toi)'], ['lea','Léa Fontaine'], ['karim','Karim Belhadj'],
+  ['lea','Léa Fontaine'], ['karim','Karim Belhadj'],
   ['ines','Inès Moreau'], ['nina','Nina Costa']
 ];
 
-export type LeagueRow = [string, string, string, number, number];
+export type FriendRow = [string, string, string, number, number];
 
-export const LEAGUES: Record<string, LeagueRow[]> = {
-  amis: [['camille','Camille (toi)','ARG II',1418,92],['lea','Léa Fontaine','ARG I',1402,88],['karim','Karim Belhadj','OR III',1361,81],['ines','Inès Moreau','ARG III',1288,76],['nina','Nina Costa','BRZ I',1180,72],['tom','Tom Lefèvre','BRZ I',1098,69]],
-  locale: [['lea','Léa Fontaine','ARG I',1402,94],['camille','Camille (toi)','ARG II',1418,92],['hugo','Hugo Meyer','OR I',1520,90],['rina','Rina Osei','ARG II',1415,84],['sofia','Sofia Bianchi','ARG I',1390,79],['alex','Alex Duval','BRZ II',1210,71]],
-  monde: [['hugo','Hugo Meyer','OR I',1520,99],['sofia','Sofia Bianchi','ARG I',1390,97],['rina','Rina Osei','ARG II',1415,95],['camille','Camille (toi)','ARG II',1418,92],['alex','Alex Duval','BRZ II',1210,88],['tom','Tom Lefèvre','BRZ I',1098,85]]
-};
+/** Progression des amis (comparaison simple, sans ligue ni classement mondial). */
+export const FRIENDS_RANK: FriendRow[] = [
+  ['moi','Moi','—',0,0],['lea','Léa Fontaine','ARGENT I',1402,88],['karim','Karim Belhadj','OR III',1361,81],
+  ['ines','Inès Moreau','ARGENT III',1288,76],['nina','Nina Costa','BRONZE I',1180,72],['tom','Tom Lefèvre','BRONZE I',1098,69]
+];
 
 export const INVITS = [
   { who:'karim', name:'Karim Belhadj', sub:'Course · 5 km ce week-end', skill:'course' },
@@ -47,10 +47,4 @@ export const FEED0: FeedPost[] = [
     likes:21, liked:false, comments:[{ who:'nina', name:'Nina', text:'Recette ?' }, { who:'lea', name:'Léa', text:'Bravo !' }] }
 ];
 
-export const LOG0: [string, string, string, string][] = [
-  ['Doublure sans faux pli','COUTURE','+45 PX','hier · 21 h 10'],
-  ['Fractionné 30/30','COURSE','+35 PX','hier · 07 h 40'],
-  ['Duel gagné contre Karim','DÉFI','+12 LP','dimanche'],
-  ['Série de 3 images','PHOTO','+35 PX','dimanche'],
-  ['Ranger mon appart','PERSO','+12 ⚡','samedi']
-];
+export const LOG0: [string, string, string, string][] = [];
