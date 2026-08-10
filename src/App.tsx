@@ -18,6 +18,7 @@ import Feed from './screens/routes/Feed';
 import Shop from './screens/routes/Shop';
 import AvatarStudio from './screens/routes/AvatarStudio';
 import Diorama from './screens/routes/Diorama';
+import Journal from './screens/routes/Journal';
 import Banner from './screens/routes/Banner';
 import DuelQuiz from './screens/routes/DuelQuiz';
 
@@ -63,6 +64,7 @@ export default function App() {
     shop: <Shop nav={nav} />,
     avatar: <AvatarStudio nav={nav} />,
     diorama: <Diorama nav={nav} />,
+    journal: <Journal nav={nav} />,
     banner: <Banner nav={nav} />,
     quiz: <DuelQuiz nav={nav} />
   };

@@ -74,7 +74,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
 
       {/* Panneau. La barre d'action reste au-dessus du dock : le panneau
           réserve sa hauteur + celle du dock (--dock-space). */}
-      <div style={{ background: C.night, borderRadius: '28px 28px 0 0', marginTop: 12, padding: '14px 18px', paddingBottom: 'calc(var(--dock-space) + 78px)', flex: 1, borderTop: '1px solid rgba(255,255,255,.08)' }}>
+      <div style={{ background: C.night, borderRadius: '28px 28px 0 0', marginTop: 12, padding: '14px 18px', paddingBottom: 78, flex: 1, borderTop: '1px solid rgba(255,255,255,.08)' }}>
         <div style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 4 }}>
           {AV_GROUPS.map((g, i) => (
             <Tap

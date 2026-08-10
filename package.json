@@ -1,7 +1,7 @@
 {
   "name": "nunu-app",
   "private": true,
-  "version": "2.0.0",
+  "version": "3.0.0",
   "type": "module",
   "description": "NUNU — tes compétences deviennent un plateau de jeu.",
   "scripts": {

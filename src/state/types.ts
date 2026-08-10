@@ -19,6 +19,27 @@ export type Duel = {
 
 export type AvatarConfig = Record<string, number>;
 
+/** Entrée du journal de progression. */
+export type JournalEntry = {
+  id: string;
+  skill: string;
+  /** Index du palier documenté, ou null pour une entrée libre. */
+  ix: number | null;
+  title: string;
+  note: string;
+  /** Ressenti 0..4, -1 si non renseigné. */
+  mood: number;
+  /** Difficulté ressentie 0..4, -1 si non renseignée. */
+  diff: number;
+  /** Durée passée en minutes, 0 si non renseignée. */
+  minutes: number;
+  /** Photos compressées (dataURL JPEG). */
+  photos: string[];
+  when: number;
+  /** Créée automatiquement par la validation d'un palier. */
+  auto?: boolean;
+};
+
 /** Charge utile d'une carte de palier partageable. */
 export type ShareData = {
   kind: 'palier' | 'rang';
@@ -51,6 +72,9 @@ export type GameState = {
 
   /** Combo de validations rapprochées (fenêtre de 30 min). */
   combo: { n: number; best: number; last: number | null };
+
+  /** Journal de progression : une entrée par palier validé + entrées libres. */
+  journal: JournalEntry[];
 
   /* --- Deux monnaies seulement --- */
   px: number;                 // PX cumulés (niveau global du personnage)

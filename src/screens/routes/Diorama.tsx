@@ -31,7 +31,7 @@ export default function Diorama({ nav }: { nav: Nav }) {
   const out = DIO_OBJ.filter((o) => s.dio.out[o.id]);
 
   return (
-    <div style={{ padding: '10px 22px', paddingBottom: 'var(--dock-space)' }} ref={box} onPointerMove={onMove} onPointerUp={() => { if (drag) { buzz('tap'); setDrag(null); } }}>
+    <div style={{ padding: '10px 22px 30px' }} ref={box} onPointerMove={onMove} onPointerUp={() => { if (drag) { buzz('tap'); setDrag(null); } }}>
       <RouteHead title="DIORAMA" sub="Déplace les objets au doigt" onBack={nav.back} />
 
       <div style={{ background: '#EADFC9', borderRadius: 26, padding: 9, marginTop: 16 }}>

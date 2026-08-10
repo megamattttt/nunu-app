@@ -3,6 +3,7 @@ import { C, F } from '../theme';
 import { useGame } from '../state/store';
 import { Tap } from './ui';
 import Logo from './Logo';
+import JournalEditor from './JournalEditor';
 
 export function Toast() {
   const { s } = useGame();
@@ -11,7 +12,7 @@ export function Toast() {
     <div
       role="status"
       style={{
-        position: 'fixed', left: 16, right: 16, bottom: 'calc(var(--nav-h) + var(--safe-bottom) + 16px)', zIndex: 60,
+        position: 'fixed', left: 16, right: 16, bottom: 'calc(var(--dock-h) + 16px)', zIndex: 60,
         background: C.paper, color: C.ink, borderRadius: 18, padding: '14px 16px',
         font: `700 13px ${F.body}`, boxShadow: '0 18px 40px -18px rgba(0,0,0,.7)', animation: 'nuIn .22s ease'
       }}
@@ -64,6 +65,7 @@ export function RewardOverlay() {
   const { s, d } = useGame();
   const e = s.event;
   const [count, setCount] = useState(0);
+  const [doc, setDoc] = useState<string | null>(null);
 
   useEffect(() => {
     if (!e?.px) { setCount(0); return; }
@@ -79,6 +81,7 @@ export function RewardOverlay() {
 
   if (!e) return null;
   const accent = e.color || C.lime;
+  const entry = doc ? s.journal.find((x) => x.id === doc) : null;
 
   const close = () => d({ t: 'EVENT', event: null });
 
@@ -128,6 +131,18 @@ export function RewardOverlay() {
             </div>
           ) : null}
 
+          {e.journalId ? (
+            <Tap
+              onTap={() => setDoc(e.journalId!)} haptic="soft"
+              style={{ marginTop: 18, background: '#fff', border: '1px solid rgba(11,11,12,.1)', color: C.ink, borderRadius: 99, padding: '15px 20px', minHeight: 52, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="1.9" strokeLinejoin="round">
+                <path d="M3 8.5h3.2L8 6h8l1.8 2.5H21V19H3z" /><circle cx="12" cy="13.2" r="3.4" />
+              </svg>
+              <span style={{ font: `800 15px ${F.display}`, letterSpacing: '-.01em' }}>DOCUMENTER CE PALIER</span>
+            </Tap>
+          ) : null}
+
           {e.share ? (
             <Tap
               onTap={() => { const data = e.share!; d({ t: 'EVENT', event: null }); d({ t: 'SHARE', data }); }}
@@ -147,6 +162,8 @@ export function RewardOverlay() {
           </Tap>
         </div>
       </div>
+
+      {entry ? <JournalEditor entry={entry} onClose={() => setDoc(null)} /> : null}
     </div>
   );
 }

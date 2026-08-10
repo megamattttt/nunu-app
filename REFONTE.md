@@ -160,3 +160,85 @@ plus le micro-scale au tap déjà porté par `Tap`.
 | Bonus PX du combo | `state/store.tsx` · `comboBonus` |
 | Multiplicateur « en feu » | `state/store.tsx` · `FIRE_MULT` |
 | Coûts de rang | `data/ranks.ts` |
+
+
+---
+
+# Refonte NUNU — vague 3 (dock PWA, HUD, roue, journal)
+
+## Bug du dock en PWA iOS — corrigé
+Trois causes cumulées, toutes traitées :
+
+1. `html, body, #root { height: 100% }` plafonnait la hauteur du document en mode
+   standalone : le contenu débordait sans que la page puisse défiler jusqu'au bout.
+   → `min-height: 100%` sur html/body, `min-height` + flex column sur `#root`.
+2. L'espace du dock était calculé théoriquement (`--nav-h` + `env(safe-area-inset-bottom)`),
+   valeur qui ne correspond pas à la hauteur réellement rendue en PWA installée.
+   → `TabBar` mesure sa propre hauteur (`getBoundingClientRect`) et la publie dans
+   `--dock-h` au montage, puis à chaque redimensionnement (`ResizeObserver`,
+   `resize`, `orientationchange`, plus deux relances différées pour les safe areas
+   qu'iOS met à jour après le passage en plein écran).
+3. Plusieurs écrans réservaient l'espace deux fois (`<main>` + la page), d'autres
+   pas du tout. → `<main>` est désormais le seul responsable de `--dock-space` ;
+   les écrans n'ajoutent que ce qui leur est propre (barre d'action flottante).
+
+`--dock-space = --dock-h + 24px`. `scroll-padding-bottom` global au même niveau.
+Les modales (profil, journal) restent au-dessus du dock et réservent son espace
+elles-mêmes puisqu'elles le recouvrent.
+
+## Accueil — HUD façon fiche de personnage
+Direction retenue : avatar grand format à gauche, jauges pilules à droite.
+- Avatar **en pied** (`crop="full"`) dans un cadre 132×196, badge de niveau en surimpression,
+  tap → Studio Avatar.
+- Deux jauges pilules de 42 px, libellé et valeur intégrés dans la barre :
+  EXPÉRIENCE et ÉNERGIE (qui devient « ÉNERGIE · ×2 » en corail quand tu es en feu).
+- Sous les jauges, un bloc rang de la compétence principale + pièces.
+- `SALUT, {prénom}` et `@gamertag` conservés, fond violet et formes organiques inchangés.
+- Retirés du HUD à ta demande : logo, date, badge combo, badge « EN FEU » séparé
+  (fondu dans la jauge d'énergie).
+
+## Profil — personnage en pied
+Le header passe en grille 128 px + reste : l'avatar s'affiche en entier dans un cadre
+de 208 px de haut (couleur du cadre équipé conservée), légende « STUDIO AVATAR » en pied.
+
+## Page Quêtes — sélecteur en roue
+Nouveau composant `components/SkillWheel.tsx`, inspiré de ta référence :
+- Dossiers à onglet, contenu qui dépasse (feuilles rangées à l'intérieur), gros format.
+- Trois dossiers visibles, celui du centre nettement plus grand ; les voisins sont
+  rognés par les bords.
+- Disposition en arc : rotation autour d'un pivot virtuel à 430 px sous les cartes,
+  26° entre deux dossiers.
+- **Rotation au doigt sur l'arc de graduations** (41 traits, ceux du centre plus longs
+  et lime). Le tap direct sur un dossier voisin marche aussi.
+- La compétence en cours ouvre toujours la roue (`currentId`), les autres suivent.
+- Le dossier **perso est blanc** ; les autres gardent leur couleur de compétence.
+
+## Journal de progression
+Nouveau modèle `JournalEntry` : compétence, palier (ou entrée libre), titre, note,
+ressenti 0-4, difficulté 0-4, durée, photos, date.
+
+**Ancrage mixte, comme demandé** : chaque palier validé crée automatiquement une entrée
+vide, prête à être complétée ; on peut aussi en créer une quand on veut.
+
+**Trois accès :**
+| où | quoi |
+|---|---|
+| Page Quêtes, onglet JOURNAL | entrées de la compétence affichée + création |
+| Ligne d'un palier validé | bouton appareil photo, coloré si l'entrée est remplie |
+| Écran de récompense | bouton « DOCUMENTER CE PALIER » juste après la validation |
+| Route `journal` (plein écran) | tout, groupé par mois, filtrable par compétence |
+
+**Photos** : compressées avant stockage — redimensionnées à 1080 px sur le plus grand
+côté, ré-encodées en JPEG qualité 0,62, 4 photos maximum par entrée
+(`src/lib/photo.ts`, valeurs en tête de fichier). Tout reste sur l'appareil.
+
+`SAVE_VERSION` passe à 4, clé `nunu.save.v4` : les sauvegardes précédentes sont effacées.
+
+## Fichiers ajoutés
+```
+src/components/SkillWheel.tsx
+src/components/JournalEditor.tsx
+src/components/JournalCard.tsx
+src/screens/routes/Journal.tsx
+src/lib/photo.ts
+```

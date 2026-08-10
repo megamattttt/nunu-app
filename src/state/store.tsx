@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
-import type { GameState, ShareData } from './types';
+import type { GameState, ShareData, JournalEntry } from './types';
 import { initialState } from './initial';
 import { adapter } from './persistence';
 import { BOARDS, MAJOR, OBJ, skillById } from '../data/skills';
@@ -15,6 +15,8 @@ export type RewardEvent = {
   title: string; sub?: string; px?: number; coins?: number; energy?: number;
   color?: string; object?: string; share?: ShareData; fire?: boolean;
   combo?: number; comboStep?: boolean;
+  /** Entrée de journal ouverte automatiquement par cette validation. */
+  journalId?: string;
 };
 
 type Action =
@@ -24,6 +26,8 @@ type Action =
   | { t: 'START_SKILL'; skill: string }
   | { t: 'FLOW'; step: number }
   | { t: 'FINISH_FLOW' }
+  | { t: 'JOURNAL_SAVE'; entry: JournalEntry }
+  | { t: 'JOURNAL_DEL'; id: string }
   | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null }
   | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number }
   | { t: 'DRAW_USED' }
@@ -114,6 +118,17 @@ function reducer(s: Store, a: Action): Store {
     case 'FLOW': return { ...s, flow: a.step };
     case 'FINISH_FLOW': return { ...s, seen: { ...s.seen, onboarding: true, guide: true } };
 
+    case 'JOURNAL_SAVE': {
+      const exists = s.journal.some((e) => e.id === a.entry.id);
+      return {
+        ...s,
+        journal: exists ? s.journal.map((e) => (e.id === a.entry.id ? a.entry : e)) : [a.entry, ...s.journal],
+        toast: exists ? 'Entrée mise à jour' : 'Entrée ajoutée au journal'
+      };
+    }
+    case 'JOURNAL_DEL':
+      return { ...s, journal: s.journal.filter((e) => e.id !== a.id), toast: 'Entrée supprimée' };
+
     case 'VALIDATE': {
       const base = (BOARDS[a.skill] || []).length;
       const isBase = a.ix < base;
@@ -125,6 +140,7 @@ function reducer(s: Store, a: Action): Store {
       const chain = s.combo.last && Date.now() - s.combo.last < COMBO_WINDOW ? s.combo.n + 1 : 1;
       const comboStep = COMBO_STEPS.includes(chain);
       const px = Math.round(a.px * mult * (1 + witnessBonus + comboBonus(chain)));
+      const jId = uid();
 
       const prog = s.progress[a.skill] || { px: 0, done: 0 };
       const major = isBase && (MAJOR[a.skill] || []).includes(a.ix);
@@ -154,6 +170,15 @@ function reducer(s: Store, a: Action): Store {
       return {
         ...s,
         energy, onFire, lastQuestAt: Date.now(),
+        // Chaque palier validé ouvre automatiquement une entrée de journal,
+        // vide, que l'on peut enrichir (photos, note, ressenti) quand on veut.
+        journal: [
+          {
+            id: jId, skill: a.skill, ix: a.ix, title: a.name,
+            note: '', mood: -1, diff: -1, minutes: 0, photos: [], when: Date.now(), auto: true
+          },
+          ...s.journal
+        ],
         combo: { n: chain, best: Math.max(s.combo.best, chain), last: Date.now() },
         progress: { ...s.progress, [a.skill]: { px: prog.px + px, done: prog.done + (isBase ? 1 : 0) } },
         customQuests: isBase ? s.customQuests : s.customQuests.map((q) => (q.name === a.name ? { ...q, done: true } : q)),
@@ -170,6 +195,7 @@ function reducer(s: Store, a: Action): Store {
           object: major ? OBJ[a.skill] : undefined,
           fire: onFire && !eng.onFire,
           combo: chain, comboStep,
+          journalId: jId,
           share
         }
       };

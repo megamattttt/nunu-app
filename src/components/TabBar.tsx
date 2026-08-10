@@ -13,13 +13,46 @@ const TABS: { id: Page; label: string; icon: JSX.Element }[] = [
 ];
 
 export default function TabBar({ page, onGo, badge }: { page: Page; onGo: (p: Page) => void; badge?: Partial<Record<Page, number>> }) {
+  const ref = React.useRef<HTMLElement | null>(null);
+
+  /**
+   * Le dock est fixe : on publie sa hauteur RÉELLE dans --dock-h plutôt que
+   * de la recalculer à partir de --nav-h et env(safe-area-inset-bottom).
+   * En PWA installée sur iOS, ces valeurs théoriques ne correspondaient pas à
+   * la hauteur rendue et le bas de page passait sous le dock.
+   */
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const publish = () => {
+      const h = Math.ceil(el.getBoundingClientRect().height);
+      if (h > 0) document.documentElement.style.setProperty('--dock-h', h + 'px');
+    };
+    publish();
+
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(publish) : null;
+    ro?.observe(el);
+    window.addEventListener('resize', publish);
+    window.addEventListener('orientationchange', publish);
+    // iOS met à jour les safe areas après la bascule en plein écran.
+    const t1 = window.setTimeout(publish, 300);
+    const t2 = window.setTimeout(publish, 1200);
+
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', publish);
+      window.removeEventListener('orientationchange', publish);
+      window.clearTimeout(t1); window.clearTimeout(t2);
+    };
+  }, []);
+
   return (
     <nav
+      ref={ref as any}
       style={{
         position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 40,
-        height: 'calc(var(--nav-h) + var(--safe-bottom))',
-        paddingBottom: 'calc(var(--safe-bottom) + 6px)', paddingTop: 8,
-        background: 'rgba(11,11,12,.86)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)',
+        paddingBottom: 'max(var(--safe-bottom), 10px)', paddingTop: 8,
+        background: 'rgba(11,11,12,.92)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)',
         borderTop: '1px solid rgba(255,255,255,.08)',
         display: 'grid', gridTemplateColumns: `repeat(${TABS.length},1fr)`, gap: 2
       }}

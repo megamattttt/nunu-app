@@ -38,7 +38,7 @@ export default function FirstRun() {
   if (step === 3) return <FirstQuest onDone={() => d({ t: 'FINISH_FLOW' })} />;
 
   return (
-    <div style={{ minHeight: '100dvh', background: C.ink, display: 'flex', flexDirection: 'column', ['--dock-space' as any]: 'calc(var(--safe-bottom) + 14px)' }}>
+    <div style={{ minHeight: '100dvh', background: C.ink, display: 'flex', flexDirection: 'column', ['--dock-space' as any]: 'calc(var(--safe-bottom) + 14px)', ['--dock-h' as any]: 'var(--safe-bottom)' }}>
       <Steps i={step} />
       <div style={{ padding: '18px 22px 0' }}>
         <div style={{ font: `800 30px/1.04 ${F.display}`, color: '#fff', letterSpacing: '-.03em' }}>

@@ -5,16 +5,25 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --nav-h: 76px;
+  /* Hauteur RÉELLE du dock, publiée par TabBar au montage (ResizeObserver).
+     La valeur ci-dessous n'est qu'un repli avant la première mesure. */
+  --dock-h: calc(var(--nav-h) + var(--safe-bottom));
   /* Espace réservé sous le contenu pour le dock fixe (+ marge de respiration). */
-  --dock-space: calc(var(--nav-h) + var(--safe-bottom) + 20px);
+  --dock-space: calc(var(--dock-h) + 24px);
   /* Idem quand l'écran affiche aussi un bouton d'action flottant. */
-  --dock-space-cta: calc(var(--nav-h) + var(--safe-bottom) + 96px);
+  --dock-space-cta: calc(var(--dock-h) + 100px);
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-html, body, #root { height: 100%; }
+html, body { min-height: 100%; }
+html { scroll-padding-bottom: var(--dock-space); }
+
+/* En PWA installée sur iOS, `height: 100%` sur #root plafonnait la hauteur du
+   document : le dernier écran de chaque page restait sous le dock. On passe en
+   min-height et on réserve l'espace du dock au niveau racine. */
+#root { min-height: 100%; display: flex; flex-direction: column; }
 
 body {
   margin: 0;
@@ -28,6 +37,9 @@ body {
 }
 
 #root { display: flex; flex-direction: column; }
+
+/* Toute surface défilante d'écran réserve l'espace du dock. */
+[data-dock-safe] { padding-bottom: var(--dock-space); }
 
 a { color: var(--violet); text-decoration: none; }
 a:hover { color: #8f88ff; }

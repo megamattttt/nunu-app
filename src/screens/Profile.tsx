@@ -25,15 +25,28 @@ export default function Profile({ nav }: { nav: Nav }) {
     <div>
       <header style={{ background: C.sky, padding: '20px 22px 24px', borderRadius: '0 0 34px 34px', position: 'relative', overflow: 'hidden' }}>
         <span style={{ position: 'absolute', right: -60, top: -70, width: 210, height: 210, borderRadius: '50%', background: sig, opacity: .45 }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, position: 'relative' }}>
-          <Tap onTap={() => nav.open('avatar')} style={{ width: 92, height: 92, borderRadius: 30, padding: 4, background: CADRE_C[s.profile.cadre], flex: 'none' }}>
-            <span style={{ width: '100%', height: '100%', borderRadius: 26, overflow: 'hidden', display: 'block', background: C.ink }}>
-              <AvatarCut av={s.profile.av} crop="bust" />
+        <div style={{ display: 'grid', gridTemplateColumns: '128px 1fr', gap: 16, position: 'relative' }}>
+          {/* Personnage en pied, comme une fiche de jeu */}
+          <Tap
+            onTap={() => nav.open('avatar')}
+            style={{ height: 208, borderRadius: 26, padding: 4, background: CADRE_C[s.profile.cadre], flex: 'none' }}
+          >
+            <span style={{ position: 'relative', width: '100%', height: '100%', borderRadius: 22, overflow: 'hidden', display: 'block', background: C.ink }}>
+              <AvatarCut av={s.profile.av} crop="full" />
+              <span
+                style={{
+                  position: 'absolute', left: 0, right: 0, bottom: 0, padding: '22px 10px 9px',
+                  background: 'linear-gradient(180deg,transparent,rgba(11,11,12,.88))',
+                  font: `500 8.5px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.65)', textAlign: 'center'
+                }}
+              >
+                STUDIO AVATAR
+              </span>
             </span>
           </Tap>
-          <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ flex: 1, minWidth: 0, alignSelf: 'center' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ font: `800 32px/1 ${F.display}`, color: C.ink, letterSpacing: '-.025em', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>@{s.profile.gamertag}</span>
+              <span style={{ font: `800 26px/1 ${F.display}`, color: C.ink, letterSpacing: '-.025em', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>@{s.profile.gamertag}</span>
               <Tap
                 onTap={() => setEdit(true)} aria-label="Modifier le profil"
                 style={{ width: 34, height: 34, borderRadius: 99, flex: 'none', background: 'rgba(11,11,12,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -174,10 +187,12 @@ export default function Profile({ nav }: { nav: Nav }) {
           <div style={{ font: `400 12.5px/1.45 ${F.body}`, color: 'rgba(11,11,12,.6)', marginTop: 14, position: 'relative', textWrap: 'pretty' }}>{s.banner.msg}</div>
         </section>
 
-        {/* Journal */}
+        {/* Dernières validations */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Kicker>JOURNAL</Kicker>
-          <span style={{ font: `500 11px ${F.body}`, color: 'rgba(255,255,255,.45)' }}>Tout ce que tu valides</span>
+          <Kicker>DERNIÈRES VALIDATIONS</Kicker>
+          <Tap onTap={() => nav.open('journal')} style={{ font: `700 10px ${F.mono}`, color: C.lime, letterSpacing: '.1em', minHeight: 32, display: 'flex', alignItems: 'center' }}>
+            OUVRIR LE JOURNAL
+          </Tap>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
           {s.log.slice(0, 8).map((l, i) => (
@@ -248,6 +263,7 @@ export default function Profile({ nav }: { nav: Nav }) {
 
                 {([
                   ['Modifier le profil', 'Prénom et gamertag', () => setEdit(true)],
+                  ['Journal de progression', 'Notes, photos et ressentis', () => nav.open('journal')],
                   ['Revoir le guide de démarrage', 'Les règles du jeu en cinq écrans', () => nav.open('guide')]
                 ] as const).map(([label, sub, act]) => (
                   <Tap key={label} onTap={act} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 0', borderTop: '1px solid rgba(255,255,255,.07)', minHeight: 56 }}>

@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { C, F } from '../theme';
 import { useGame, COMBO_WINDOW, COMBO_STEPS, comboBonus } from '../state/store';
-import { BADGES, BADGE_C, SKILLS, TITLES } from '../data/skills';
+import { BADGES, BADGE_C, SKILLS, TITLES, skillById } from '../data/skills';
 import { RARITY, isInstant } from '../data/quests';
 import { boardRows, levelOf, pxOf, skillRank, skillNextRank } from '../state/selectors';
 import { FRIENDS_RANK } from '../data/social';
 import AvatarCut from '../components/avatar/AvatarCut';
+import SkillWheel from '../components/SkillWheel';
+import JournalCard from '../components/JournalCard';
+import JournalEditor, { newEntry } from '../components/JournalEditor';
+import type { JournalEntry } from '../state/types';
 import { Bar, Check, Kicker, Star, Tap } from '../components/ui';
 import { buzz } from '../lib/haptics';
 import { sfx } from '../lib/sound';
@@ -71,17 +75,20 @@ function ComboBar({ n, last, best }: { n: number; last: number | null; best: num
   );
 }
 
-type Sub = 'board' | 'perso' | 'coll' | 'amis';
-const SUBS: [Sub, string][] = [['board', 'PLATEAU'], ['perso', 'PERSO'], ['coll', 'COLLECTION'], ['amis', 'AMIS']];
+type Sub = 'board' | 'journal' | 'perso' | 'coll' | 'amis';
+const SUBS: [Sub, string][] = [['board', 'PLATEAU'], ['journal', 'JOURNAL'], ['perso', 'PERSO'], ['coll', 'COLL.'], ['amis', 'AMIS']];
 
 export default function Quests({ nav }: { nav: Nav }) {
   const { s, d } = useGame();
-  const [ix, setIx] = useState(() => Math.max(0, SKILLS.findIndex((k) => k.id === s.startSkill)));
+  // La compétence en cours ouvre toujours la roue.
+  const startId = s.startSkill || SKILLS[0].id;
+  const [skillId, setSkillId] = useState(startId);
   const [sub, setSub] = useState<Sub>('board');
   const [newTask, setNewTask] = useState('');
   const [help, setHelp] = useState(false);
   const [flash, setFlash] = useState<{ ix: number; px: number } | null>(null);
-  const sk = SKILLS[ix];
+  const [entry, setEntry] = useState<JournalEntry | null>(null);
+  const sk = skillById(skillId);
   const rows = boardRows(s, sk.id);
   const lvl = levelOf(s, sk.id);
   const rank = skillRank(s, sk.id);
@@ -115,32 +122,10 @@ export default function Quests({ nav }: { nav: Nav }) {
           <Tap onTap={() => nav.open('discover')} style={{ font: `700 10px ${F.mono}`, color: C.lime, letterSpacing: '.1em', minHeight: 32, display: 'flex', alignItems: 'center' }}>+ DÉCOUVRIR</Tap>
         </div>
 
-        <div style={{ display: 'flex', gap: 9, overflowX: 'auto', padding: '14px 22px 4px', scrollSnapType: 'x mandatory' }}>
-          {SKILLS.map((k, i) => {
-            const on = i === ix;
-            return (
-              <Tap
-                key={k.id} onTap={() => setIx(i)} haptic="soft"
-                style={{
-                  flex: 'none', scrollSnapAlign: 'center', minWidth: 78, minHeight: 78, borderRadius: 22,
-                  background: on ? k.c : 'rgba(255,255,255,.06)',
-                  border: '1px solid ' + (on ? 'transparent' : 'rgba(255,255,255,.1)'),
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4,
-                  transform: on ? 'translateY(-4px)' : 'none', transition: 'all .22s cubic-bezier(.2,1,.3,1)'
-                }}
-              >
-                <span style={{ font: `800 20px ${F.display}`, color: on ? k.txt : '#fff', letterSpacing: '-.02em' }}>{k.short}</span>
-                <span style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.08em', color: on ? k.txt : 'rgba(255,255,255,.45)', opacity: on ? .7 : 1 }}>
-                  {skillRank(s, k.id).short}
-                </span>
-              </Tap>
-            );
-          })}
-        </div>
+        <SkillWheel currentId={startId} value={skillId} onChange={setSkillId} />
 
-        <div style={{ padding: '10px 22px 0', textAlign: 'center' }}>
-          <div style={{ font: `800 40px/1 ${F.display}`, color: sk.c, letterSpacing: '-.03em' }}>{sk.name}</div>
-          <div style={{ font: `400 13px ${F.body}`, color: 'rgba(255,255,255,.6)', marginTop: 8 }}>{rank.label} · {pxOf(s, sk.id)} PX</div>
+        <div style={{ padding: '14px 22px 0', textAlign: 'center' }}>
+          <div style={{ font: `400 13px ${F.body}`, color: 'rgba(255,255,255,.6)' }}>{rank.label} · {pxOf(s, sk.id)} PX</div>
           <div style={{ display: 'inline-flex', gap: 8, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             <Tap onTap={() => nav.open('path', { skill: sk.id })} style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sk.c, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 36, display: 'flex', alignItems: 'center' }}>
               VOIR LE CHEMIN
@@ -155,7 +140,7 @@ export default function Quests({ nav }: { nav: Nav }) {
       </div>
 
       {/* Feuille claire */}
-      <div style={{ background: C.paper, borderRadius: '34px 34px 0 0', marginTop: 18, padding: '20px 22px', paddingBottom: sub === 'board' && now ? 'var(--dock-space-cta)' : 'var(--dock-space)', minHeight: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ background: C.paper, borderRadius: '34px 34px 0 0', marginTop: 18, padding: '20px 22px', paddingBottom: sub === 'board' && now ? 86 : 26, minHeight: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', gap: 7 }}>
           {SUBS.map(([k, label]) => (
             <Tap
@@ -251,6 +236,25 @@ export default function Quests({ nav }: { nav: Nav }) {
                         <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(11,11,12,.5)' }}>
                           {done ? 'Validé' : isNow ? (isInstant(r.rarity) ? 'Un tap suffit' : 'Preuve à l’appui') : 'Se débloque au palier ' + r.ix}
                         </span>
+                        {done ? (() => {
+                          const je = s.journal.find((x) => x.skill === sk.id && x.ix === r.ix);
+                          const filled = je && (je.note || je.photos.length || je.mood >= 0);
+                          return (
+                            <Tap
+                              onTap={() => setEntry(je || newEntry(sk.id, r.ix, r.name))} haptic="soft"
+                              aria-label="Documenter ce palier"
+                              style={{
+                                marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, borderRadius: 9, padding: '5px 9px',
+                                background: filled ? sk.c : 'rgba(11,11,12,.06)'
+                              }}
+                            >
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={filled ? sk.txt : 'rgba(11,11,12,.5)'} strokeWidth="1.9" strokeLinejoin="round">
+                                <path d="M3 8.5h3.2L8 6h8l1.8 2.5H21V19H3z" /><circle cx="12" cy="13.2" r="3.4" />
+                              </svg>
+                              {je?.photos.length ? <span style={{ font: `700 9px ${F.mono}`, color: filled ? sk.txt : 'rgba(11,11,12,.5)' }}>{je.photos.length}</span> : null}
+                            </Tap>
+                          );
+                        })() : null}
                       </span>
                     </span>
                   </Tap>
@@ -269,6 +273,48 @@ export default function Quests({ nav }: { nav: Nav }) {
             </Tap>
           </>
         )}
+
+        {sub === 'journal' && (() => {
+          const list = s.journal.filter((e) => e.skill === sk.id).slice().sort((a, b) => b.when - a.when);
+          const photos = list.reduce((n, e) => n + e.photos.length, 0);
+          return (
+            <>
+              <div style={{ background: '#fff', borderRadius: 20, padding: '15px 17px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <Kicker dark>JOURNAL · {sk.name.toUpperCase()}</Kicker>
+                  <span style={{ font: `700 11px ${F.mono}`, color: C.ink }}>{list.length} ENTRÉES</span>
+                </div>
+                <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(11,11,12,.58)', marginTop: 9, textWrap: 'pretty' }}>
+                  Chaque palier validé ouvre une entrée à compléter : photos, note, ressenti, durée. {photos ? `${photos} photos enregistrées.` : 'Tout reste sur cet appareil.'}
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                  <Tap
+                    onTap={() => setEntry(newEntry(sk.id))} haptic="soft"
+                    style={{ flex: 1, minHeight: 46, borderRadius: 14, background: C.ink, color: C.lime, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.lime} strokeWidth="3"><path d="M12 5v14M5 12h14" /></svg>
+                    <span style={{ font: `800 13px ${F.display}`, letterSpacing: '-.01em' }}>NOUVELLE ENTRÉE</span>
+                  </Tap>
+                  <Tap
+                    onTap={() => nav.open('journal')}
+                    style={{ flex: 'none', minHeight: 46, padding: '0 16px', borderRadius: 14, background: 'rgba(11,11,12,.06)', display: 'flex', alignItems: 'center', font: `700 10px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(11,11,12,.6)' }}
+                  >
+                    TOUT VOIR
+                  </Tap>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                {list.map((e) => <JournalCard key={e.id} e={e} onTap={() => setEntry(e)} />)}
+                {!list.length ? (
+                  <div style={{ font: `400 12.5px/1.5 ${F.body}`, color: 'rgba(11,11,12,.5)', padding: '4px 2px', textWrap: 'pretty' }}>
+                    Rien pour l’instant sur {sk.name.toLowerCase()}. Valide un palier, ou crée une entrée libre.
+                  </div>
+                ) : null}
+              </div>
+            </>
+          );
+        })()}
 
         {sub === 'perso' && (
           <>
@@ -385,7 +431,7 @@ export default function Quests({ nav }: { nav: Nav }) {
           onTap={() => act(now)}
           haptic="soft"
           style={{
-            position: 'fixed', left: 18, right: 18, bottom: 'calc(var(--nav-h) + var(--safe-bottom) + 12px)', zIndex: 30,
+            position: 'fixed', left: 18, right: 18, bottom: 'calc(var(--dock-h) + 12px)', zIndex: 30,
             background: C.lime, color: C.ink, borderRadius: 20, padding: '15px 18px', minHeight: 58,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 20px 40px -18px rgba(0,0,0,.8)'
           }}
@@ -400,6 +446,8 @@ export default function Quests({ nav }: { nav: Nav }) {
           <span style={{ font: `700 12px ${F.body}`, background: C.ink, color: C.lime, padding: '12px 18px', borderRadius: 99, flex: 'none' }}>VALIDER</span>
         </Tap>
       ) : null}
+
+      {entry ? <JournalEditor entry={entry} onClose={() => setEntry(null)} /> : null}
     </div>
   );
 }
