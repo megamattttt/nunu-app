@@ -3,8 +3,8 @@ import { C, F } from '../theme';
 import { useGame } from '../state/store';
 import { SKILLS, skillById } from '../data/skills';
 import { boardRows, globalLevel, globalPct, levelOf, skillRank, pxOf, todayQuest, totalPx } from '../state/selectors';
-import { isInstant } from '../data/quests';
-import AvatarCut from '../components/avatar/AvatarCut';
+import { isInstant, DIFFS } from '../data/quests';import AvatarCut from '../components/avatar/AvatarCut';
+import { RankBadge, RankIcon } from '../components/RankIcon';
 import { Chevron, Kicker, Tap } from '../components/ui';
 import type { Nav } from '../App';
 
@@ -68,48 +68,45 @@ export default function Home({ nav }: { nav: Nav }) {
         <span style={{ position: 'absolute', right: -60, top: -70, width: 220, height: 220, borderRadius: '50%', background: 'rgba(255,255,255,.13)', animation: 'nuHalo 9s ease-in-out infinite' }} />
         <span style={{ position: 'absolute', left: -50, bottom: -80, width: 170, height: 170, borderRadius: '50%', background: s.onFire ? 'rgba(255,92,66,.42)' : 'rgba(198,242,78,.3)', animation: 'nuDrift 11s ease-in-out infinite' }} />
 
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
-          <div style={{ font: `800 32px/.96 ${F.display}`, color: '#fff', letterSpacing: '-.03em', minWidth: 0 }}>
-            SALUT,<br />{firstName}
-          </div>
-          <Tap
-            onTap={() => nav.go('profile')}
-            style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.7)', letterSpacing: '.1em', flex: 'none', minHeight: 32, display: 'flex', alignItems: 'center' }}
-          >
-            @{s.profile.gamertag}
-          </Tap>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <span style={{ minWidth: 0 }}>
+            <span style={{ display: 'block', font: `800 30px/.96 ${F.display}`, color: '#fff', letterSpacing: '-.03em' }}>
+              SALUT,<br />{firstName}
+            </span>
+            <Tap
+              onTap={() => nav.go('profile')}
+              style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.1em', minHeight: 30, display: 'flex', alignItems: 'center' }}
+            >
+              @{s.profile.gamertag}
+            </Tap>
+          </span>
+          {/* Rang de la compétence principale : la puce la plus visible du panneau */}
+          <span style={{ flex: 'none' }}>
+            <RankBadge rank={mainRank} skillName={mainSk.name} size="lg" onTap={() => nav.open('path', { skill: mainSkill })} />
+          </span>
         </div>
 
-        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '132px 1fr', gap: 12, marginTop: 14 }}>
-          {/* Avatar en pied, encadré comme une fiche */}
+        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '138px 1fr', gap: 12, marginTop: 16 }}>
+          {/* Avatar en buste, cadre carré */}
           <Tap
             onTap={() => nav.open('avatar')}
             style={{
-              position: 'relative', height: 196, borderRadius: 22, overflow: 'hidden',
+              position: 'relative', aspectRatio: '1 / 1', borderRadius: 20, overflow: 'hidden',
               background: 'linear-gradient(180deg, rgba(11,11,12,.5), rgba(11,11,12,.85))',
               border: '1px solid rgba(255,255,255,.16)'
             }}
           >
             <span style={{ position: 'absolute', inset: 0 }}>
-              <AvatarCut av={s.profile.av} crop="full" />
+              <AvatarCut av={s.profile.av} crop="bust" />
             </span>
             <span
               style={{
-                position: 'absolute', left: 10, top: 10, background: C.ink, color: '#fff', borderRadius: 12,
+                position: 'absolute', left: 9, bottom: 9, background: C.ink, color: '#fff', borderRadius: 11,
                 padding: '5px 9px', display: 'flex', flexDirection: 'column', alignItems: 'center'
               }}
             >
               <span style={{ font: `500 6.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>NIV</span>
               <span style={{ font: `800 17px/1 ${F.display}`, letterSpacing: '-.02em' }}>{lvl}</span>
-            </span>
-            <span
-              style={{
-                position: 'absolute', left: 0, right: 0, bottom: 0, padding: '20px 10px 9px',
-                background: 'linear-gradient(180deg,transparent,rgba(11,11,12,.9))',
-                font: `500 8.5px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.65)', textAlign: 'center'
-              }}
-            >
-              STUDIO AVATAR
             </span>
           </Tap>
 
@@ -130,17 +127,17 @@ export default function Home({ nav }: { nav: Nav }) {
               }}
             >
               <span style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                <span style={{ width: 9, height: 9, borderRadius: '50%', background: mainSk.c, flex: 'none' }} />
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.5)' }}>RANG · {mainSk.name}</span>
-                  <span style={{ display: 'block', font: `800 15px ${F.display}`, color: '#fff', letterSpacing: '-.01em', marginTop: 2 }}>{mainRank.label}</span>
-                </span>
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', background: C.honey, flex: 'none' }} />
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.5)' }}>PIÈCES</span>
                   <span style={{ display: 'block', font: `800 15px ${F.display}`, color: '#fff', letterSpacing: '-.01em', marginTop: 2 }}>{s.coins}</span>
+                </span>
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                <span style={{ width: 9, height: 9, borderRadius: '50%', background: mainSk.c, flex: 'none' }} />
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.5)' }}>STUDIO AVATAR</span>
+                  <span style={{ display: 'block', font: `800 15px ${F.display}`, color: '#fff', letterSpacing: '-.01em', marginTop: 2 }}>Personnaliser</span>
                 </span>
               </span>
             </div>
@@ -163,8 +160,13 @@ export default function Home({ nav }: { nav: Nav }) {
             <span style={{ position: 'absolute', top: 0, bottom: 0, width: 70, background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent)', animation: 'nuShine 4.5s ease-in-out infinite' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
               <Kicker dark>QUÊTE DU JOUR</Kicker>
-              <span style={{ font: `700 11px ${F.mono}`, color: C.ink, background: 'rgba(11,11,12,.12)', padding: '4px 9px', borderRadius: 99 }}>
-                +{s.onFire ? today.quest.px * 2 : today.quest.px} PX
+              <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: DIFFS[today.quest.diff].txt, background: DIFFS[today.quest.diff].c, padding: '4px 8px', borderRadius: 7 }}>
+                  {DIFFS[today.quest.diff].label}
+                </span>
+                <span style={{ font: `700 11px ${F.mono}`, color: C.ink, background: 'rgba(11,11,12,.12)', padding: '4px 9px', borderRadius: 99 }}>
+                  +{s.onFire ? today.quest.px * 2 : today.quest.px} PX
+                </span>
               </span>
             </div>
             <div style={{ font: `800 25px/1.05 ${F.display}`, color: C.ink, letterSpacing: '-.02em', marginTop: 10, position: 'relative' }}>{today.quest.name}</div>
@@ -208,7 +210,8 @@ export default function Home({ nav }: { nav: Nav }) {
               <span style={{ position: 'absolute', right: -40, top: -50, width: 130, height: 130, borderRadius: '50%', background: sk.txt === '#FFFFFF' ? 'rgba(255,255,255,.14)' : 'rgba(11,11,12,.1)', animation: `nuHalo ${7 + i}s ease-in-out infinite` }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, position: 'relative' }}>
                 <span style={{ font: `800 19px ${F.display}`, letterSpacing: '-.01em' }}>{sk.name}</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <RankIcon rank={r} size={22} bg={sk.c} />
                   <span style={{ font: `700 10px ${F.mono}`, letterSpacing: '.08em', background: 'rgba(11,11,12,.16)', padding: '5px 9px', borderRadius: 99 }}>{r.label}</span>
                   <Chevron c={sk.txt === '#FFFFFF' ? 'rgba(255,255,255,.6)' : 'rgba(11,11,12,.4)'} />
                 </span>

@@ -36,13 +36,13 @@ export type FeedPost = {
 };
 
 export const FEED0: FeedPost[] = [
-  { id:'f1', who:'lea', name:'Léa Fontaine', when:'il y a 40 min', tag:'COUTURE', tagC:'#FF5C42',
+  { id:'f1', who:'lea', name:'Léa Fontaine', when:'il y a 40 min', tag:'COUTURE', tagC:'#FF4D3D',
     text:'Doublure posée sans un faux pli. Il m’a fallu trois essais et un thé froid.', px:'+45 PX',
     likes:12, liked:false, comments:[{ who:'karim', name:'Karim', text:'La photo du dessous, please.' }] },
-  { id:'f2', who:'karim', name:'Karim Belhadj', when:'il y a 2 h', tag:'COURSE', tagC:'#6C63FF',
+  { id:'f2', who:'karim', name:'Karim Belhadj', when:'il y a 2 h', tag:'COURSE', tagC:'#A9D94B',
     text:'Fractionné du mardi tenu jusqu’au bout. Neuvième jour d’affilée.', px:'+35 PX',
     likes:8, liked:false, comments:[] },
-  { id:'f3', who:'ines', name:'Inès Moreau', when:'hier', tag:'CUISINE', tagC:'#FFC93C',
+  { id:'f3', who:'ines', name:'Inès Moreau', when:'hier', tag:'CUISINE', tagC:'#FFC24B',
     text:'Levain enfin stable. Deux pains, une croûte qui claque.', px:'+60 PX',
     likes:21, liked:false, comments:[{ who:'nina', name:'Nina', text:'Recette ?' }, { who:'lea', name:'Léa', text:'Bravo !' }] }
 ];

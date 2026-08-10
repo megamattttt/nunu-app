@@ -2,7 +2,10 @@ import React from 'react';
 import { C, F } from '../../theme';
 import { useGame } from '../../state/store';
 import { skillById } from '../../data/skills';
-import { RARITY, isInstant } from '../../data/quests';
+import { isInstant } from '../../data/quests';
+import { RankIcon } from '../../components/RankIcon';
+import DiffBadge from '../../components/DiffBadge';
+import { TIER_TIPS } from '../../data/tips';
 import { boardRows, skillRank, skillNextRank, pxOf } from '../../state/selectors';
 import { Bar, Check, Kicker, RouteHead, Tap } from '../../components/ui';
 import type { Nav } from '../../App';
@@ -32,9 +35,12 @@ export default function Path({ nav }: { nav: Nav }) {
       {/* Rang courant */}
       <section style={{ background: sk.c, color: sk.txt, borderRadius: 26, padding: '18px 20px', marginTop: 18 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <span>
-            <Kicker dark={sk.txt !== '#FFFFFF'}>RANG ACTUEL</Kicker>
-            <span style={{ display: 'block', font: `800 34px/1 ${F.display}`, letterSpacing: '-.03em', marginTop: 6 }}>{r.label}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 13, minWidth: 0 }}>
+            <RankIcon rank={r} size={40} bg={sk.c} />
+            <span style={{ minWidth: 0 }}>
+              <Kicker dark={sk.txt !== '#FFFFFF'}>RANG ACTUEL</Kicker>
+              <span style={{ display: 'block', font: `800 30px/1 ${F.display}`, letterSpacing: '-.03em', marginTop: 6 }}>{r.label}</span>
+            </span>
           </span>
           <span style={{ font: `700 11px ${F.mono}`, background: 'rgba(11,11,12,.16)', padding: '8px 12px', borderRadius: 99, flex: 'none' }}>{pxOf(s, skill)} PX</span>
         </div>
@@ -47,6 +53,10 @@ export default function Path({ nav }: { nav: Nav }) {
         <div style={{ font: `400 11.5px ${F.body}`, opacity: .7, marginTop: 8 }}>
           {next ? `Encore ${r.pxNeed - r.pxIn} PX avant ${next.label}.` : 'Sommet de l’échelle atteint.'}
         </div>
+        <div style={{ display: 'flex', gap: 9, marginTop: 14, background: 'rgba(11,11,12,.12)', borderRadius: 14, padding: '11px 12px' }}>
+          <span style={{ width: 3, borderRadius: 99, background: sk.txt, opacity: .5, flex: 'none' }} />
+          <span style={{ font: `400 11.5px/1.45 ${F.body}`, opacity: .8, textWrap: 'pretty' }}>{TIER_TIPS[r.tier]}</span>
+        </div>
       </section>
 
       {/* Ligne de paliers */}
@@ -55,7 +65,6 @@ export default function Path({ nav }: { nav: Nav }) {
         <div style={{ marginTop: 12 }}>
           {rows.map((row, i) => {
             const done = row.state === 'done', now = row.state === 'now';
-            const rar = RARITY[row.rarity];
             return (
               <Tap
                 key={row.name + i} onTap={() => act(row)} sound={now}
@@ -81,7 +90,16 @@ export default function Path({ nav }: { nav: Nav }) {
                     <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(255,255,255,.35)' : C.lime, whiteSpace: 'nowrap' }}>+{row.px}</span>
                   </span>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 7 }}>
-                    <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: rar.c, padding: '4px 8px', borderRadius: 7 }}>{rar.label}</span>
+                    <DiffBadge diff={row.diff} size="sm" />
+                    {row.link ? (
+                      <Tap
+                        onTap={() => window.open(row.link!, '_blank', 'noopener')} haptic="soft"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,.1)', borderRadius: 7, padding: '4px 8px' }}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinejoin="round"><path d="M4 6h16v12H4z" /><path d="M10 9.5l5 2.5-5 2.5z" fill="#fff" /></svg>
+                        <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: '#fff' }}>TUTO</span>
+                      </Tap>
+                    ) : null}
                     <span style={{ font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.45)' }}>
                       {done ? 'Validé' : now ? (isInstant(row.rarity) ? 'Un tap suffit' : 'Preuve requise') : 'À venir'}
                     </span>

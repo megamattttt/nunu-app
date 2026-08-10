@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { C, F } from '../theme';
 import { useGame, COMBO_WINDOW, COMBO_STEPS, comboBonus } from '../state/store';
 import { BADGES, BADGE_C, SKILLS, TITLES, skillById } from '../data/skills';
-import { RARITY, isInstant } from '../data/quests';
+import { isInstant } from '../data/quests';
+import { TIER_TIPS } from '../data/tips';
 import { boardRows, levelOf, pxOf, skillRank, skillNextRank } from '../state/selectors';
 import { FRIENDS_RANK } from '../data/social';
 import AvatarCut from '../components/avatar/AvatarCut';
 import SkillWheel from '../components/SkillWheel';
+import DiffBadge from '../components/DiffBadge';
+import { RankIcon, RankBadge } from '../components/RankIcon';
 import JournalCard from '../components/JournalCard';
 import JournalEditor, { newEntry } from '../components/JournalEditor';
 import type { JournalEntry } from '../state/types';
@@ -37,16 +40,23 @@ function ComboBar({ n, last, best }: { n: number; last: number | null; best: num
   return (
     <div
       style={{
-        background: hot ? C.ink : '#fff', borderRadius: 20, padding: '14px 16px', position: 'relative', overflow: 'hidden',
-        border: hot ? 'none' : '1px solid rgba(11,11,12,.08)'
+        background: hot ? `linear-gradient(120deg, ${C.ink}, #241A16 55%, ${C.ink})` : '#fff',
+        borderRadius: 20, padding: '15px 16px', position: 'relative', overflow: 'hidden',
+        border: hot ? `1px solid ${C.coral}55` : '1px solid rgba(11,11,12,.08)',
+        boxShadow: hot ? `0 22px 44px -30px ${C.coral}` : 'none'
       }}
     >
-      {hot ? <span style={{ position: 'absolute', right: -50, top: -60, width: 160, height: 160, borderRadius: '50%', background: C.lime, opacity: .18, animation: 'nuHalo 4s ease-in-out infinite' }} /> : null}
+      {hot ? (
+        <>
+          <span style={{ position: 'absolute', right: -50, top: -60, width: 160, height: 160, borderRadius: '50%', background: C.coral, opacity: .2, animation: 'nuHalo 4s ease-in-out infinite' }} />
+          <span style={{ position: 'absolute', top: 0, bottom: 0, width: 90, background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent)', animation: 'nuShine 3.4s ease-in-out infinite' }} />
+        </>
+      ) : null}
       <div style={{ display: 'flex', alignItems: 'center', gap: 11, position: 'relative' }}>
         <span
           key={n}
           style={{
-            font: `800 26px/1 ${F.display}`, letterSpacing: '-.03em', color: hot ? C.lime : C.ink, flex: 'none',
+            font: `800 30px/1 ${F.display}`, letterSpacing: '-.04em', color: hot ? C.coral : C.ink, flex: 'none',
             animation: 'nuComboIn .42s cubic-bezier(.2,1.2,.3,1)'
           }}
         >
@@ -54,17 +64,25 @@ function ComboBar({ n, last, best }: { n: number; last: number | null; best: num
         </span>
         <span style={{ flex: 1, minWidth: 0 }}>
           <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: hot ? 'rgba(255,255,255,.5)' : 'rgba(11,11,12,.45)' }}>
-            COMBO EN COURS
+            {hot ? 'COMBO CHAUD' : 'COMBO EN COURS'}
           </span>
-          <span style={{ display: 'block', font: `700 12px ${F.body}`, color: hot ? '#fff' : C.ink, marginTop: 3 }}>
-            {bonus ? `+${bonus} % de PX` : 'Enchaîne pour déclencher le bonus'}
-            {nextStep ? ` · ×${nextStep} au prochain palier` : ''}
+          <span style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 4, flexWrap: 'wrap' }}>
+            {bonus ? (
+              <span style={{ font: `800 12px ${F.display}`, letterSpacing: '-.01em', color: hot ? C.ink : '#fff', background: hot ? C.coral : C.ink, padding: '4px 9px', borderRadius: 99 }}>
+                +{bonus} % DE PX
+              </span>
+            ) : (
+              <span style={{ font: `700 11.5px ${F.body}`, color: hot ? '#fff' : C.ink }}>Enchaîne pour déclencher le bonus</span>
+            )}
+            {nextStep ? (
+              <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.1em', color: hot ? 'rgba(255,255,255,.55)' : 'rgba(11,11,12,.45)' }}>×{nextStep} AU PROCHAIN PALIER</span>
+            ) : null}
           </span>
         </span>
         <span style={{ font: `700 10px ${F.mono}`, color: hot ? 'rgba(255,255,255,.55)' : 'rgba(11,11,12,.4)', flex: 'none' }}>{mins} MIN</span>
       </div>
-      <span style={{ display: 'block', height: 5, borderRadius: 99, background: hot ? 'rgba(255,255,255,.14)' : 'rgba(11,11,12,.08)', overflow: 'hidden', marginTop: 11, position: 'relative' }}>
-        <span style={{ display: 'block', height: '100%', width: pct + '%', borderRadius: 99, background: hot ? C.lime : C.ink, transition: 'width 1s linear' }} />
+      <span style={{ display: 'block', height: 6, borderRadius: 99, background: hot ? 'rgba(255,255,255,.14)' : 'rgba(11,11,12,.08)', overflow: 'hidden', marginTop: 12, position: 'relative' }}>
+        <span style={{ display: 'block', height: '100%', width: pct + '%', borderRadius: 99, background: hot ? `linear-gradient(90deg,${C.coral},${C.honey})` : C.ink, transition: 'width 1s linear' }} />
       </span>
       {best > 1 ? (
         <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.12em', color: hot ? 'rgba(255,255,255,.35)' : 'rgba(11,11,12,.35)', marginTop: 9, position: 'relative' }}>
@@ -125,7 +143,9 @@ export default function Quests({ nav }: { nav: Nav }) {
         <SkillWheel currentId={startId} value={skillId} onChange={setSkillId} />
 
         <div style={{ padding: '14px 22px 0', textAlign: 'center' }}>
-          <div style={{ font: `400 13px ${F.body}`, color: 'rgba(255,255,255,.6)' }}>{rank.label} · {pxOf(s, sk.id)} PX</div>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <RankBadge rank={rank} skillName={`${sk.name} · ${pxOf(s, sk.id)} PX`} size="md" bg="rgba(255,255,255,.05)" />
+          </div>
           <div style={{ display: 'inline-flex', gap: 8, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             <Tap onTap={() => nav.open('path', { skill: sk.id })} style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sk.c, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 36, display: 'flex', alignItems: 'center' }}>
               VOIR LE CHEMIN
@@ -175,14 +195,30 @@ export default function Quests({ nav }: { nav: Nav }) {
             </div>
 
             {/* Rang de la compétence */}
-            <div style={{ background: '#fff', borderRadius: 20, padding: '14px 16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <Kicker dark>RANG · {rank.label}</Kicker>
-                <span style={{ font: `700 11px ${F.mono}`, color: C.ink }}>{isFinite(rank.pxNeed) ? `${rank.pxIn} / ${rank.pxNeed} PX` : 'MAX'}</span>
+            <div style={{ background: C.ink, borderRadius: 22, padding: '16px 17px', position: 'relative', overflow: 'hidden' }}>
+              <span style={{ position: 'absolute', right: -60, top: -70, width: 180, height: 180, borderRadius: '50%', background: rank.c, opacity: .16 }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 13, position: 'relative' }}>
+                <RankIcon rank={rank} size={44} bg={C.ink} />
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(255,255,255,.45)' }}>RANG · {sk.name}</span>
+                  <span style={{ display: 'block', font: `800 22px/1 ${F.display}`, color: rank.c, letterSpacing: '-.025em', marginTop: 5 }}>{rank.label}</span>
+                </span>
+                <span style={{ font: `700 10.5px ${F.mono}`, color: 'rgba(255,255,255,.6)', flex: 'none' }}>
+                  {isFinite(rank.pxNeed) ? `${rank.pxIn}/${rank.pxNeed}` : 'MAX'}
+                </span>
               </div>
-              <div style={{ display: 'flex', marginTop: 10 }}><Bar pct={rank.pct} c={sk.c} h={10} track="rgba(11,11,12,.09)" /></div>
-              <div style={{ font: `400 11.5px ${F.body}`, color: 'rgba(11,11,12,.55)', marginTop: 8 }}>
-                {next ? `Prochain rang : ${next.label}` : 'Rang maximal'} · {lvl}/{rows.length} paliers validés
+              {/* Barre d'expérience segmentée */}
+              <div style={{ position: 'relative', marginTop: 14, height: 12, borderRadius: 99, background: 'rgba(255,255,255,.09)', overflow: 'hidden' }}>
+                <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: rank.pct + '%', borderRadius: 99, background: `linear-gradient(90deg,${rank.c}, #fff)`, transition: 'width .8s cubic-bezier(.2,1,.3,1)' }} />
+                <span style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(90deg, transparent 0 13px, rgba(11,11,12,.55) 13px 15px)' }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, font: `500 9px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.42)', marginTop: 10, position: 'relative' }}>
+                <span>{lvl}/{rows.length} PALIERS</span>
+                <span>{next ? 'SUIVANT · ' + next.label : 'RANG MAXIMAL'}</span>
+              </div>
+              <div style={{ display: 'flex', gap: 9, marginTop: 13, background: 'rgba(255,255,255,.05)', borderRadius: 14, padding: '11px 12px', position: 'relative' }}>
+                <span style={{ width: 3, borderRadius: 99, background: rank.c, flex: 'none' }} />
+                <span style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(255,255,255,.7)', textWrap: 'pretty' }}>{TIER_TIPS[rank.tier]}</span>
               </div>
             </div>
 
@@ -190,7 +226,6 @@ export default function Quests({ nav }: { nav: Nav }) {
               {rows.map((r, i) => {
                 const done = r.state === 'done', isNow = r.state === 'now';
                 const hit = flash?.ix === r.ix;
-                const rar = RARITY[r.rarity];
                 return (
                   <Tap
                     key={r.name + i}
@@ -232,7 +267,17 @@ export default function Quests({ nav }: { nav: Nav }) {
                         <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(11,11,12,.4)' : C.ink, whiteSpace: 'nowrap' }}>+{s.onFire && isNow ? r.px * 2 : r.px}</span>
                       </span>
                       <span style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 6, flexWrap: 'wrap' }}>
-                        <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: rar.c, padding: '4px 8px', borderRadius: 7 }}>{rar.label}</span>
+                        <DiffBadge diff={r.diff} size="sm" />
+                        {r.link ? (
+                          <Tap
+                            onTap={() => window.open(r.link!, '_blank', 'noopener')}
+                            haptic="soft"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(11,11,12,.08)', borderRadius: 7, padding: '4px 8px' }}
+                          >
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.2" strokeLinejoin="round"><path d="M4 6h16v12H4z" /><path d="M10 9.5l5 2.5-5 2.5z" fill={C.ink} /></svg>
+                            <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: C.ink }}>VOIR LE TUTO</span>
+                          </Tap>
+                        ) : null}
                         <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(11,11,12,.5)' }}>
                           {done ? 'Validé' : isNow ? (isInstant(r.rarity) ? 'Un tap suffit' : 'Preuve à l’appui') : 'Se débloque au palier ' + r.ix}
                         </span>

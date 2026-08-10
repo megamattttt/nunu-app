@@ -1,11 +1,15 @@
 import type { FeedPost } from '../data/social';
-import type { Rarity } from '../data/quests';
+import type { Rarity, Difficulty } from '../data/quests';
 
 export type Progress = { px: number; done: number };
 
 export type CustomQuest = {
   id: string; skill: string; name: string; px: number; when: number;
   desc?: string; rarity?: Rarity; done?: boolean;
+  /** Niveau de difficulté choisi à la création (ou suggéré). */
+  diff?: Difficulty;
+  /** Lien joint à la quête (tuto, vidéo, article) — sauvegardé avec elle. */
+  link?: string;
 };
 
 export type Task = { id: string; label: string; px: number; done: boolean };

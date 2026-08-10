@@ -50,6 +50,6 @@ export const SHOP_INTRO: Record<string, string> = {
   atelier: 'Du mobilier posé dans ton diorama papier découpé.',
   cadre: 'Le cadre de ta carte de profil et de ta bannière.'
 };
-export const CADRE_C = ['#C6F24E','#B06FF0','#FFC93C','#A8D8FF'];
+export const CADRE_C = ['#C6F24E','#FFC24B','#FF4D3D','#E6DFD1'];
 export const SHOP_ACC_PATCH: Record<string, Record<string, number>> = { glasses:{ glasses:1 }, cap:{ hat:3 }, band:{ hat:10 } };
 export const SHOP_FRAME_IX = [1, 3, 6, 7];

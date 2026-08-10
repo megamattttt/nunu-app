@@ -4,6 +4,7 @@ import { useGame } from '../state/store';
 import { Tap } from './ui';
 import Logo from './Logo';
 import JournalEditor from './JournalEditor';
+import RankUpCard from './RankUpCard';
 
 export function Toast() {
   const { s } = useGame();
@@ -84,6 +85,9 @@ export function RewardOverlay() {
   const entry = doc ? s.journal.find((x) => x.id === doc) : null;
 
   const close = () => d({ t: 'EVENT', event: null });
+
+  // Les montées de rang ont leur propre carte de déblocage.
+  if (e.kind === 'rang' && e.rank) return <RankUpCard e={e} onClose={close} />;
 
   return (
     <div

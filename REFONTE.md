@@ -242,3 +242,69 @@ src/components/JournalCard.tsx
 src/screens/routes/Journal.tsx
 src/lib/photo.ts
 ```
+
+
+---
+
+# Passe rang / palette / quêtes
+
+## Système de rang unique
+- `src/data/rankIcons.ts` : un jeu d'icônes SVG (viewBox 24) par palier de `TIERS` — bouclier
+  contour (Fer), chevrons (Bronze, Argent), bouclier plein étoilé (Or), gemmes à facettes
+  (Platine, Émeraude, Diamant), couronne (Maître), couronne ailée (Grand Maître),
+  étoile rayonnante (Challenger). Formes géométriques nettes, dans l'esprit d'`avatarEngine`.
+- `src/components/RankIcon.tsx` : `<RankIcon />` (icône + indicatif de stade en points remplis,
+  jamais le texte « III ») et `<RankBadge />` (icône + libellé + couleur du tier, tailles sm/md/lg).
+- Réutilisés à l'identique : Accueil, Profil, Quêtes, Chemin, roue de compétences, et
+  `ShareCard.tsx` (mêmes tracés redessinés en `Path2D` sur le canvas d'export).
+
+## Accueil
+- Gros badge de rang de la compétence principale à côté du bloc SALUT / pseudo — la puce la plus
+  visible de l'en-tête ; les PIÈCES et le studio avatar passent dans le panneau de statuts.
+- Avatar en **buste** (`crop="bust"`) dans un cadre carré, badge de niveau en bas à gauche.
+- Badge de difficulté sur la carte « quête du jour ».
+
+## Écran de montée de rang
+`src/components/RankUpCard.tsx` : carte dédiée aux événements `kind: 'rang'` (tilt/parallax au
+doigt, halo qui suit le geste, reflet qui traverse, grande icône de palier, entrée `nuRankIn`,
+double salve de confettis, conseil du palier). Les validations simples et les paliers majeurs
+restent sur `RewardOverlay`.
+
+## Palette resserrée (`theme.ts`)
+Trois accents + neutres : **lime** (progression / action), **honey** (récompense / validation),
+**coral** (alerte / urgence, réservée au combo chaud et à l'état en feu), neutres
+ink / night / slate / sand / paper. `violet`, `sky`, `purple`, `mint` sont conservés comme
+alias pour ne rien casser mais retombent sur la palette. Couleurs de compétence, confettis,
+raretés, cadres et tags du mur réalignés. Les couleurs de palier (`TIERS[].c`) restent
+indépendantes : elles codent une information.
+
+## Difficulté des quêtes
+- `Difficulty` + `DIFFS` + `diffOfPx()` + `byDiff()` dans `data/quests.ts`, champ `diff` sur
+  `CustomQuest` (`state/types.ts`) et sur `BoardRow`. Aucun verrouillage par rang.
+- `components/DiffBadge.tsx` : libellé + jauge de segments, même traitement partout
+  (plateau, chemin, pioche, création).
+- Tri : les paliers de plateau gardent leur ordre de progression, les quêtes ajoutées
+  (pioche, perso) sont triées par difficulté ; la pioche sert les quêtes accessibles d'abord.
+- `data/tips.ts` : un conseil statique par palier, affiché sur le Profil, sur le Chemin,
+  dans la carte de rang des Quêtes et sur l'écran de montée de rang.
+
+## Quêtes perso
+`NewQuest.tsx` : sélecteur de difficulté, PX proposés par difficulté, **suggestion automatique**
+par mots-clés (`suggestQuest()`, mapping statique, aucun appel distant) applicable en un tap,
+et champ **lien / tuto** sauvegardé avec la quête (`link`), rendu par un bouton « Voir le tuto »
+sur la carte de quête (plateau et chemin).
+
+## Roue de compétences
+`SkillWheel.tsx` : position continue non bornée, dossiers piochés modulo le nombre de
+compétences → **rotation infinie** dans les deux sens ; retour au cran le plus proche par
+easing exponentiel en `requestAnimationFrame` (plus de à-coups), arc de graduations qui suit
+le doigt, icône de rang sur chaque dossier.
+
+## Section Quêtes plus « gaming »
+Carte de rang sombre avec grande icône, barre d'XP segmentée et conseil de palier ;
+`ComboBar` traitée en loot (dégradé, reflet, halo corail, bonus en pastille) ;
+badges de difficulté sur chaque ligne.
+
+## Hors scope
+Point 7 (feedback / recommandations IA) volontairement non implémenté : nécessiterait un backend,
+incompatible avec l'hébergement GitHub Pages actuel.

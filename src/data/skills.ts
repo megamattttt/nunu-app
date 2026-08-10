@@ -4,12 +4,12 @@ export type Skill = {
 };
 
 export const SKILLS: Skill[] = [
-  { id:'couture', name:'COUTURE', soft:'la couture', short:'CO', c:'#FF5C42', txt:'#0B0B0C', total:53, title:'Petite main affirmée', elo:'ARG II', next:'OR III', cap:1700, lvl:14 },
-  { id:'course', name:'COURSE', soft:'la course', short:'CR', c:'#6C63FF', txt:'#FFFFFF', total:31, title:'Coureuse régulière', elo:'BRZ I', next:'ARG III', cap:1000, lvl:6 },
-  { id:'photo', name:'PHOTO', soft:'la photo', short:'PH', c:'#A8D8FF', txt:'#0B0B0C', total:24, title:'Œil curieux', elo:'FER III', next:'FER II', cap:500, lvl:2 },
-  { id:'cuisine', name:'CUISINE', soft:'la cuisine', short:'CU', c:'#FFC93C', txt:'#0B0B0C', total:40, title:'Bonne pâte', elo:'BRZ III', next:'BRZ II', cap:800, lvl:8 },
-  { id:'jardin', name:'JARDINAGE', soft:'le jardinage', short:'JA', c:'#C6F24E', txt:'#0B0B0C', total:22, title:'Main verte', elo:'FER I', next:'BRZ III', cap:400, lvl:3 },
-  { id:'perso', name:'PERSO', soft:'ton quotidien', short:'PE', c:'#E6DFD1', txt:'#0B0B0C', total:18, title:'Journée tenue', elo:null, next:null, cap:600, lvl:5, solo:true }
+  { id:'couture', name:'COUTURE', soft:'la couture', short:'CO', c:'#FF4D3D', txt:'#FFFFFF', total:53, title:'Petite main affirmée', elo:'ARG II', next:'OR III', cap:1700, lvl:14 },
+  { id:'course', name:'COURSE', soft:'la course', short:'CR', c:'#C6F24E', txt:'#0B0B0C', total:31, title:'Coureuse régulière', elo:'BRZ I', next:'ARG III', cap:1000, lvl:6 },
+  { id:'photo', name:'PHOTO', soft:'la photo', short:'PH', c:'#E6DFD1', txt:'#0B0B0C', total:24, title:'Œil curieux', elo:'FER III', next:'FER II', cap:500, lvl:2 },
+  { id:'cuisine', name:'CUISINE', soft:'la cuisine', short:'CU', c:'#FFC24B', txt:'#0B0B0C', total:40, title:'Bonne pâte', elo:'BRZ III', next:'BRZ II', cap:800, lvl:8 },
+  { id:'jardin', name:'JARDINAGE', soft:'le jardinage', short:'JA', c:'#A9D94B', txt:'#0B0B0C', total:22, title:'Main verte', elo:'FER I', next:'BRZ III', cap:400, lvl:3 },
+  { id:'perso', name:'PERSO', soft:'ton quotidien', short:'PE', c:'#FFFFFF', txt:'#0B0B0C', total:18, title:'Journée tenue', elo:null, next:null, cap:600, lvl:5, solo:true }
 ];
 
 export const skillById = (id: string) => SKILLS.find((s) => s.id === id) || SKILLS[0];
@@ -63,7 +63,7 @@ export const BADGES: Record<string, [string, string][]> = {
   perso: [['Rangement','R'],['Lecture','L'],['Devoirs','D'],['Attention','A'],['Courses','C'],['Régularité','∞']]
 };
 
-export const BADGE_C = ['#FF5C42','#FFC93C','#6C63FF','#C6F24E','#A8D8FF','#B06FF0'];
+export const BADGE_C = ['#FF4D3D','#FFC24B','#C6F24E','#A9D94B','#E6DFD1','#F6F4EF'];
 
 export const PERSO_TASKS: [string, string][] = [
   ['Ranger mon appart','+12 ⚡'], ['Sortir le vélo','+8 ⚡'], ['Appeler ma sœur','+6 ⚡'],

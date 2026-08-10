@@ -1,26 +1,29 @@
 import React, { useMemo, useState } from 'react';
 import { C, F } from '../../theme';
 import { useGame } from '../../state/store';
-import { DISCOVER, RARITY, rollRarity, type Rarity } from '../../data/quests';
+import { DISCOVER, RARITY, rollRarity, diffOfPx, byDiff, type Rarity, type Difficulty } from '../../data/quests';
 import { SKILLS, skillById } from '../../data/skills';
+import DiffBadge from '../../components/DiffBadge';
 import { useSwipe } from '../../lib/useSwipe';
 import { buzz } from '../../lib/haptics';
 import { sfx } from '../../lib/sound';
 import { RouteHead, Tap } from '../../components/ui';
 import type { Nav } from '../../App';
 
-type Card = { skill: string; name: string; px: number; desc: string; rarity: Rarity };
+type Card = { skill: string; name: string; px: number; desc: string; rarity: Rarity; diff: Difficulty };
 
 function buildPool(): Card[] {
   const all: Card[] = [];
   Object.keys(DISCOVER).forEach((skill) => {
     DISCOVER[skill].forEach(([name, px, desc]) => {
       const rarity = rollRarity();
-      all.push({ skill, name, px: Math.round(px * RARITY[rarity].mult), desc, rarity });
+      const finalPx = Math.round(px * RARITY[rarity].mult);
+      all.push({ skill, name, px: finalPx, desc, rarity, diff: diffOfPx(finalPx) });
     });
   });
-  // Mélange
+  // Mélange, puis remontée des quêtes les plus accessibles.
   for (let i = all.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [all[i], all[j]] = [all[j], all[i]]; }
+  all.sort(byDiff);
   return all;
 }
 
@@ -34,7 +37,7 @@ export default function Discover({ nav }: { nav: Nav }) {
   const next = (keep: boolean) => {
     if (!card) return;
     if (keep) {
-      d({ t: 'ADD_QUEST', skill: card.skill, name: card.name, px: card.px, desc: card.desc, rarity: card.rarity });
+      d({ t: 'ADD_QUEST', skill: card.skill, name: card.name, px: card.px, desc: card.desc, rarity: card.rarity, diff: card.diff });
       setAdded((n) => n + 1);
       sfx.add(); buzz('success');
       // Surprise : une pioche sur six offre des pièces.
@@ -75,8 +78,11 @@ export default function Discover({ nav }: { nav: Nav }) {
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-                <span style={{ font: `700 9.5px ${F.mono}`, letterSpacing: '.14em', color: C.ink, background: sk.c, padding: '6px 10px', borderRadius: 8 }}>{sk.name}</span>
-                <span style={{ font: `700 12px ${F.mono}`, color: C.ink, background: 'rgba(11,11,12,.12)', padding: '6px 10px', borderRadius: 8 }}>+{card.px} PX</span>
+                <span style={{ font: `700 9.5px ${F.mono}`, letterSpacing: '.14em', color: sk.txt, background: sk.c, padding: '6px 10px', borderRadius: 8 }}>{sk.name}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <DiffBadge diff={card.diff} size="sm" />
+                  <span style={{ font: `700 12px ${F.mono}`, color: C.ink, background: 'rgba(11,11,12,.12)', padding: '6px 10px', borderRadius: 8 }}>+{card.px} PX</span>
+                </span>
               </div>
 
               {card.rarity !== 'commune' ? (
@@ -84,7 +90,6 @@ export default function Discover({ nav }: { nav: Nav }) {
                   ★ QUÊTE {rar.label}
                 </div>
               ) : null}
-
               <div style={{ font: `800 33px/1.02 ${F.display}`, color: C.ink, letterSpacing: '-.028em', marginTop: 18 }}>{card.name}</div>
               <div style={{ font: `400 13.5px/1.5 ${F.body}`, color: 'rgba(11,11,12,.66)', marginTop: 14, textWrap: 'pretty' }}>{card.desc}</div>
 

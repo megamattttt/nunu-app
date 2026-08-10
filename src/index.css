@@ -1,7 +1,7 @@
 /* Base + réglages iOS. Le reste du style vit dans les composants (styles en ligne, comme le prototype). */
 :root {
   --ink: #0B0B0C; --night: #17171A; --paper: #F6F4EF; --sand: #E6DFD1;
-  --lime: #C6F24E; --violet: #6C63FF; --coral: #FF5C42; --honey: #FFC93C; --sky: #A8D8FF;
+  --lime: #C6F24E; --violet: #26262E; --coral: #FF4D3D; --honey: #FFC24B; --sky: #E6DFD1;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --nav-h: 76px;
@@ -78,6 +78,11 @@ button { cursor: pointer; padding: 0; }
 @keyframes nuComboIn { 0% { transform: scale(.5) rotate(-8deg); opacity: 0; } 55% { transform: scale(1.16) rotate(3deg); } 100% { transform: scale(1) rotate(0); opacity: 1; } }
 @keyframes nuBurst { 0% { transform: scale(.2); opacity: .9; } 100% { transform: scale(2.6); opacity: 0; } }
 @keyframes nuStrike { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Carte de montée de rang : entrée marquée, reflet, icône qui se pose. */
+@keyframes nuRankIn { 0% { opacity: 0; transform: perspective(900px) rotateX(16deg) scale(.82) translateY(38px); } 55% { opacity: 1; transform: perspective(900px) rotateX(-4deg) scale(1.03) translateY(-6px); } 100% { opacity: 1; transform: perspective(900px) rotateX(0) scale(1) translateY(0); } }
+@keyframes nuRankIco { 0% { opacity: 0; transform: scale(.3) rotate(-14deg); } 60% { opacity: 1; transform: scale(1.14) rotate(4deg); } 100% { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes nuGlare { 0% { transform: translateX(-160px) rotate(8deg); opacity: 0; } 18% { opacity: 1; } 70%, 100% { transform: translateX(420px) rotate(8deg); opacity: 0; } }
 
 /* Avatar papier découpé */
 @keyframes nuCBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.2px); } }

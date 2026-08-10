@@ -3,18 +3,22 @@ import type { GameState, ShareData, JournalEntry } from './types';
 import { initialState } from './initial';
 import { adapter } from './persistence';
 import { BOARDS, MAJOR, OBJ, skillById } from '../data/skills';
-import { rankOf } from '../data/ranks';
-import type { Rarity } from '../data/quests';
+import { rankOf, type Rank } from '../data/ranks';
+import type { Rarity, Difficulty } from '../data/quests';
 import { levelOf } from './selectors';
 import { buzz, setHaptics } from '../lib/haptics';
 import { sfx, setSound } from '../lib/sound';
 import { confetti } from '../lib/confetti';
 
 export type RewardEvent = {
-  kind: 'quest' | 'palier' | 'rare' | 'buy' | 'duel' | 'fire' | 'surprise';
+  kind: 'quest' | 'palier' | 'rang' | 'rare' | 'buy' | 'duel' | 'fire' | 'surprise';
   title: string; sub?: string; px?: number; coins?: number; energy?: number;
   color?: string; object?: string; share?: ShareData; fire?: boolean;
   combo?: number; comboStep?: boolean;
+  /** Rang atteint — renseigné uniquement pour kind: 'rang'. */
+  rank?: Rank;
+  /** Complément d'information pour la carte de rang. */
+  skill?: string;
   /** Entrée de journal ouverte automatiquement par cette validation. */
   journalId?: string;
 };
@@ -29,7 +33,7 @@ type Action =
   | { t: 'JOURNAL_SAVE'; entry: JournalEntry }
   | { t: 'JOURNAL_DEL'; id: string }
   | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null }
-  | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number }
+  | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number; diff?: Difficulty; link?: string }
   | { t: 'DRAW_USED' }
   | { t: 'TOGGLE_TASK'; id: string }
   | { t: 'ADD_TASK'; label: string; px: number }
@@ -188,10 +192,12 @@ function reducer(s: Store, a: Action): Store {
         stats: { ...s.stats, questsDone: s.stats.questsDone + 1, totalPx: s.stats.totalPx + px },
         log: [{ name: a.name, tag: skillById(a.skill).name, val: '+' + px + ' PX', when: 'à l’instant' }, ...s.log].slice(0, 20),
         event: {
-          kind: rankUp || major ? 'palier' : 'quest',
-          title: rankUp ? 'NOUVEAU RANG · ' + after.label : major ? 'PALIER MAJEUR' : 'QUÊTE VALIDÉE',
-          sub: a.name, px, coins,
+          kind: rankUp ? 'rang' : major ? 'palier' : 'quest',
+          title: rankUp ? 'NOUVEAU RANG' : major ? 'PALIER MAJEUR' : 'QUÊTE VALIDÉE',
+          sub: rankUp ? after.label : a.name, px, coins,
           color: skillById(a.skill).c,
+          rank: rankUp ? after : undefined,
+          skill: a.skill,
           object: major ? OBJ[a.skill] : undefined,
           fire: onFire && !eng.onFire,
           combo: chain, comboStep,
@@ -202,7 +208,7 @@ function reducer(s: Store, a: Action): Store {
     }
 
     case 'ADD_QUEST': {
-      const q = { id: uid(), skill: a.skill, name: a.name, px: a.px, when: a.when ?? 0, desc: a.desc, rarity: a.rarity, done: false };
+      const q = { id: uid(), skill: a.skill, name: a.name, px: a.px, when: a.when ?? 0, desc: a.desc, rarity: a.rarity, diff: a.diff, link: a.link, done: false };
       return {
         ...s,
         customQuests: [...s.customQuests, q],
@@ -351,6 +357,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (e.comboStep) { buzz('milestone'); sfx.streak(); if (s.prefs.confetti) confetti(110); }
     else if (e.combo && e.combo > 1) { buzz('combo'); sfx.combo(e.combo); }
     if (e.kind === 'palier') { buzz('levelup'); sfx.levelup(); if (s.prefs.confetti) confetti(130); }
+    else if (e.kind === 'rang') { buzz('levelup'); sfx.levelup(); if (s.prefs.confetti) { confetti(160); window.setTimeout(() => confetti(90), 420); } }
     else if (e.kind === 'duel') { buzz(e.px && e.coins ? 'success' : 'error'); e.coins ? sfx.levelup() : sfx.error(); if (s.prefs.confetti && e.coins) confetti(90); }
     else if (e.kind === 'rare' || e.kind === 'surprise') { buzz('success'); sfx.rare(); if (s.prefs.confetti) confetti(70); }
     else { buzz('success'); sfx.validate(); if (s.prefs.confetti) confetti(70); }

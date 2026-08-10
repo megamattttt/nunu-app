@@ -1,16 +1,30 @@
-// Jetons de design repris 1:1 du prototype NUNU v13.
+
+/**
+ * Palette resserrée — trois accents + neutres.
+ *  lime  : progression / action (barres, boutons, PX)
+ *  honey : récompense / validation (paliers, pièces, cartes obtenues)
+ *  coral : alerte / urgence, réservée aux moments rares (combo chaud, en feu)
+ *  sand / paper / night / ink : neutres et surfaces.
+ * Les couleurs de palier (TIERS[].c) gardent leur propre logique : elles codent une information.
+ */
 export const C = {
   ink: '#0B0B0C',
   night: '#17171A',
+  /** Surface secondaire sombre (anciens fonds violets). */
+  slate: '#26262E',
   paper: '#F6F4EF',
   sand: '#E6DFD1',
+
   lime: '#C6F24E',
-  violet: '#6C63FF',
-  coral: '#FF5C42',
-  honey: '#FFC93C',
-  sky: '#A8D8FF',
-  purple: '#B06FF0',
-  mint: '#2FA88A',
+  honey: '#FFC24B',
+  coral: '#FF4D3D',
+
+  /* Alias de compatibilité : tout retombe sur la palette resserrée. */
+  violet: '#26262E',
+  sky: '#E6DFD1',
+  purple: '#26262E',
+  mint: '#C6F24E',
+
   logo: '#2F2BC9',
   wood: '#3A2A1C',
   woodPaper: '#F4E7D3'

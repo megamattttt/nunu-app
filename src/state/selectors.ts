@@ -1,5 +1,5 @@
 import { BOARDS, MAJOR, skillById, SKILLS } from '../data/skills';
-import { rarityOfBoard, type Rarity } from '../data/quests';
+import { rarityOfBoard, diffOfPx, byDiff, type Rarity, type Difficulty } from '../data/quests';
 import { rankOf, nextRank, levelFromPx, levelPct, type Rank } from '../data/ranks';
 import type { GameState } from './types';
 
@@ -16,6 +16,7 @@ export const globalPct = (s: GameState) => levelPct(s.px);
 
 export type BoardRow = {
   ix: number; name: string; px: number; major: boolean; rarity: Rarity;
+  diff: Difficulty; link?: string;
   state: 'done' | 'now' | 'lock';
 };
 
@@ -26,18 +27,20 @@ export function boardRows(s: GameState, skill: string): BoardRow[] {
   const rows: BoardRow[] = base.map(([name, px], ix) => {
     const major = (MAJOR[skill] || []).includes(ix);
     return {
-      ix, name, px, major, rarity: rarityOfBoard(px, major),
+      ix, name, px, major, rarity: rarityOfBoard(px, major), diff: diffOfPx(px, major),
       state: ix < lvl ? 'done' : ix === lvl ? 'now' : 'lock'
     };
   });
-  custom.forEach((q, i) =>
-    rows.push({
-      ix: base.length + i, name: q.name, px: q.px, major: false,
-      rarity: q.rarity || rarityOfBoard(q.px, false),
-      state: q.done ? 'done' : 'now'
-    })
-  );
-  return rows;
+  // Les quêtes ajoutées (pioche, perso) s'affichent triées par difficulté.
+  const extra: BoardRow[] = custom.map((q, i) => ({
+    ix: base.length + i, name: q.name, px: q.px, major: false,
+    rarity: q.rarity || rarityOfBoard(q.px, false),
+    diff: q.diff || diffOfPx(q.px),
+    link: q.link,
+    state: q.done ? 'done' : 'now'
+  }));
+  extra.sort(byDiff);
+  return [...rows, ...extra];
 }
 
 /** Prochaine quête à valider sur une compétence. */

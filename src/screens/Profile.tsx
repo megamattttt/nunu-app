@@ -6,6 +6,8 @@ import { QUOTES, CHALLENGES } from '../data/quests';
 import { globalLevel, globalPct, ownedObjects, questsDone, skillRank, pxOf, totalPx } from '../state/selectors';
 import { DIO_OBJ } from '../data/diorama';
 import AvatarCut from '../components/avatar/AvatarCut';
+import { RankIcon, RankBadge } from '../components/RankIcon';
+import { TIER_TIPS } from '../data/tips';
 import DioramaScene from '../components/DioramaScene';
 import Logo from '../components/Logo';
 import ProfileEdit from '../components/ProfileEdit';
@@ -17,7 +19,10 @@ export default function Profile({ nav }: { nav: Nav }) {
   const { s, d } = useGame();
   const [edit, setEdit] = useState(false);
   const [settings, setSettings] = useState(false);
-  const sig = ['#C6F24E','#FF5C42','#6C63FF','#FFC93C','#A8D8FF','#B06FF0','#2FA88A','#F8A79F'][s.profile.sig];
+  const mainSkill = s.startSkill || SKILLS[0].id;
+  const mainSk = skillById(mainSkill);
+  const mainRank = skillRank(s, mainSkill);
+  const sig = ['#C6F24E','#FF4D3D','#FFC24B','#E6DFD1','#A9D94B','#F6F4EF','#DFF39A','#FFE0A8'][s.profile.sig];
   const quote = QUOTES[s.banner.quote % QUOTES.length];
   const chall = CHALLENGES[s.banner.chall % CHALLENGES.length];
 
@@ -62,6 +67,9 @@ export default function Profile({ nav }: { nav: Nav }) {
               ) : (
                 <span style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sig, padding: '5px 10px', borderRadius: 99, letterSpacing: '.06em' }}>ÉNERGIE {s.energy}%</span>
               )}
+            </span>
+            <span style={{ display: 'block', marginTop: 11 }}>
+              <RankBadge rank={mainRank} skillName={mainSk.name} size="md" bg={C.ink} onTap={() => nav.open('path', { skill: mainSkill })} />
             </span>
           </span>
         </div>
@@ -121,6 +129,7 @@ export default function Profile({ nav }: { nav: Nav }) {
               return (
                 <Tap key={sk.id} onTap={() => nav.open('path', { skill: sk.id })} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
                   <span style={{ width: 30, height: 30, borderRadius: 10, background: sk.c, color: sk.txt, font: `800 12px ${F.display}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>{sk.short}</span>
+                  <RankIcon rank={r} size={24} bg={C.night} />
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
                       <span style={{ font: `700 12.5px ${F.body}`, color: '#fff' }}>{r.label}</span>
@@ -133,6 +142,14 @@ export default function Profile({ nav }: { nav: Nav }) {
                 </Tap>
               );
             })}
+          </div>
+          {/* Conseil de palier pour la compétence principale */}
+          <div style={{ display: 'flex', gap: 10, marginTop: 14, background: 'rgba(255,255,255,.05)', borderRadius: 16, padding: '12px 13px' }}>
+            <span style={{ width: 3, borderRadius: 99, background: mainRank.c, flex: 'none' }} />
+            <span>
+              <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)' }}>PASSER À L’ÉTAGE SUIVANT · {mainSk.name}</span>
+              <span style={{ display: 'block', font: `400 12px/1.45 ${F.body}`, color: 'rgba(255,255,255,.72)', marginTop: 6, textWrap: 'pretty' }}>{TIER_TIPS[mainRank.tier]}</span>
+            </span>
           </div>
         </section>
 
@@ -171,6 +188,7 @@ export default function Profile({ nav }: { nav: Nav }) {
                 <span key={p} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff', borderRadius: 99, padding: '7px 12px' }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: sk.c }} />
                   <span style={{ font: `700 11px ${F.body}`, color: C.ink }}>{sk.name}</span>
+                  <RankIcon rank={skillRank(s, p)} size={16} bg="#fff" pips={false} />
                   <span style={{ font: `700 9px ${F.mono}`, color: 'rgba(11,11,12,.45)' }}>{skillRank(s, p).short}</span>
                 </span>
               );
