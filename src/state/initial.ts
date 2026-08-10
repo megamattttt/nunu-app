@@ -2,7 +2,7 @@ import type { GameState } from './types';
 import { SKILLS } from '../data/skills';
 import { FEED0 } from '../data/social';
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 /** Un compte neuf : aucune progression pré-remplie, tout se gagne. */
 export const initialState: GameState = {
@@ -30,6 +30,8 @@ export const initialState: GameState = {
   tasks: [],
 
   startSkill: null,
+  flow: 0,
+  combo: { n: 0, best: 0, last: null },
 
   px: 0,
   coins: 120,
@@ -64,5 +66,5 @@ export const initialState: GameState = {
 
   stats: { questsDone: 0, totalPx: 0, duelsWon: 0, postsSent: 0 },
   prefs: { sound: false, haptics: true, confetti: true },
-  seen: { onboarding: false, questHelp: false }
+  seen: { onboarding: false, questHelp: false, guide: false }
 };

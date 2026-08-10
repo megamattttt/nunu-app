@@ -4,7 +4,8 @@ import { RewardOverlay, ResumeOverlay, Toast } from './components/Overlays';
 import ShareCard from './components/ShareCard';
 import { useGame } from './state/store';
 import Login from './screens/Login';
-import Onboarding from './screens/Onboarding';
+import FirstRun from './screens/onboarding/FirstRun';
+import Guide from './screens/onboarding/Guide';
 import Home from './screens/Home';
 import Quests from './screens/Quests';
 import Duels from './screens/Duels';
@@ -48,7 +49,10 @@ export default function App() {
   const nav: Nav = { page, route, go, open, back };
 
   if (!s.logged) return (<><Login /><Toast /><ResumeOverlay /></>);
-  if (!s.seen.onboarding) return (<><Onboarding /><Toast /><ResumeOverlay /></>);
+  // Parcours obligatoire de première connexion : avatar → guide → compétence → première quête.
+  if (!s.seen.onboarding) return (<><FirstRun /><Toast /><RewardOverlay /><ShareCard /><ResumeOverlay /></>);
+  // Le guide rejouable prend tout l'écran : pas de dock à réserver.
+  if (route?.name === 'guide') return (<><Guide onDone={back} onQuit={back} /><Toast /><ResumeOverlay /></>);
 
   const ROUTES: Record<string, JSX.Element> = {
     discover: <Discover nav={nav} />,

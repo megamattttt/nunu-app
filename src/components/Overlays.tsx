@@ -104,6 +104,11 @@ export function RewardOverlay() {
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
             {e.coins ? <span style={{ font: `700 11px ${F.mono}`, background: C.honey, color: C.ink, padding: '8px 12px', borderRadius: 99 }}>{e.coins > 0 ? '+' : ''}{e.coins} PIÈCES</span> : null}
+            {e.combo && e.combo > 1 ? (
+              <span style={{ font: `700 11px ${F.mono}`, background: C.ink, color: C.lime, padding: '8px 12px', borderRadius: 99, animation: e.comboStep ? 'nuComboIn .45s cubic-bezier(.2,1.2,.3,1)' : undefined }}>
+                COMBO ×{e.combo}
+              </span>
+            ) : null}
             {s.onFire ? <span style={{ font: `700 11px ${F.mono}`, background: C.coral, color: '#fff', padding: '8px 12px', borderRadius: 99 }}>EN FEU · PX ×2</span> : null}
           </div>
 

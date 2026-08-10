@@ -1,13 +1,75 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { C, F } from '../theme';
-import { useGame } from '../state/store';
+import { useGame, COMBO_WINDOW, COMBO_STEPS, comboBonus } from '../state/store';
 import { BADGES, BADGE_C, SKILLS, TITLES } from '../data/skills';
 import { RARITY, isInstant } from '../data/quests';
 import { boardRows, levelOf, pxOf, skillRank, skillNextRank } from '../state/selectors';
 import { FRIENDS_RANK } from '../data/social';
 import AvatarCut from '../components/avatar/AvatarCut';
 import { Bar, Check, Kicker, Star, Tap } from '../components/ui';
+import { buzz } from '../lib/haptics';
+import { sfx } from '../lib/sound';
 import type { Nav } from '../App';
+
+/** Chrono du combo : barre qui se vide, s'efface quand la chaîne expire. */
+function ComboBar({ n, last, best }: { n: number; last: number | null; best: number }) {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (!last) return;
+    const id = window.setInterval(() => tick((v) => v + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [last]);
+
+  if (!last || n < 1) return null;
+  const left = COMBO_WINDOW - (Date.now() - last);
+  if (left <= 0) return null;
+
+  const pct = Math.max(0, Math.min(100, (left / COMBO_WINDOW) * 100));
+  const mins = Math.max(1, Math.round(left / 60e3));
+  const bonus = Math.round(comboBonus(n) * 100);
+  const nextStep = COMBO_STEPS.find((v) => v > n);
+  const hot = n >= 3;
+
+  return (
+    <div
+      style={{
+        background: hot ? C.ink : '#fff', borderRadius: 20, padding: '14px 16px', position: 'relative', overflow: 'hidden',
+        border: hot ? 'none' : '1px solid rgba(11,11,12,.08)'
+      }}
+    >
+      {hot ? <span style={{ position: 'absolute', right: -50, top: -60, width: 160, height: 160, borderRadius: '50%', background: C.lime, opacity: .18, animation: 'nuHalo 4s ease-in-out infinite' }} /> : null}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 11, position: 'relative' }}>
+        <span
+          key={n}
+          style={{
+            font: `800 26px/1 ${F.display}`, letterSpacing: '-.03em', color: hot ? C.lime : C.ink, flex: 'none',
+            animation: 'nuComboIn .42s cubic-bezier(.2,1.2,.3,1)'
+          }}
+        >
+          ×{n}
+        </span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: hot ? 'rgba(255,255,255,.5)' : 'rgba(11,11,12,.45)' }}>
+            COMBO EN COURS
+          </span>
+          <span style={{ display: 'block', font: `700 12px ${F.body}`, color: hot ? '#fff' : C.ink, marginTop: 3 }}>
+            {bonus ? `+${bonus} % de PX` : 'Enchaîne pour déclencher le bonus'}
+            {nextStep ? ` · ×${nextStep} au prochain palier` : ''}
+          </span>
+        </span>
+        <span style={{ font: `700 10px ${F.mono}`, color: hot ? 'rgba(255,255,255,.55)' : 'rgba(11,11,12,.4)', flex: 'none' }}>{mins} MIN</span>
+      </div>
+      <span style={{ display: 'block', height: 5, borderRadius: 99, background: hot ? 'rgba(255,255,255,.14)' : 'rgba(11,11,12,.08)', overflow: 'hidden', marginTop: 11, position: 'relative' }}>
+        <span style={{ display: 'block', height: '100%', width: pct + '%', borderRadius: 99, background: hot ? C.lime : C.ink, transition: 'width 1s linear' }} />
+      </span>
+      {best > 1 ? (
+        <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.12em', color: hot ? 'rgba(255,255,255,.35)' : 'rgba(11,11,12,.35)', marginTop: 9, position: 'relative' }}>
+          MEILLEURE CHAÎNE · ×{best}
+        </span>
+      ) : null}
+    </div>
+  );
+}
 
 type Sub = 'board' | 'perso' | 'coll' | 'amis';
 const SUBS: [Sub, string][] = [['board', 'PLATEAU'], ['perso', 'PERSO'], ['coll', 'COLLECTION'], ['amis', 'AMIS']];
@@ -18,6 +80,7 @@ export default function Quests({ nav }: { nav: Nav }) {
   const [sub, setSub] = useState<Sub>('board');
   const [newTask, setNewTask] = useState('');
   const [help, setHelp] = useState(false);
+  const [flash, setFlash] = useState<{ ix: number; px: number } | null>(null);
   const sk = SKILLS[ix];
   const rows = boardRows(s, sk.id);
   const lvl = levelOf(s, sk.id);
@@ -29,8 +92,18 @@ export default function Quests({ nav }: { nav: Nav }) {
 
   const act = (row: (typeof rows)[number]) => {
     if (row.state !== 'now') return;
-    if (isInstant(row.rarity)) d({ t: 'VALIDATE', skill: sk.id, ix: row.ix, name: row.name, px: row.px, rarity: row.rarity });
-    else nav.open('validate', { skill: sk.id, ix: row.ix, name: row.name, px: row.px, rarity: row.rarity });
+    if (!isInstant(row.rarity)) {
+      nav.open('validate', { skill: sk.id, ix: row.ix, name: row.name, px: row.px, rarity: row.rarity });
+      return;
+    }
+    // La célébration part sur la ligne avant que l'état ne change : la coche,
+    // l'onde et les PX qui s'envolent se voient, puis la récompense s'ouvre.
+    const chain = s.combo.last && Date.now() - s.combo.last < COMBO_WINDOW ? s.combo.n + 1 : 1;
+    setFlash({ ix: row.ix, px: Math.round(row.px * (s.onFire ? 2 : 1) * (1 + comboBonus(chain))) });
+    buzz(COMBO_STEPS.includes(chain) ? 'milestone' : 'success');
+    sfx.check();
+    window.setTimeout(() => d({ t: 'VALIDATE', skill: sk.id, ix: row.ix, name: row.name, px: row.px, rarity: row.rarity }), 300);
+    window.setTimeout(() => setFlash(null), 1100);
   };
 
   return (
@@ -82,7 +155,7 @@ export default function Quests({ nav }: { nav: Nav }) {
       </div>
 
       {/* Feuille claire */}
-      <div style={{ background: C.paper, borderRadius: '34px 34px 0 0', marginTop: 18, padding: '20px 22px', paddingBottom: sub === 'board' && now ? 96 : 30, minHeight: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ background: C.paper, borderRadius: '34px 34px 0 0', marginTop: 18, padding: '20px 22px', paddingBottom: sub === 'board' && now ? 'var(--dock-space-cta)' : 'var(--dock-space)', minHeight: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', gap: 7 }}>
           {SUBS.map(([k, label]) => (
             <Tap
@@ -99,6 +172,8 @@ export default function Quests({ nav }: { nav: Nav }) {
 
         {sub === 'board' && (
           <>
+            <ComboBar n={s.combo.n} last={s.combo.last} best={s.combo.best} />
+
             {/* Règle de validation */}
             <div style={{ background: '#fff', borderRadius: 20, padding: '14px 16px' }}>
               <Tap onTap={() => { setHelp((h) => !h); if (!s.seen.questHelp) d({ t: 'SEEN', key: 'questHelp' }); }} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -129,6 +204,7 @@ export default function Quests({ nav }: { nav: Nav }) {
             <div>
               {rows.map((r, i) => {
                 const done = r.state === 'done', isNow = r.state === 'now';
+                const hit = flash?.ix === r.ix;
                 const rar = RARITY[r.rarity];
                 return (
                   <Tap
@@ -144,17 +220,30 @@ export default function Quests({ nav }: { nav: Nav }) {
                     <span
                       style={{
                         width: 44, height: 44, borderRadius: '50%', flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: done ? sk.c : isNow ? C.lime : 'rgba(11,11,12,.08)',
+                        position: 'relative',
+                        background: hit || done ? sk.c : isNow ? C.lime : 'rgba(11,11,12,.08)',
                         border: isNow ? '2px solid ' + C.ink : 'none',
-                        animation: isNow ? 'nuPulse 2.6s ease-out infinite' : undefined
+                        animation: hit ? 'nuTick .4s cubic-bezier(.2,1.4,.3,1)' : isNow ? 'nuPulse 2.6s ease-out infinite' : undefined
                       }}
                     >
-                      {done ? <Check /> : isNow ? (r.major ? <Star /> : <svg width="15" height="15" viewBox="0 0 24 24" fill={C.ink}><path d="M7 4l13 8-13 8z" /></svg>)
+                      {hit ? (
+                        <>
+                          <span style={{ position: 'absolute', inset: -2, borderRadius: '50%', border: '3px solid ' + C.ink, animation: 'nuBurst .7s cubic-bezier(.2,1,.3,1) forwards' }} />
+                          <span style={{ position: 'absolute', inset: -2, borderRadius: '50%', border: '2px solid ' + sk.c, animation: 'nuBurst .9s .12s cubic-bezier(.2,1,.3,1) forwards' }} />
+                          <span style={{ position: 'absolute', left: '50%', bottom: '100%', marginLeft: -26, width: 52, textAlign: 'center', font: `800 17px ${F.display}`, color: C.ink, animation: 'nuFly 1s cubic-bezier(.2,1,.3,1) forwards', pointerEvents: 'none', whiteSpace: 'nowrap' }}>
+                            +{flash!.px}
+                          </span>
+                        </>
+                      ) : null}
+                      {done || hit ? <Check /> : isNow ? (r.major ? <Star /> : <svg width="15" height="15" viewBox="0 0 24 24" fill={C.ink}><path d="M7 4l13 8-13 8z" /></svg>)
                         : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(11,11,12,.45)" strokeWidth="2.2"><rect x="5" y="11" width="14" height="10" rx="3" /><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3" /></svg>}
                     </span>
-                    <span style={{ flex: 1, background: isNow ? '#fff' : 'transparent', borderRadius: 18, padding: isNow ? '13px 15px' : '10px 0', boxShadow: isNow ? '0 10px 24px -18px rgba(11,11,12,.9)' : 'none' }}>
+                    <span style={{ flex: 1, background: isNow ? '#fff' : 'transparent', borderRadius: 18, padding: isNow ? '13px 15px' : '10px 0', boxShadow: hit ? '0 0 0 2px ' + sk.c : isNow ? '0 10px 24px -18px rgba(11,11,12,.9)' : 'none', transition: 'box-shadow .25s ease' }}>
                       <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
-                        <span style={{ font: `${isNow ? 800 : 700} ${isNow ? 16 : 14}px ${isNow ? F.display : F.body}`, color: C.ink, letterSpacing: isNow ? '-.01em' : 0, textDecoration: done ? 'line-through' : 'none' }}>{r.name}</span>
+                        <span style={{ position: 'relative', font: `${isNow ? 800 : 700} ${isNow ? 16 : 14}px ${isNow ? F.display : F.body}`, color: C.ink, letterSpacing: isNow ? '-.01em' : 0, textDecoration: done ? 'line-through' : 'none' }}>
+                          {r.name}
+                          {hit ? <span style={{ position: 'absolute', left: 0, right: 0, top: '52%', height: 2, background: C.ink, transformOrigin: 'left', animation: 'nuStrike .3s cubic-bezier(.2,1,.3,1) forwards' }} /> : null}
+                        </span>
                         <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(11,11,12,.4)' : C.ink, whiteSpace: 'nowrap' }}>+{s.onFire && isNow ? r.px * 2 : r.px}</span>
                       </span>
                       <span style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 6, flexWrap: 'wrap' }}>
@@ -302,7 +391,10 @@ export default function Quests({ nav }: { nav: Nav }) {
           }}
         >
           <span style={{ minWidth: 0 }}>
-            <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.14em', opacity: .6 }}>PROCHAIN PALIER</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 7, font: `500 9px ${F.mono}`, letterSpacing: '.14em', opacity: .6 }}>
+              PROCHAIN PALIER
+              {s.combo.n > 1 ? <span style={{ background: C.ink, color: C.lime, borderRadius: 99, padding: '3px 7px', opacity: 1, letterSpacing: '.06em' }}>COMBO ×{s.combo.n}</span> : null}
+            </span>
             <span style={{ display: 'block', font: `800 17px ${F.display}`, letterSpacing: '-.01em', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{now.name}</span>
           </span>
           <span style={{ font: `700 12px ${F.body}`, background: C.ink, color: C.lime, padding: '12px 18px', borderRadius: 99, flex: 'none' }}>VALIDER</span>

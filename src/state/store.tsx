@@ -14,6 +14,7 @@ export type RewardEvent = {
   kind: 'quest' | 'palier' | 'rare' | 'buy' | 'duel' | 'fire' | 'surprise';
   title: string; sub?: string; px?: number; coins?: number; energy?: number;
   color?: string; object?: string; share?: ShareData; fire?: boolean;
+  combo?: number; comboStep?: boolean;
 };
 
 type Action =
@@ -21,6 +22,8 @@ type Action =
   | { t: 'IDENTITY'; firstName: string; gamertag: string }
   | { t: 'LOGOUT' } | { t: 'RESET' }
   | { t: 'START_SKILL'; skill: string }
+  | { t: 'FLOW'; step: number }
+  | { t: 'FINISH_FLOW' }
   | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null }
   | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number }
   | { t: 'DRAW_USED' }
@@ -40,7 +43,7 @@ type Action =
   | { t: 'DUEL'; id: string; win: boolean; my: number; their: number }
   | { t: 'BANNER'; patch: Record<string, any> }
   | { t: 'PREF'; key: 'sound' | 'haptics' | 'confetti'; value: boolean }
-  | { t: 'SEEN'; key: 'onboarding' | 'questHelp' }
+  | { t: 'SEEN'; key: 'onboarding' | 'questHelp' | 'guide' }
   | { t: 'EVENT'; event: RewardEvent | null }
   | { t: 'SHARE'; data: ShareData | null }
   | { t: 'TOAST'; msg: string | null };
@@ -53,6 +56,12 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 /** Multiplicateur appliqué aux PX quand la jauge est pleine (« en feu »). */
 export const FIRE_MULT = 2;
 const DAY = 864e5;
+/** Fenêtre pendant laquelle deux validations s'enchaînent en combo. */
+export const COMBO_WINDOW = 30 * 60e3;
+/** Paliers de combo qui déclenchent une célébration renforcée. */
+export const COMBO_STEPS = [3, 5, 10, 20];
+/** Bonus de PX accordé par le combo en cours. */
+export const comboBonus = (n: number) => (n >= 20 ? 0.4 : n >= 10 ? 0.3 : n >= 5 ? 0.2 : n >= 3 ? 0.1 : 0);
 /** L'énergie retombe après 24 h sans quête validée. */
 const DECAY_MS = DAY;
 /** Énergie dépensée par quête quand l'état « en feu » est actif. */
@@ -75,7 +84,7 @@ function reducer(s: Store, a: Action): Store {
 
     case 'IDENTITY':
       return {
-        ...s, logged: true,
+        ...s, logged: true, flow: 0,
         profile: { ...s.profile, firstName: a.firstName, gamertag: a.gamertag }
       };
 
@@ -97,10 +106,13 @@ function reducer(s: Store, a: Action): Store {
         startSkill: a.skill,
         customQuests: [quest, ...s.customQuests],
         banner: { ...s.banner, pins: [a.skill, 'perso'] },
-        seen: { ...s.seen, onboarding: true },
+        flow: 3,
         toast: 'Premier palier ajouté sur ' + sk.name.toLowerCase()
       };
     }
+
+    case 'FLOW': return { ...s, flow: a.step };
+    case 'FINISH_FLOW': return { ...s, seen: { ...s.seen, onboarding: true, guide: true } };
 
     case 'VALIDATE': {
       const base = (BOARDS[a.skill] || []).length;
@@ -108,7 +120,11 @@ function reducer(s: Store, a: Action): Store {
       const eng = decayed(s);
       const witnessBonus = a.witness ? 0.2 : 0;
       const mult = eng.onFire ? FIRE_MULT : 1;
-      const px = Math.round(a.px * mult * (1 + witnessBonus));
+
+      // Combo : deux validations à moins de 30 min s'enchaînent.
+      const chain = s.combo.last && Date.now() - s.combo.last < COMBO_WINDOW ? s.combo.n + 1 : 1;
+      const comboStep = COMBO_STEPS.includes(chain);
+      const px = Math.round(a.px * mult * (1 + witnessBonus + comboBonus(chain)));
 
       const prog = s.progress[a.skill] || { px: 0, done: 0 };
       const major = isBase && (MAJOR[a.skill] || []).includes(a.ix);
@@ -138,6 +154,7 @@ function reducer(s: Store, a: Action): Store {
       return {
         ...s,
         energy, onFire, lastQuestAt: Date.now(),
+        combo: { n: chain, best: Math.max(s.combo.best, chain), last: Date.now() },
         progress: { ...s.progress, [a.skill]: { px: prog.px + px, done: prog.done + (isBase ? 1 : 0) } },
         customQuests: isBase ? s.customQuests : s.customQuests.map((q) => (q.name === a.name ? { ...q, done: true } : q)),
         px: s.px + px,
@@ -152,6 +169,7 @@ function reducer(s: Store, a: Action): Store {
           color: skillById(a.skill).c,
           object: major ? OBJ[a.skill] : undefined,
           fire: onFire && !eng.onFire,
+          combo: chain, comboStep,
           share
         }
       };
@@ -174,6 +192,7 @@ function reducer(s: Store, a: Action): Store {
       if (!task) return s;
       const on = !task.done;
       const eng = decayed(s);
+      const chain = on && s.combo.last && Date.now() - s.combo.last < COMBO_WINDOW ? s.combo.n + 1 : 1;
       const mult = on && eng.onFire ? FIRE_MULT : 1;
       const px = task.px * mult;
       return {
@@ -184,6 +203,7 @@ function reducer(s: Store, a: Action): Store {
         energy: on ? Math.min(100, eng.energy + Math.round(task.px / 2)) : eng.energy,
         onFire: on ? eng.onFire || eng.energy + Math.round(task.px / 2) >= 100 : eng.onFire,
         lastQuestAt: on ? Date.now() : s.lastQuestAt,
+        combo: on ? { n: chain, best: Math.max(s.combo.best, chain), last: Date.now() } : s.combo,
         toast: on ? '+' + px + ' PX' : 'Tâche décochée'
       };
     }
@@ -302,6 +322,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!s.event) return;
     const e = s.event;
+    if (e.comboStep) { buzz('milestone'); sfx.streak(); if (s.prefs.confetti) confetti(110); }
+    else if (e.combo && e.combo > 1) { buzz('combo'); sfx.combo(e.combo); }
     if (e.kind === 'palier') { buzz('levelup'); sfx.levelup(); if (s.prefs.confetti) confetti(130); }
     else if (e.kind === 'duel') { buzz(e.px && e.coins ? 'success' : 'error'); e.coins ? sfx.levelup() : sfx.error(); if (s.prefs.confetti && e.coins) confetti(90); }
     else if (e.kind === 'rare' || e.kind === 'surprise') { buzz('success'); sfx.rare(); if (s.prefs.confetti) confetti(70); }

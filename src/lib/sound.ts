@@ -27,5 +27,17 @@ export const sfx = {
   validate: () => { [523, 659, 784].forEach((f, i) => tone(f, 0.16, 'triangle', 0.055, i * 0.07)); },
   levelup: () => { [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.22, 'sine', 0.06, i * 0.09)); },
   rare: () => { [880, 1174, 1567].forEach((f, i) => tone(f, 0.2, 'sine', 0.05, i * 0.08)); },
-  error: () => tone(180, 0.18, 'sawtooth', 0.03)
+  error: () => tone(180, 0.18, 'sawtooth', 0.03),
+
+  /** Coche d'une quête : claquement court + résonance. */
+  check: () => { tone(1200, 0.045, 'square', 0.028); tone(760, 0.14, 'triangle', 0.05, 0.03); },
+  /** Combo : la gamme monte d'un demi-ton par palier, plafonnée. */
+  combo: (n: number) => {
+    const base = 523 * Math.pow(2, Math.min(11, Math.max(0, n - 1)) / 12);
+    [base, base * 1.5].forEach((f, i) => tone(f, 0.13, 'triangle', 0.05, i * 0.055));
+  },
+  /** Palier de streak franchi. */
+  streak: () => { [659, 880, 1174, 1568].forEach((f, i) => tone(f, 0.2, 'sine', 0.055, i * 0.065)); },
+  /** Compte à rebours de la barre de combo qui expire. */
+  cool: () => tone(300, 0.12, 'sine', 0.025)
 };

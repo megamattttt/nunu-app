@@ -12,8 +12,8 @@ export interface DataAdapter {
   clear(): Promise<void>;
 }
 
-const KEY = 'nunu.save.v2';
-const LEGACY = ['nunu.save.v1'];
+const KEY = 'nunu.save.v3';
+const LEGACY = ['nunu.save.v1', 'nunu.save.v2'];
 
 export class LocalAdapter implements DataAdapter {
   async load() {

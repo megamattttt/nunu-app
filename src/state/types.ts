@@ -46,6 +46,12 @@ export type GameState = {
   /** Compétence choisie à l'onboarding. */
   startSkill: string | null;
 
+  /** Étape du parcours de première connexion : 0 avatar · 1 guide · 2 compétence · 3 première quête. */
+  flow: number;
+
+  /** Combo de validations rapprochées (fenêtre de 30 min). */
+  combo: { n: number; best: number; last: number | null };
+
   /* --- Deux monnaies seulement --- */
   px: number;                 // PX cumulés (niveau global du personnage)
   coins: number;              // monnaie cosmétique
@@ -70,5 +76,5 @@ export type GameState = {
 
   stats: { questsDone: number; totalPx: number; duelsWon: number; postsSent: number };
   prefs: { sound: boolean; haptics: boolean; confetti: boolean };
-  seen: { onboarding: boolean; questHelp: boolean };
+  seen: { onboarding: boolean; questHelp: boolean; guide: boolean };
 };

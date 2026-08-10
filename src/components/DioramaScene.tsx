@@ -25,6 +25,10 @@ export default function DioramaScene({ height = 240, editable, onPick, dragging,
       data-diorama
       style={{
         position: 'relative', height, borderRadius: 22, overflow: 'hidden',
+        // `isolation` crée un contexte d'empilement : les objets déplaçables
+        // (z-index déduit de leur profondeur) ne peuvent plus passer au-dessus
+        // du dock de menu, qui vit dans le contexte racine.
+        isolation: 'isolate', zIndex: 0,
         background: wall[1], backgroundImage: wall[2], touchAction: dragging ? 'none' : 'auto'
       }}
     >

@@ -10,7 +10,7 @@ import { BackBtn, Tap } from '../../components/ui';
 import { buzz } from '../../lib/haptics';
 import type { Nav } from '../../App';
 
-export default function AvatarStudio({ nav }: { nav: Nav }) {
+export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hideBack }: { nav?: Nav; onDone?: () => void; ctaLabel?: string; hideBack?: boolean }) {
   const { s, d } = useGame();
   const [group, setGroup] = useState(0);
   const [cat, setCat] = useState('skin');
@@ -45,13 +45,18 @@ export default function AvatarStudio({ nav }: { nav: Nav }) {
 
   const options = current.kind === 'c' ? (current.pal || []) : current.kind === 'f' ? AV_FRAME.map((f) => f.n) : (AV_L[current.k] || []);
 
+  const save = () => {
+    if (onDone) { onDone(); return; }
+    d({ t: 'TOAST', msg: 'Avatar enregistré' });
+    nav?.back();
+  };
+
   return (
     <div style={{ position: 'relative', minHeight: '86dvh', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px 0' }}>
-        <BackBtn onTap={nav.back} />
+        {hideBack ? null : <BackBtn onTap={() => nav?.back()} />}
         <span style={{ flex: 1 }} />
         <Tap onTap={randomize} style={{ font: `700 10px ${F.mono}`, color: '#fff', background: 'rgba(255,255,255,.1)', padding: '13px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 44, display: 'flex', alignItems: 'center' }}>HASARD</Tap>
-        <Tap onTap={() => { d({ t: 'TOAST', msg: 'Avatar enregistré' }); nav.back(); }} haptic="success" style={{ font: `700 10px ${F.mono}`, color: C.ink, background: C.lime, padding: '13px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 44, display: 'flex', alignItems: 'center' }}>ENREGISTRER</Tap>
       </div>
 
       {/* Scène */}
@@ -67,8 +72,9 @@ export default function AvatarStudio({ nav }: { nav: Nav }) {
         </span>
       </div>
 
-      {/* Panneau */}
-      <div style={{ background: C.night, borderRadius: '28px 28px 0 0', marginTop: 12, padding: '14px 18px 26px', flex: 1, borderTop: '1px solid rgba(255,255,255,.08)' }}>
+      {/* Panneau. La barre d'action reste au-dessus du dock : le panneau
+          réserve sa hauteur + celle du dock (--dock-space). */}
+      <div style={{ background: C.night, borderRadius: '28px 28px 0 0', marginTop: 12, padding: '14px 18px', paddingBottom: 'calc(var(--dock-space) + 78px)', flex: 1, borderTop: '1px solid rgba(255,255,255,.08)' }}>
         <div style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 4 }}>
           {AV_GROUPS.map((g, i) => (
             <Tap
@@ -162,6 +168,29 @@ export default function AvatarStudio({ nav }: { nav: Nav }) {
             </div>
           </>
         )}
+      </div>
+
+      {/* Barre d'action : toujours au-dessus du dock, jamais recouverte. */}
+      <div
+        style={{
+          position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 35,
+          padding: '12px 20px calc(var(--dock-space) + 4px)',
+          background: 'linear-gradient(180deg,transparent,rgba(11,11,12,.9) 34%)',
+          pointerEvents: 'none'
+        }}
+      >
+        <Tap
+          onTap={save} haptic="success"
+          style={{
+            pointerEvents: 'auto', maxWidth: 460, margin: '0 auto',
+            background: C.lime, color: C.ink, borderRadius: 20, minHeight: 56, padding: '0 22px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            boxShadow: '0 20px 40px -18px rgba(0,0,0,.85)'
+          }}
+        >
+          <span style={{ font: `800 16px ${F.display}`, letterSpacing: '-.01em' }}>{ctaLabel}</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.8"><path d="M5 12h13M12 5l7 7-7 7" /></svg>
+        </Tap>
       </div>
     </div>
   );

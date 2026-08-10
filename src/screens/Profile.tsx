@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { C, F } from '../theme';
 import { useGame } from '../state/store';
 import { SKILLS, skillById } from '../data/skills';
@@ -8,12 +8,15 @@ import { DIO_OBJ } from '../data/diorama';
 import AvatarCut from '../components/avatar/AvatarCut';
 import DioramaScene from '../components/DioramaScene';
 import Logo from '../components/Logo';
+import ProfileEdit from '../components/ProfileEdit';
 import { CADRE_C } from '../data/quiz';
-import { Bar, Kicker, Star, Tap } from '../components/ui';
+import { Kicker, Star, Tap } from '../components/ui';
 import type { Nav } from '../App';
 
 export default function Profile({ nav }: { nav: Nav }) {
   const { s, d } = useGame();
+  const [edit, setEdit] = useState(false);
+  const [settings, setSettings] = useState(false);
   const sig = ['#C6F24E','#FF5C42','#6C63FF','#FFC93C','#A8D8FF','#B06FF0','#2FA88A','#F8A79F'][s.profile.sig];
   const quote = QUOTES[s.banner.quote % QUOTES.length];
   const chall = CHALLENGES[s.banner.chall % CHALLENGES.length];
@@ -29,7 +32,15 @@ export default function Profile({ nav }: { nav: Nav }) {
             </span>
           </Tap>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: 'block', font: `800 32px/1 ${F.display}`, color: C.ink, letterSpacing: '-.025em' }}>@{s.profile.gamertag}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ font: `800 32px/1 ${F.display}`, color: C.ink, letterSpacing: '-.025em', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>@{s.profile.gamertag}</span>
+              <Tap
+                onTap={() => setEdit(true)} aria-label="Modifier le profil"
+                style={{ width: 34, height: 34, borderRadius: 99, flex: 'none', background: 'rgba(11,11,12,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.2" strokeLinejoin="round"><path d="M4 20h4L20 8l-4-4L4 16z" /></svg>
+              </Tap>
+            </span>
             <span style={{ display: 'block', font: `400 12.5px ${F.body}`, color: 'rgba(11,11,12,.62)', marginTop: 6 }}>{s.profile.firstName} · {s.profile.atelier}</span>
             <span style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 6, marginTop: 9 }}>
               <span style={{ font: `700 10px ${F.mono}`, color: C.paper, background: C.ink, padding: '5px 10px', borderRadius: 99, letterSpacing: '.1em' }}>NIVEAU {globalLevel(s)}</span>
@@ -53,18 +64,38 @@ export default function Profile({ nav }: { nav: Nav }) {
 
       <div style={{ padding: '18px 22px 26px', display: 'flex', flexDirection: 'column', gap: 14 }}>
         {/* Niveau global */}
-        <section style={{ background: C.paper, borderRadius: 26, padding: '16px 18px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <section style={{ background: C.paper, borderRadius: 26, padding: '16px 18px 17px', position: 'relative', overflow: 'hidden' }}>
+          <span style={{ position: 'absolute', right: -70, top: -80, width: 200, height: 200, borderRadius: '50%', background: sig, opacity: .18, animation: 'nuHalo 7s ease-in-out infinite' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, position: 'relative' }}>
             <Kicker dark>NIVEAU DE PERSONNAGE</Kicker>
             <Logo size={20} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8 }}>
-            <span style={{ font: `800 44px/1 ${F.display}`, color: C.ink, letterSpacing: '-.04em' }}>{globalLevel(s)}</span>
-            <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(11,11,12,.45)', letterSpacing: '.1em' }}>/ 999</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
-            <Bar pct={globalPct(s)} c={C.ink} h={10} track="rgba(11,11,12,.1)" />
-            <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(11,11,12,.5)', flex: 'none' }}>{globalPct(s)}%</span>
+
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 15, marginTop: 10, position: 'relative' }}>
+            <span style={{ font: `800 54px/.84 ${F.display}`, color: C.ink, letterSpacing: '-.05em', flex: 'none' }}>{globalLevel(s)}</span>
+            <span style={{ flex: 1, minWidth: 0, paddingBottom: 3 }}>
+              {/* Jauge pilule : le pourcentage vit dans la barre. */}
+              <span style={{ display: 'block', position: 'relative', height: 26, borderRadius: 99, background: 'rgba(11,11,12,.09)', overflow: 'hidden' }}>
+                <span
+                  style={{
+                    position: 'absolute', left: 0, top: 0, bottom: 0, width: Math.max(2, globalPct(s)) + '%', borderRadius: 99,
+                    background: C.ink, transition: 'width .8s cubic-bezier(.2,1,.3,1)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 10
+                  }}
+                >
+                  {globalPct(s) >= 24 ? (
+                    <span style={{ font: `700 10.5px ${F.mono}`, color: C.lime, letterSpacing: '.04em' }}>{globalPct(s)}%</span>
+                  ) : null}
+                </span>
+                {globalPct(s) < 24 ? (
+                  <span style={{ position: 'absolute', right: 11, top: 0, bottom: 0, display: 'flex', alignItems: 'center', font: `700 10.5px ${F.mono}`, color: 'rgba(11,11,12,.5)' }}>{globalPct(s)}%</span>
+                ) : null}
+              </span>
+              <span style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, font: `500 9.5px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(11,11,12,.45)' }}>
+                <span>{totalPx(s).toLocaleString('fr-FR')} PX CUMULÉS</span>
+                <span>NIVEAU {globalLevel(s) + 1}</span>
+              </span>
+            </span>
           </div>
         </section>
 
@@ -181,25 +212,66 @@ export default function Profile({ nav }: { nav: Nav }) {
           </span>
         </Tap>
 
-        {/* Réglages */}
-        <Kicker>RÉGLAGES</Kicker>
-        <div style={{ background: C.night, border: '1px solid rgba(255,255,255,.08)', borderRadius: 22, padding: '6px 16px' }}>
-          {([['haptics', 'Vibrations'], ['sound', 'Sons'], ['confetti', 'Confettis']] as const).map(([k, label]) => (
-            <div key={k} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: k === 'confetti' ? 'none' : '1px solid rgba(255,255,255,.07)' }}>
-              <span style={{ font: `500 13.5px ${F.body}`, color: 'rgba(255,255,255,.85)' }}>{label}</span>
-              <Tap
-                onTap={() => d({ t: 'PREF', key: k, value: !s.prefs[k] })}
-                style={{ width: 52, height: 30, borderRadius: 99, background: s.prefs[k] ? C.lime : 'rgba(255,255,255,.14)', padding: 3, display: 'flex', justifyContent: s.prefs[k] ? 'flex-end' : 'flex-start' }}
-              >
-                <span style={{ width: 24, height: 24, borderRadius: '50%', background: s.prefs[k] ? C.ink : 'rgba(255,255,255,.6)', transition: 'all .18s ease' }} />
-              </Tap>
+        {/* Réglages — accordéon, fermé par défaut */}
+        <div style={{ background: C.night, border: '1px solid rgba(255,255,255,.08)', borderRadius: 22, overflow: 'hidden' }}>
+          <Tap
+            onTap={() => setSettings((v) => !v)} haptic="soft"
+            aria-expanded={settings}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '17px 16px', minHeight: 58 }}
+          >
+            <span style={{ flex: 1, font: `500 9.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>RÉGLAGES</span>
+            <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.35)' }}>
+              {settings ? 'MASQUER' : 'AFFICHER'}
+            </span>
+            <svg
+              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="2.6"
+              style={{ flex: 'none', transform: settings ? 'rotate(180deg)' : 'none', transition: 'transform .22s cubic-bezier(.2,1,.3,1)' }}
+            >
+              <path d="M5 9l7 7 7-7" />
+            </svg>
+          </Tap>
+
+          <div style={{ display: 'grid', gridTemplateRows: settings ? '1fr' : '0fr', transition: 'grid-template-rows .28s cubic-bezier(.2,1,.3,1)' }}>
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{ padding: '0 16px 8px' }}>
+                {([['haptics', 'Vibrations'], ['sound', 'Sons'], ['confetti', 'Confettis']] as const).map(([k, label]) => (
+                  <div key={k} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 0', borderTop: '1px solid rgba(255,255,255,.07)' }}>
+                    <span style={{ font: `500 13.5px ${F.body}`, color: 'rgba(255,255,255,.85)' }}>{label}</span>
+                    <Tap
+                      onTap={() => d({ t: 'PREF', key: k, value: !s.prefs[k] })}
+                      style={{ width: 52, height: 30, borderRadius: 99, background: s.prefs[k] ? C.lime : 'rgba(255,255,255,.14)', padding: 3, display: 'flex', justifyContent: s.prefs[k] ? 'flex-end' : 'flex-start' }}
+                    >
+                      <span style={{ width: 24, height: 24, borderRadius: '50%', background: s.prefs[k] ? C.ink : 'rgba(255,255,255,.6)', transition: 'all .18s ease' }} />
+                    </Tap>
+                  </div>
+                ))}
+
+                {([
+                  ['Modifier le profil', 'Prénom et gamertag', () => setEdit(true)],
+                  ['Revoir le guide de démarrage', 'Les règles du jeu en cinq écrans', () => nav.open('guide')]
+                ] as const).map(([label, sub, act]) => (
+                  <Tap key={label} onTap={act} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 0', borderTop: '1px solid rgba(255,255,255,.07)', minHeight: 56 }}>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: 'block', font: `500 13.5px ${F.body}`, color: 'rgba(255,255,255,.85)' }}>{label}</span>
+                      <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.42)', marginTop: 2 }}>{sub}</span>
+                    </span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" strokeWidth="2.6" style={{ flex: 'none' }}><path d="M9 5l7 7-7 7" /></svg>
+                  </Tap>
+                ))}
+
+                <Tap
+                  onTap={() => { if (confirm('Effacer toute ta progression locale ?')) d({ t: 'RESET' }); }}
+                  style={{ display: 'block', textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.coral, padding: '16px 0 10px', minHeight: 44, borderTop: '1px solid rgba(255,255,255,.07)' }}
+                >
+                  RÉINITIALISER MA PROGRESSION
+                </Tap>
+              </div>
             </div>
-          ))}
+          </div>
         </div>
-        <Tap onTap={() => { if (confirm('Effacer toute ta progression locale ?')) d({ t: 'RESET' }); }} style={{ textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.4)', padding: '14px', minHeight: 44 }}>
-          RÉINITIALISER MA PROGRESSION
-        </Tap>
       </div>
+
+      {edit ? <ProfileEdit onClose={() => setEdit(false)} /> : null}
     </div>
   );
 }
