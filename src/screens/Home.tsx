@@ -73,29 +73,42 @@ export default function Home({ nav }: { nav: Nav }) {
 
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
           <Logo size={19} word wordSize={14} color={C.ink} />
-          <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-            <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(10,10,12,.38)' }}>{amb.k}</span>
-            <span
+          <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(10,10,12,.38)' }}>{amb.k}</span>
+              <span
+                style={{
+                  font: `700 8.5px ${F.mono}`, letterSpacing: '.12em',
+                  color: s.onFire ? '#fff' : 'rgba(10,10,12,.6)',
+                  background: s.onFire ? C.coral : 'rgba(255,255,255,.65)',
+                  border: `1px solid ${s.onFire ? C.coral : 'rgba(10,10,12,.1)'}`,
+                  borderRadius: 99, padding: '5px 10px'
+                }}
+              >
+                {s.onFire ? 'EN FEU · PX ×2' : `ÉNERGIE ${s.energy}%`}
+              </span>
+            </span>
+
+            {/* Le niveau du personnage : une seule mention, bien visible. */}
+            <Tap
+              onTap={() => nav.go('profile')} haptic="soft"
               style={{
-                font: `700 8.5px ${F.mono}`, letterSpacing: '.12em',
-                color: s.onFire ? '#fff' : 'rgba(10,10,12,.6)',
-                background: s.onFire ? C.coral : 'rgba(255,255,255,.65)',
-                border: `1px solid ${s.onFire ? C.coral : 'rgba(10,10,12,.1)'}`,
-                borderRadius: 99, padding: '5px 10px'
+                display: 'flex', alignItems: 'center', gap: 9, background: C.ink, borderRadius: 15,
+                padding: '8px 13px 8px 12px', boxShadow: '0 14px 26px -20px rgba(0,0,0,.9)'
               }}
             >
-              {s.onFire ? 'EN FEU · PX ×2' : `ÉNERGIE ${s.energy}%`}
-            </span>
+              <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.2em', color: 'rgba(255,255,255,.5)', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>NIVEAU</span>
+              <span style={{ font: `800 30px/1 ${F.display}`, color: C.lime, letterSpacing: '-.04em' }}>{lvl}</span>
+            </Tap>
           </span>
         </div>
 
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 15, marginTop: 14 }}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 15, marginTop: 10 }}>
           <AvatarFrame
             av={s.profile.av}
             crop="bust"
             size={116}
             accent={mainRank.c}
-            level={lvl}
             onTap={() => nav.open('avatar')}
             style={{ animation: 'nuRise .5s cubic-bezier(.2,1,.3,1) both' }}
           />
@@ -107,7 +120,6 @@ export default function Home({ nav }: { nav: Nav }) {
                 {firstName}
               </span>
               <Tap onTap={() => nav.go('profile')} style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 8 }}>
-                <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: C.lime, borderRadius: 99, padding: '4px 9px' }}>NIV {lvl}</span>
                 <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(10,10,12,.45)', letterSpacing: '.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{s.profile.gamertag}</span>
               </Tap>
             </div>
@@ -122,7 +134,7 @@ export default function Home({ nav }: { nav: Nav }) {
         <div style={{ position: 'relative', marginTop: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
             <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(10,10,12,.42)' }}>EXPÉRIENCE</span>
-            <span style={{ font: `700 10px ${F.mono}`, color: C.ink }}>{globalPct(s)} % · NIV {lvl + 1}</span>
+            <span style={{ font: `700 10px ${F.mono}`, color: C.ink }}>{globalPct(s)} %</span>
           </div>
           <span style={{ display: 'block', height: 10, borderRadius: 99, background: 'rgba(10,10,12,.09)', overflow: 'hidden', marginTop: 8, position: 'relative' }}>
             <span

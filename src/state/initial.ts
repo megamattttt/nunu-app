@@ -18,11 +18,13 @@ export const initialState: GameState = {
     titleIx: 0,
     sig: 0,
     cadre: 0,
+    persoName: 'Perso',
     av: randomConfig()
   },
 
   progress: Object.fromEntries(SKILLS.map((s) => [s.id, { px: 0, done: 0 }])),
   customQuests: [],
+  packs: [],
   pioched: [],
   tasks: [],
 

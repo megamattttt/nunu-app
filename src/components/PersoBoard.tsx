@@ -2,17 +2,21 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { C, F } from '../theme';
 import { useGame } from '../state/store';
 import { IMPS, nextImp, type Importance } from '../data/importance';
+import { PACKS } from '../data/packs';
 import { parseQuest, dueLabel, dueBucket, BUCKETS } from '../lib/nlq';
 import { askNotif, notifState, notifSupported } from '../lib/notify';
 import { Check, Kicker, Tap } from './ui';
 import { buzz } from '../lib/haptics';
 import { sfx } from '../lib/sound';
-import type { CustomQuest } from '../state/types';
+import type { CustomQuest, QuestPack } from '../state/types';
 
 const impOf = (q: CustomQuest): Importance => q.imp || 'normal';
 
 /** Deux-points clignotant : la ligne d'échéance respire quand c'est pour maintenant. */
 const LIVE = { animation: 'nuHalo 2.4s ease-in-out infinite' } as const;
+
+/** Surfaces sombres de l'espace perso — même vocabulaire que l'accueil. */
+const CARD = { background: C.night, border: `1px solid ${C.line}`, borderRadius: 20 } as const;
 
 function Pill({ c, txt, children }: { c: string; txt: string; children: React.ReactNode }) {
   return (
@@ -22,16 +26,69 @@ function Pill({ c, txt, children }: { c: string; txt: string; children: React.Re
   );
 }
 
+/** Un pack : nom, aperçu du contenu, ajout en un clic, contenu dépliable. */
+function PackCard({ pack, open, onOpen, onAddAll, onAddOne, onDelete }: {
+  pack: QuestPack; open: boolean; onOpen: () => void; onAddAll: () => void;
+  onAddOne: (name: string) => void; onDelete?: () => void;
+}) {
+  return (
+    <div style={{ ...CARD, padding: '13px 14px', borderColor: open ? `${C.iris}66` : C.line }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+        <Tap onTap={onOpen} haptic="soft" style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 11 }}>
+          <span style={{ width: 30, height: 30, borderRadius: 10, flex: 'none', background: 'rgba(156,138,214,.18)', border: `1px solid ${C.iris}55`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.iris} strokeWidth="2.2" strokeLinejoin="round"><path d="M4 7h6l2 2h8v10H4z" /></svg>
+          </span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: 'block', font: `700 13px ${F.body}`, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pack.name}</span>
+            <span style={{ display: 'block', font: `400 10.5px ${F.body}`, color: 'rgba(255,255,255,.42)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {pack.items.length} tâches · {pack.items.slice(0, 2).join(', ')}…
+            </span>
+          </span>
+        </Tap>
+        <Tap
+          onTap={onAddAll} haptic="success" aria-label={'Ajouter ' + pack.name}
+          style={{ flex: 'none', minHeight: 38, padding: '0 13px', borderRadius: 12, background: C.lime, color: C.ink, display: 'flex', alignItems: 'center', font: `700 9.5px ${F.mono}`, letterSpacing: '.08em' }}
+        >
+          TOUT
+        </Tap>
+      </div>
+
+      {open ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 12, paddingTop: 11, borderTop: `1px solid ${C.line}` }}>
+          {pack.items.map((it) => (
+            <Tap
+              key={it} onTap={() => onAddOne(it)} haptic="soft"
+              style={{ display: 'flex', alignItems: 'center', gap: 10, minHeight: 40, padding: '0 4px' }}
+            >
+              <span style={{ width: 22, height: 22, borderRadius: 8, flex: 'none', background: 'rgba(255,255,255,.07)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" strokeWidth="3"><path d="M12 5v14M5 12h14" /></svg>
+              </span>
+              <span style={{ flex: 1, font: `500 12.5px ${F.body}`, color: 'rgba(255,255,255,.8)' }}>{it}</span>
+            </Tap>
+          ))}
+          {onDelete ? (
+            <Tap onTap={onDelete} style={{ marginTop: 2, minHeight: 36, display: 'flex', alignItems: 'center', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.coral }}>
+              SUPPRIMER CE PACK
+            </Tap>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 /**
- * Compétence perso en mode rappels : une seule ligne de saisie qui comprend
- * le français, un tri automatique par échéance puis importance, et des
- * notifications locales pilotées depuis le profil.
+ * Espace perso en mode rappels : une seule ligne de saisie qui comprend
+ * le français, un tri automatique par échéance puis importance, des packs
+ * de tâches prêts à poser, et des notifications locales réglées au profil.
  */
 export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
   const { s, d } = useGame();
   const [raw, setRaw] = useState('');
   const [impOverride, setImpOverride] = useState<Importance | null>(null);
   const [doneOpen, setDoneOpen] = useState(false);
+  const [openPack, setOpenPack] = useState<string | null>(null);
+  const [newPack, setNewPack] = useState<{ name: string; items: string } | null>(null);
   const [perm, setPerm] = useState(notifState());
   const [, tick] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -48,6 +105,7 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
   const all = s.customQuests.filter((q) => q.skill === 'perso');
   const open = all.filter((q) => !q.done);
   const done = all.filter((q) => q.done);
+  const packs: QuestPack[] = [...PACKS, ...(s.packs || [])];
 
   const sorted = useMemo(
     () => open.slice().sort((x, y) =>
@@ -77,6 +135,14 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
     d({ t: 'VALIDATE', skill: 'perso', ix: 1000 + i, name: q.name, px: q.px, rarity: 'commune' });
   };
 
+  const saveNewPack = () => {
+    if (!newPack) return;
+    const items = newPack.items.split(/[\n,]/).map((v) => v.trim()).filter(Boolean);
+    if (!newPack.name.trim() || !items.length) return;
+    d({ t: 'PACK_SAVE', pack: { name: newPack.name.trim(), items } });
+    setNewPack(null);
+  };
+
   const askPerm = async () => { setPerm(await askNotif()); d({ t: 'NOTIF', patch: { on: true } }); };
 
   /* Regroupement par urgence : les intertitres rendent le tri lisible. */
@@ -94,9 +160,9 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
       <form
         onSubmit={add}
         style={{
-          background: '#fff', borderRadius: 22, padding: 13,
-          border: `1px solid ${raw ? IMPS[imp].c : 'rgba(10,10,12,.1)'}`,
-          boxShadow: raw ? `0 18px 40px -30px ${IMPS[imp].c}` : '0 10px 26px -22px rgba(10,10,12,.6)',
+          background: C.night, borderRadius: 22, padding: 13,
+          border: `1px solid ${raw ? IMPS[imp].c : C.line}`,
+          boxShadow: raw ? `0 18px 40px -30px ${IMPS[imp].c}` : 'none',
           transition: 'border-color .2s ease'
         }}
       >
@@ -113,10 +179,10 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
             ref={inputRef} value={raw} onChange={(e) => { setRaw(e.target.value); setImpOverride(null); }}
             placeholder="Dentiste mardi 14h important"
             enterKeyHint="done"
-            style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', color: C.ink, font: `500 16px ${F.body}`, minHeight: 34 }}
+            style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', color: '#fff', font: `500 16px ${F.body}`, minHeight: 34 }}
           />
           {raw ? (
-            <button type="submit" style={{ font: `700 10px ${F.mono}`, letterSpacing: '.08em', color: C.paper, background: C.ink, padding: '0 14px', borderRadius: 12, minHeight: 38, flex: 'none' }}>
+            <button type="submit" style={{ font: `700 10px ${F.mono}`, letterSpacing: '.08em', color: C.ink, background: C.lime, padding: '0 14px', borderRadius: 12, minHeight: 38, flex: 'none' }}>
               AJOUTER
             </button>
           ) : null}
@@ -124,9 +190,9 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
 
         {/* Lecture de la saisie : ce que l'application a compris, modifiable d'un tap */}
         {parsed ? (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center', marginTop: 11, paddingTop: 11, borderTop: '1px solid rgba(10,10,12,.07)' }}>
-            <span style={{ font: `700 12.5px ${F.body}`, color: C.ink, marginRight: 2 }}>{parsed.name || '…'}</span>
-            <Pill c="rgba(10,10,12,.07)" txt="rgba(10,10,12,.62)">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center', marginTop: 11, paddingTop: 11, borderTop: `1px solid ${C.line}` }}>
+            <span style={{ font: `700 12.5px ${F.body}`, color: '#fff', marginRight: 2 }}>{parsed.name || '…'}</span>
+            <Pill c="rgba(255,255,255,.08)" txt="rgba(255,255,255,.62)">
               {parsed.due ? dueLabel(parsed.due, parsed.timed).toUpperCase() : 'SANS DATE'}
             </Pill>
             <Tap
@@ -136,11 +202,11 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
             >
               <Pill c={IMPS[imp].c} txt={IMPS[imp].txt}>{IMPS[imp].label}</Pill>
             </Tap>
-            <Pill c="rgba(10,10,12,.07)" txt="rgba(10,10,12,.62)">+{IMPS[imp].px} PX</Pill>
+            <Pill c="rgba(255,255,255,.08)" txt="rgba(255,255,255,.62)">+{IMPS[imp].px} PX</Pill>
           </div>
         ) : (
-          <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(10,10,12,.45)', marginTop: 9, textWrap: 'pretty' }}>
-            Écris comme tu parles : <b style={{ fontWeight: 700 }}>demain 9h</b>, <b style={{ fontWeight: 700 }}>vendredi</b>, <b style={{ fontWeight: 700 }}>dans 3 jours</b>, <b style={{ fontWeight: 700 }}>urgent</b>. La date et l’importance se remplissent toutes seules.
+          <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 9, textWrap: 'pretty' }}>
+            Écris comme tu parles : <b style={{ fontWeight: 700, color: 'rgba(255,255,255,.7)' }}>demain 9h</b>, <b style={{ fontWeight: 700, color: 'rgba(255,255,255,.7)' }}>vendredi</b>, <b style={{ fontWeight: 700, color: 'rgba(255,255,255,.7)' }}>dans 3 jours</b>, <b style={{ fontWeight: 700, color: 'rgba(255,255,255,.7)' }}>urgent</b>. La date et l’importance se remplissent toutes seules.
           </div>
         )}
       </form>
@@ -149,7 +215,7 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
       {notifSupported() && (perm !== 'granted' || !s.notif?.on) ? (
         <Tap
           onTap={askPerm} haptic="soft"
-          style={{ display: 'flex', alignItems: 'center', gap: 11, background: C.ink, borderRadius: 18, padding: '13px 15px', minHeight: 56 }}
+          style={{ display: 'flex', alignItems: 'center', gap: 11, background: C.slate, border: `1px solid ${C.line}`, borderRadius: 18, padding: '13px 15px', minHeight: 56 }}
         >
           <span style={{ width: 28, height: 28, borderRadius: 10, background: C.honey, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.2" strokeLinejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" /><path d="M10 19a2 2 0 0 0 4 0" /></svg>
@@ -165,32 +231,32 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
       ) : (
         <Tap
           onTap={onSettings} haptic="soft"
-          style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(92,191,174,.12)', border: `1px solid ${C.teal}44`, borderRadius: 16, padding: '11px 14px', minHeight: 46 }}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(92,191,174,.1)', border: `1px solid ${C.teal}44`, borderRadius: 16, padding: '11px 14px', minHeight: 46 }}
         >
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.teal, flex: 'none', ...LIVE }} />
-          <span style={{ flex: 1, font: `500 11.5px ${F.body}`, color: 'rgba(10,10,12,.7)' }}>
+          <span style={{ flex: 1, font: `500 11.5px ${F.body}`, color: 'rgba(255,255,255,.7)' }}>
             Rappels actifs sur {dated} quête{dated > 1 ? 's' : ''} datée{dated > 1 ? 's' : ''}
           </span>
-          <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(10,10,12,.45)', flex: 'none' }}>RÉGLER</span>
+          <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.45)', flex: 'none' }}>RÉGLER</span>
         </Tap>
       )}
 
       {/* En-tête de liste */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
-        <Kicker dark>À FAIRE · {open.length}</Kicker>
+        <Kicker>À FAIRE · {open.length}</Kicker>
         {late ? (
           <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: '#fff', background: C.coral, padding: '5px 9px', borderRadius: 8 }}>
             {late} EN RETARD
           </span>
         ) : (
-          <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(10,10,12,.4)' }}>TRI AUTOMATIQUE</span>
+          <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.4)' }}>TRI AUTOMATIQUE</span>
         )}
       </div>
 
       {!open.length ? (
-        <div style={{ background: '#fff', borderRadius: 20, padding: '26px 20px', textAlign: 'center' }}>
-          <div style={{ font: `800 17px ${F.display}`, color: C.ink, letterSpacing: '-.01em' }}>Rien en attente</div>
-          <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(10,10,12,.5)', marginTop: 6, textWrap: 'pretty' }}>
+        <div style={{ ...CARD, padding: '26px 20px', textAlign: 'center' }}>
+          <div style={{ font: `800 17px ${F.display}`, color: '#fff', letterSpacing: '-.01em' }}>Rien en attente</div>
+          <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 6, textWrap: 'pretty' }}>
             Sors une tâche de ta tête : tape-la ci-dessus, elle se range toute seule.
           </div>
         </div>
@@ -198,7 +264,7 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
 
       {groups.map((g) => (
         <div key={g.label} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.16em', color: g.label === 'EN RETARD' ? C.coral : 'rgba(10,10,12,.4)', marginTop: 4 }}>
+          <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.16em', color: g.label === 'EN RETARD' ? C.coral : 'rgba(255,255,255,.4)', marginTop: 4 }}>
             {g.label}
           </span>
           {g.rows.map((q) => {
@@ -209,8 +275,9 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
               <div
                 key={q.id}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 12, background: '#fff', borderRadius: 18, padding: '13px 14px',
-                  borderLeft: `4px solid ${ip.c}`, boxShadow: overdue ? `0 14px 32px -28px ${C.coral}` : 'none'
+                  display: 'flex', alignItems: 'center', gap: 12, background: C.night, borderRadius: 18, padding: '13px 14px',
+                  border: `1px solid ${C.line}`, borderLeft: `4px solid ${ip.c}`,
+                  boxShadow: overdue ? `0 14px 32px -28px ${C.coral}` : 'none'
                 }}
               >
                 <Tap
@@ -221,13 +288,13 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
                   }}
                 />
                 <Tap onTap={() => validate(q, i)} style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', font: `700 14px ${F.body}`, color: C.ink, textWrap: 'pretty' }}>{q.name}</span>
+                  <span style={{ display: 'block', font: `700 14px ${F.body}`, color: '#fff', textWrap: 'pretty' }}>{q.name}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5, flexWrap: 'wrap' }}>
-                    <span style={{ font: `500 11px ${F.body}`, color: overdue ? C.coral : 'rgba(10,10,12,.5)' }}>
+                    <span style={{ font: `500 11px ${F.body}`, color: overdue ? C.coral : 'rgba(255,255,255,.5)' }}>
                       {dueLabel(q.due ?? null, q.timed !== false)}
                     </span>
                     <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: ip.c }}>{ip.label}</span>
-                    <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(10,10,12,.4)' }}>+{s.onFire ? q.px * 2 : q.px}</span>
+                    <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.4)' }}>+{s.onFire ? q.px * 2 : q.px}</span>
                   </span>
                 </Tap>
                 <Tap
@@ -241,13 +308,60 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
                   onTap={() => d({ t: 'DEL_QUEST', id: q.id })} aria-label="Supprimer"
                   style={{ width: 28, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(10,10,12,.28)" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
                 </Tap>
               </div>
             );
           })}
         </div>
       ))}
+
+      {/* Packs : des listes toutes prêtes, posées d'un geste */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+        <Kicker>PACKS DE QUÊTES</Kicker>
+        <Tap
+          onTap={() => setNewPack(newPack ? null : { name: '', items: '' })} haptic="soft"
+          style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.lime, minHeight: 32, display: 'flex', alignItems: 'center' }}
+        >
+          {newPack ? 'ANNULER' : '+ CRÉER'}
+        </Tap>
+      </div>
+
+      {newPack ? (
+        <div style={{ ...CARD, padding: '14px 15px', borderColor: `${C.lime}44` }}>
+          <input
+            value={newPack.name} onChange={(e) => setNewPack({ ...newPack, name: e.target.value.slice(0, 28) })}
+            placeholder="Nom du pack (ex. Entretien maison)"
+            style={{ width: '100%', background: 'rgba(255,255,255,.05)', borderRadius: 12, padding: '11px 12px', color: '#fff', font: `700 14px ${F.body}`, minHeight: 44, border: 'none', outline: 'none' }}
+          />
+          <textarea
+            value={newPack.items} onChange={(e) => setNewPack({ ...newPack, items: e.target.value })}
+            placeholder="Une tâche par ligne&#10;Nettoyer le sol&#10;Faire les vitres"
+            rows={4}
+            style={{ width: '100%', background: 'rgba(255,255,255,.05)', borderRadius: 12, padding: '11px 12px', color: '#fff', font: `500 13px/1.5 ${F.body}`, marginTop: 9, border: 'none', outline: 'none', resize: 'vertical' }}
+          />
+          <Tap
+            onTap={saveNewPack} haptic="success"
+            style={{ marginTop: 10, minHeight: 46, borderRadius: 14, background: C.lime, color: C.ink, display: 'flex', alignItems: 'center', justifyContent: 'center', font: `800 13px ${F.display}` }}
+          >
+            ENREGISTRER LE PACK
+          </Tap>
+        </div>
+      ) : null}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {packs.map((p) => (
+          <PackCard
+            key={p.id}
+            pack={p}
+            open={openPack === p.id}
+            onOpen={() => setOpenPack(openPack === p.id ? null : p.id)}
+            onAddAll={() => d({ t: 'PACK_ADD', items: p.items })}
+            onAddOne={(name) => d({ t: 'PACK_ADD', items: [name] })}
+            onDelete={p.mine ? () => d({ t: 'PACK_DEL', id: p.id }) : undefined}
+          />
+        ))}
+      </div>
 
       {/* Terminé — replié, effaçable d'un geste */}
       {done.length ? (
@@ -259,16 +373,16 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
             <span style={{ width: 20, height: 20, borderRadius: 7, background: C.teal, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
               <Check size={11} w={3.4} />
             </span>
-            <span style={{ flex: 1, font: `500 9.5px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(10,10,12,.45)' }}>TERMINÉ · {done.length}</span>
-            <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(10,10,12,.35)' }}>{doneOpen ? 'MASQUER' : 'AFFICHER'}</span>
+            <span style={{ flex: 1, font: `500 9.5px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.45)' }}>TERMINÉ · {done.length}</span>
+            <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.35)' }}>{doneOpen ? 'MASQUER' : 'AFFICHER'}</span>
           </Tap>
           {doneOpen ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {done.map((q) => (
-                <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'rgba(10,10,12,.04)', borderRadius: 14, padding: '11px 13px' }}>
-                  <span style={{ flex: 1, font: `400 13px ${F.body}`, color: 'rgba(10,10,12,.42)', textDecoration: 'line-through' }}>{q.name}</span>
+                <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'rgba(255,255,255,.04)', borderRadius: 14, padding: '11px 13px' }}>
+                  <span style={{ flex: 1, font: `400 13px ${F.body}`, color: 'rgba(255,255,255,.42)', textDecoration: 'line-through' }}>{q.name}</span>
                   <Tap onTap={() => d({ t: 'DEL_QUEST', id: q.id })} aria-label="Supprimer" style={{ width: 28, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(10,10,12,.3)" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
                   </Tap>
                 </div>
               ))}

@@ -40,6 +40,9 @@ type Action =
   | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null }
   | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number; diff?: Difficulty; link?: string; due?: number | null; timed?: boolean; imp?: Importance }
   | { t: 'EDIT_QUEST'; id: string; patch: Partial<{ name: string; due: number | null; timed: boolean; imp: Importance; px: number }> }
+  | { t: 'PACK_ADD'; items: string[] }
+  | { t: 'PACK_SAVE'; pack: { id?: string; name: string; items: string[] } }
+  | { t: 'PACK_DEL'; id: string }
   | { t: 'NOTIF'; patch: Partial<NotifPrefs> }
   | { t: 'MOVE_QUEST'; skill: string; from: number; to: number }
   | { t: 'SORT_QUESTS'; skill: string }
@@ -236,6 +239,36 @@ function reducer(s: Store, a: Action): Store {
 
     case 'EDIT_QUEST':
       return { ...s, customQuests: s.customQuests.map((q) => (q.id === a.id ? { ...q, ...a.patch } : q)) };
+
+    case 'PACK_ADD': {
+      // Un pack pose toutes ses tâches d'un coup dans l'espace perso.
+      const items = a.items.filter((n) => n.trim());
+      if (!items.length) return s;
+      const quests = items.map((name) => ({
+        id: uid(), skill: 'perso', name, px: 10, when: 0,
+        rarity: 'commune' as Rarity, diff: 'facile' as Difficulty,
+        due: null, timed: false, imp: 'normal' as Importance, done: false
+      }));
+      return {
+        ...s,
+        customQuests: [...s.customQuests, ...quests],
+        toast: items.length + ' quête' + (items.length > 1 ? 's' : '') + ' ajoutée' + (items.length > 1 ? 's' : '')
+      };
+    }
+
+    case 'PACK_SAVE': {
+      const list = s.packs || [];
+      const id = a.pack.id || uid();
+      const exists = list.some((p) => p.id === id);
+      return {
+        ...s,
+        packs: exists ? list.map((p) => (p.id === id ? { ...p, ...a.pack, id } : p)) : [...list, { ...a.pack, id, mine: true }],
+        toast: 'Pack enregistré'
+      };
+    }
+
+    case 'PACK_DEL':
+      return { ...s, packs: (s.packs || []).filter((p) => p.id !== a.id), toast: 'Pack supprimé' };
 
     case 'NOTIF':
       return { ...s, notif: { ...(s.notif || DEFAULT_NOTIF), ...a.patch } };

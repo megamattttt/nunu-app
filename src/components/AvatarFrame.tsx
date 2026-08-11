@@ -34,7 +34,7 @@ export default function AvatarFrame({
   const tickSize = Math.max(6, Math.min(12, Math.round(px * 0.09)));
   const showTicks = px >= 44;
   const tick = (pos: React.CSSProperties): React.CSSProperties => ({
-    position: 'absolute', width: tickSize, height: tickSize, border: `2px solid ${accent}`, opacity: .85, ...pos
+    position: 'absolute', width: tickSize, height: tickSize, border: `2px solid ${accent}`, opacity: .85, zIndex: 6, ...pos
   });
 
   return (
@@ -67,8 +67,19 @@ export default function AvatarFrame({
         <AvatarCut av={av} who={who} crop={crop} />
       </span>
 
+      {/* Coiffure au premier plan : le même personnage, sans décor, autorisé à
+          déborder par le haut et les côtés — jamais rogné par le cadre. */}
+      <span
+        style={{
+          position: 'absolute', inset: '-4%', zIndex: 4, pointerEvents: 'none',
+          clipPath: 'inset(-42% -18% 0 -18%)'
+        }}
+      >
+        <AvatarCut av={av} who={who} crop={crop} bleed />
+      </span>
+
       {/* Reflets et voile bas, redessinés par-dessus dans la découpe */}
-      <span style={{ position: 'absolute', inset: 2, clipPath: CLIP, overflow: 'hidden', pointerEvents: 'none' }}>
+      <span style={{ position: 'absolute', inset: 2, zIndex: 5, clipPath: CLIP, overflow: 'hidden', pointerEvents: 'none' }}>
         <span
           style={{
             position: 'absolute', top: 0, bottom: 0, width: '38%',
@@ -92,7 +103,7 @@ export default function AvatarFrame({
       {level !== undefined ? (
         <span
           style={{
-            position: 'absolute', left: 9, bottom: 9, background: C.ink, border: `1px solid ${accent}`,
+            position: 'absolute', left: 9, bottom: 9, zIndex: 7, background: C.ink, border: `1px solid ${accent}`,
             borderRadius: 9, padding: '4px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center',
             boxShadow: `0 8px 20px -12px ${accent}`
           }}
@@ -105,7 +116,7 @@ export default function AvatarFrame({
       {label ? (
         <span
           style={{
-            position: 'absolute', left: 0, right: 0, bottom: 8, textAlign: 'center',
+            position: 'absolute', left: 0, right: 0, bottom: 8, zIndex: 7, textAlign: 'center',
             font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.62)'
           }}
         >

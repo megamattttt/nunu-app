@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { C, F } from '../../theme';
 import { useGame } from '../../state/store';
 import { AV_FRAME, AV_FRAME_LOCKS, AV_SIG, AV_TITLES } from '../../data/avatar';
 import {
-  AV_GROUPS, viewSvg, ensureConfig, keysOfGroup, kindOf, labelOf,
+  AV_GROUPS, viewSvg, bleedSvg, ensureConfig, keysOfGroup, kindOf, labelOf,
   lockOf, optionsOf, paletteOf, patternLabel, randomConfig, thumbSvg
 } from '../../lib/dicebear';
 import { levelOf } from '../../state/selectors';
@@ -12,6 +12,9 @@ import { css } from '../../lib/css';
 import { BackBtn, Tap } from '../../components/ui';
 import { buzz } from '../../lib/haptics';
 import type { Nav } from '../../App';
+
+/** Hauteur fixe du panneau de personnalisation : l'écran ne bouge plus. */
+const PANEL_H = 274;
 
 /** Vignette d'aperçu : le rendu réel de la variante, pas une étiquette. */
 function Swatch({ svg }: { svg: string }) {
@@ -31,19 +34,8 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
   const isFrame = key === '__frame';
 
   const preview = useMemo(() => viewSvg(av, 'bust', 320), [av]);
-
-  /* L'aperçu reste à l'écran pendant qu'on parcourt les variantes : il se
-     colle en haut et se resserre dès que la liste commence à défiler. */
-  const sentinel = useRef<HTMLDivElement>(null);
-  const [compact, setCompact] = useState(false);
-  useEffect(() => {
-    const el = sentinel.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return;
-    const io = new IntersectionObserver(([e]) => setCompact(!e.isIntersecting), { threshold: 0 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-  const avSize = compact ? 84 : 190;
+  const previewTop = useMemo(() => bleedSvg(av, 'bust', 320), [av]);
+  const avSize = 176;
 
   const locked = (k: string, i: number) => {
     const lock = k === '__frame' ? AV_FRAME_LOCKS[i] : lockOf(k, i);
@@ -93,14 +85,11 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
 
   return (
     <div style={{ position: 'relative', minHeight: '86dvh', display: 'flex', flexDirection: 'column' }}>
-      <div ref={sentinel} style={{ height: 1, flex: 'none' }} />
-
       <div
         style={{
           position: 'sticky', top: 'var(--safe-top)', zIndex: 20,
           background: 'rgba(10,10,12,.92)', backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          boxShadow: compact ? '0 18px 30px -28px rgba(0,0,0,.9)' : 'none'
+          WebkitBackdropFilter: 'blur(12px)'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px 0' }}>
@@ -112,29 +101,29 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
         {/* Scène */}
         <div
           style={{
-            display: 'flex', alignItems: 'center',
-            flexDirection: compact ? 'row' : 'column',
-            justifyContent: compact ? 'flex-start' : 'center',
-            gap: compact ? 14 : 12,
-            padding: compact ? '8px 20px 12px' : '18px 20px 12px',
-            transition: 'padding .26s cubic-bezier(.2,1,.3,1)'
+            display: 'flex', alignItems: 'center', flexDirection: 'column',
+            justifyContent: 'center', gap: 12, padding: '14px 20px 12px'
           }}
         >
           <span
             style={{
-              width: avSize, height: avSize, borderRadius: compact ? 20 : 34, overflow: 'hidden', display: 'block', flex: 'none',
-              transition: 'width .26s cubic-bezier(.2,1,.3,1), height .26s cubic-bezier(.2,1,.3,1), border-radius .26s ease',
+              position: 'relative', width: avSize, height: avSize, borderRadius: 32, display: 'block', flex: 'none',
               ...css(AV_FRAME[(s.profile.cadre || 0) % AV_FRAME.length].s)
             }}
           >
             <span
-              style={{ width: '100%', height: '100%', borderRadius: compact ? 16 : 28, overflow: 'hidden', display: 'block', background: C.ink }}
+              style={{ width: '100%', height: '100%', borderRadius: 26, overflow: 'hidden', display: 'block', background: C.ink }}
               dangerouslySetInnerHTML={{ __html: preview }}
             />
+            {/* Coiffure au premier plan : elle peut dépasser du cadre. */}
+            <span
+              style={{ position: 'absolute', inset: 0, clipPath: 'inset(-42% -18% 0 -18%)', pointerEvents: 'none' }}
+              dangerouslySetInnerHTML={{ __html: previewTop }}
+            />
           </span>
-          <span style={{ minWidth: 0, textAlign: compact ? 'left' : 'center', display: 'flex', flexDirection: 'column', alignItems: compact ? 'flex-start' : 'center', gap: compact ? 6 : 12 }}>
-            <span style={{ font: `800 ${compact ? 17 : 24}px ${F.display}`, color: '#fff', letterSpacing: '-.02em', transition: 'font-size .2s ease' }}>@{s.profile.gamertag}</span>
-            <span style={{ font: `700 ${compact ? 9 : 10}px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: AV_SIG[s.profile.sig], padding: compact ? '5px 9px' : '6px 12px', borderRadius: 99 }}>
+          <span style={{ minWidth: 0, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+            <span style={{ font: `800 22px ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>@{s.profile.gamertag}</span>
+            <span style={{ font: `700 10px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: AV_SIG[s.profile.sig], padding: '6px 12px', borderRadius: 99 }}>
               {AV_TITLES[s.profile.titleIx][0].toUpperCase()}
             </span>
           </span>
@@ -154,8 +143,14 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
           ))}
         </div>
 
+        <div
+          style={{
+            height: PANEL_H, marginTop: 12, overflowX: 'hidden',
+            overflowY: isIdent ? 'auto' : 'hidden', WebkitOverflowScrolling: 'touch'
+          }}
+        >
         {isIdent ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginTop: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 11, paddingBottom: 4 }}>
             <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 20, padding: '12px 16px' }}>
               <div style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.14em' }}>GAMERTAG</div>
               <input value={s.profile.gamertag} onChange={(e) => d({ t: 'SET_PROFILE', patch: { gamertag: e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 16) } })} style={{ width: '100%', color: '#fff', font: `700 17px ${F.body}`, padding: '6px 0 0' }} />
@@ -211,7 +206,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
           </div>
         ) : (
           <>
-            <div style={{ display: 'flex', gap: 6, marginTop: 12, overflowX: 'auto', paddingBottom: 4 }}>
+            <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
               {cats.map((k) => (
                 <Tap key={k} onTap={() => setCat(k)} haptic="soft" style={{ flex: 'none', font: `700 10.5px ${F.body}`, padding: '10px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: key === k || (isFrame && k === '__frame') ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.05)', color: key === k || (isFrame && k === '__frame') ? '#fff' : 'rgba(255,255,255,.55)' }}>
                   {k === '__frame' ? 'Cadre' : labelOf(k)}
@@ -219,14 +214,21 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
               ))}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 15 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 13 }}>
               <span style={{ font: `500 9.5px ${F.mono}`, color: 'rgba(255,255,255,.5)', letterSpacing: '.14em' }}>
                 {(isFrame ? 'CADRE' : labelOf(key).toUpperCase())}
               </span>
               <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.3)' }}>{items.length} VARIANTES</span>
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9, marginTop: 12 }}>
+            {/* Variantes en bandeau : on fait défiler du pouce, l'aperçu ne bouge plus. */}
+            <div
+              style={{
+                display: 'flex', gap: 9, marginTop: 11, height: 108, alignItems: 'center',
+                overflowX: 'auto', overflowY: 'hidden', scrollSnapType: 'x proximity',
+                padding: '0 2px 8px', marginLeft: -2, marginRight: -2
+              }}
+            >
               {items.map(({ value, i }) => {
                 const on = currentValue === value;
                 const lock = locked(isFrame ? '__frame' : key, i);
@@ -242,7 +244,8 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
                     }}
                     haptic="soft"
                     style={{
-                      position: 'relative', width: isColor ? 46 : 72, minHeight: isColor ? 46 : 72, borderRadius: 15, overflow: 'hidden',
+                      position: 'relative', flex: 'none', scrollSnapAlign: 'center',
+                      width: isColor ? 62 : 84, height: isColor ? 62 : 84, borderRadius: 16, overflow: 'hidden',
                       border: on ? '3px solid ' + C.lime : '3px solid transparent',
                       background: isColor ? (value === 'transparent' ? 'rgba(255,255,255,.08)' : '#' + value) : 'rgba(255,255,255,.08)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
@@ -254,7 +257,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
                         ? <span style={{ font: `700 8px ${F.mono}`, letterSpacing: '.06em', color: 'rgba(255,255,255,.5)' }}>SANS</span>
                         : null
                     ) : isFrame ? (
-                      <span style={{ width: 34, height: 34, borderRadius: 10, ...css(AV_FRAME[i].s), background: AV_FRAME[i].s ? undefined : 'rgba(255,255,255,.12)' }} />
+                      <span style={{ width: 40, height: 40, borderRadius: 12, ...css(AV_FRAME[i].s), background: AV_FRAME[i].s ? undefined : 'rgba(255,255,255,.12)' }} />
                     ) : kind === 'toggle' ? (
                       <span style={{ font: `700 10px ${F.mono}`, letterSpacing: '.08em', color: on ? '#fff' : 'rgba(255,255,255,.55)' }}>{value === '0' ? 'NON' : 'OUI'}</span>
                     ) : (
@@ -278,6 +281,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
             </div>
           </>
         )}
+        </div>
       </div>
 
       {/* Barre d'action : toujours au-dessus du dock, jamais recouverte. */}

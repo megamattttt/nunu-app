@@ -158,7 +158,7 @@ function styleOptions(cfg: AvConfig, size: number) {
 
 const innerOf = (svg: string) => svg.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
 
-type Opts = { view?: string; scene?: boolean; fit?: 'slice' | 'meet'; clip?: string };
+type Opts = { view?: string; scene?: boolean; fit?: 'slice' | 'meet'; clip?: string; bleed?: boolean };
 
 /**
  * SVG complet et autonome : fond, motif, puis personnage.
@@ -170,7 +170,8 @@ export function avatarSvg(cfg: AvConfig, size = 128, opts: Opts = {}): string {
   const scene = opts.scene !== false;
   const fit = opts.fit || 'slice';
   const clip = opts.clip || '';
-  const key = [size, view, scene, fit, clip, cfg.seed || '', ...AV_KEYS.map((k) => cfg[k] ?? '')].join('|');
+  const bleed = !!opts.bleed;
+  const key = [size, view, scene, fit, clip, bleed, cfg.seed || '', ...AV_KEYS.map((k) => cfg[k] ?? '')].join('|');
   const hit = cache.get(key);
   if (hit) return hit;
 
@@ -195,7 +196,7 @@ export function avatarSvg(cfg: AvConfig, size = 128, opts: Opts = {}): string {
 
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${view}" width="100%" height="100%" ` +
-    `preserveAspectRatio="xMidYMid ${fit}" style="display:block">${content}</svg>`;
+    `preserveAspectRatio="xMidYMid ${fit}" style="display:block${bleed ? ';overflow:visible' : ''}">${content}</svg>`;
 
   if (cache.size > 500) cache.clear();
   cache.set(key, svg);
@@ -205,6 +206,13 @@ export function avatarSvg(cfg: AvConfig, size = 128, opts: Opts = {}): string {
 /** Rendu d'affichage, cadré selon le plan demandé. */
 export const viewSvg = (cfg: AvConfig, crop: string = 'bust', size = 256) =>
   avatarSvg(cfg, size, { view: VIEWS[crop] || VIEWS.bust });
+
+/**
+ * Même personnage, sans décor et libre de déborder de sa boîte : cette couche
+ * se superpose au rendu cadré pour que la coiffure passe devant le cadre.
+ */
+export const bleedSvg = (cfg: AvConfig, crop: string = 'bust', size = 256) =>
+  avatarSvg(cfg, size, { view: VIEWS[crop] || VIEWS.bust, scene: false, bleed: true });
 
 /**
  * Vignette d'option : la zone du visage concernée, agrandie, sans décor —

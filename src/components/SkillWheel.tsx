@@ -106,6 +106,7 @@ export default function SkillWheel({
   };
 
   const sel = at(Math.round(pos));
+  const persoName = (s.profile as any).persoName || 'PERSO';
   const rows = boardRows(s, sel.id);
   const doneCount = levelOf(s, sel.id);
   const rank = skillRank(s, sel.id);
@@ -138,6 +139,12 @@ export default function SkillWheel({
           const col = folderColor(item);
           const r = skillRank(s, item.id);
           const isSel = Math.abs(off) < 0.5;
+          // Photos du journal de la compétence : ce sont elles qui remplissent le dossier.
+          const shots = s.journal.filter((e) => e.skill === item.id).flatMap((e) => e.photos).slice(0, 3);
+          const sheet = (i: number): React.CSSProperties =>
+            shots[i]
+              ? { backgroundImage: `url(${shots[i]})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+              : {};
 
           return (
             <div
@@ -152,38 +159,47 @@ export default function SkillWheel({
                 cursor: 'pointer'
               }}
             >
-              {/* Contenu qui dépasse du dossier, comme des feuilles rangées dedans */}
+              {/* Contenu qui dépasse du dossier : les photos du journal, rangées dedans */}
               <div style={{ position: 'relative', height: 46, marginBottom: -18 }}>
-                <span style={{ position: 'absolute', left: 16, bottom: 0, width: 54, height: 66, borderRadius: 10, background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.18)', transform: 'rotate(-7deg)' }} />
-                <span style={{ position: 'absolute', right: 18, bottom: 0, width: 62, height: 74, borderRadius: 10, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.16)', transform: 'rotate(6deg)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 8 }}>
-                  {item.solo ? null : <RankIcon rank={r} size={22} bg={C.ink} pips={false} />}
+                <span style={{ position: 'absolute', left: 16, bottom: 0, width: 54, height: 66, borderRadius: 10, background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.18)', transform: 'rotate(-7deg)', overflow: 'hidden', ...sheet(1) }} />
+                <span style={{ position: 'absolute', right: 18, bottom: 0, width: 62, height: 74, borderRadius: 10, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.16)', transform: 'rotate(6deg)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 8, overflow: 'hidden', ...sheet(2) }}>
+                  {item.solo || shots[2] ? null : <RankIcon rank={r} size={22} bg={C.ink} pips={false} />}
                 </span>
-                <span style={{ position: 'absolute', left: '50%', marginLeft: -30, bottom: 4, width: 60, height: 78, borderRadius: 10, background: 'rgba(255,255,255,.2)', border: '1px solid rgba(255,255,255,.24)' }} />
+                <span style={{ position: 'absolute', left: '50%', marginLeft: -30, bottom: 4, width: 60, height: 78, borderRadius: 10, background: 'rgba(255,255,255,.2)', border: '1px solid rgba(255,255,255,.24)', overflow: 'hidden', ...sheet(0) }} />
               </div>
 
-              {/* Onglet du dossier */}
-              <div style={{ width: 84, height: 15, borderRadius: '10px 10px 0 0', background: col, marginLeft: 14 }} />
+              {/* Onglet du dossier — l'espace perso a sa propre attache */}
+              {item.solo ? (
+                <div style={{ width: 40, height: 13, borderRadius: 99, background: col, margin: '0 auto -2px', boxShadow: `0 0 0 4px rgba(11,11,12,.35)` }} />
+              ) : (
+                <div style={{ width: 84, height: 15, borderRadius: '10px 10px 0 0', background: col, marginLeft: 14 }} />
+              )}
               {/* Corps du dossier */}
               <div
                 style={{
-                  height: 122, borderRadius: '14px 18px 18px 18px', background: col,
+                  height: 122, borderRadius: item.solo ? 26 : '14px 18px 18px 18px', background: col,
                   boxShadow: isSel ? '0 26px 50px -22px rgba(0,0,0,.9)' : 'none',
-                  padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
+                  padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                  position: 'relative', overflow: 'hidden'
                 }}
               >
-                <span style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                  <span style={{ font: `800 26px/1 ${F.display}`, color: item.txt, letterSpacing: '-.03em' }}>{item.short}</span>
-                  {item.solo ? (
-                    <span style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${item.txt}`, opacity: .45, flex: 'none' }} />
-                  ) : (
-                    <RankIcon rank={r} size={20} bg={col} />
-                  )}
+                {item.solo ? (
+                  <>
+                    <span style={{ position: 'absolute', inset: 7, borderRadius: 20, border: `1.5px dashed ${item.txt}`, opacity: .35, pointerEvents: 'none' }} />
+                    <span style={{ position: 'absolute', right: 18, top: -2, width: 16, height: 34, background: C.ink, opacity: .5, clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%)' }} />
+                  </>
+                ) : null}
+                <span style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, position: 'relative' }}>
+                  <span style={{ font: `800 26px/1 ${F.display}`, color: item.txt, letterSpacing: '-.03em' }}>{item.solo ? persoName.slice(0, 2).toUpperCase() : item.short}</span>
+                  {item.solo ? null : <RankIcon rank={r} size={20} bg={col} />}
                 </span>
-                <span style={{ display: 'block' }}>
+                <span style={{ display: 'block', position: 'relative' }}>
                   <span style={{ display: 'block', height: 6, borderRadius: 99, background: 'rgba(11,11,12,.18)', overflow: 'hidden' }}>
                     <span style={{ display: 'block', height: '100%', width: (item.solo ? 100 : r.pct) + '%', borderRadius: 99, background: item.txt === '#FFFFFF' ? '#fff' : C.ink, opacity: item.solo ? .35 : 1 }} />
                   </span>
-                  <span style={{ display: 'block', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: item.txt, opacity: .62, marginTop: 7 }}>{item.solo ? 'PERSO' : r.short}</span>
+                  <span style={{ display: 'block', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: item.txt, opacity: .62, marginTop: 7, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {item.solo ? persoName.toUpperCase() : r.short}
+                  </span>
                 </span>
               </div>
             </div>
@@ -221,14 +237,12 @@ export default function SkillWheel({
       {/* Fiche de la compétence sélectionnée */}
       <div style={{ textAlign: 'center', padding: '0 22px', marginTop: -14 }}>
         <div key={sel.id} style={{ font: `800 44px/1 ${F.display}`, color: folderColor(sel), letterSpacing: '-.04em', animation: 'nuRise .35s cubic-bezier(.2,1,.3,1)' }}>
-          {sel.name}
+          {sel.solo ? persoName.toUpperCase() : sel.name}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginTop: 10, font: `500 12px ${F.body}`, color: 'rgba(255,255,255,.62)' }}>
           <span>{doneCount} {sel.solo ? 'faites' : 'paliers'}</span>
           <span>{rows.length - doneCount} à venir</span>
-          {sel.solo ? (
-            <span style={{ color: 'rgba(255,255,255,.4)' }}>sans classement</span>
-          ) : (
+          {sel.solo ? null : (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: rank.c }}>
               <RankIcon rank={rank} size={16} bg={C.ink} pips={false} />
               {rank.short}

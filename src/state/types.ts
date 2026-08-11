@@ -22,6 +22,9 @@ export type CustomQuest = {
 
 export type Task = { id: string; label: string; px: number; done: boolean };
 
+/** Pack de quêtes perso : un nom, une liste de tâches, ajouté en un clic. */
+export type QuestPack = { id: string; name: string; items: string[]; mine?: boolean };
+
 /** Une validation horodatée — matière première de la vue semaine et des statistiques. */
 export type HistoryRow = { t: number; px: number; skill: string; name: string; kind: 'quete' | 'tache' | 'duel' };
 
@@ -73,10 +76,14 @@ export type GameState = {
   profile: {
     firstName: string; gamertag: string; atelier: string; titleIx: number; sig: number;
     av: AvatarConfig; cadre: number;
+    /** Nom donné à l'espace perso (compétence solo). */
+    persoName?: string;
   };
 
   progress: Record<string, Progress>;
   customQuests: CustomQuest[];
+  /** Packs de quêtes de l'espace perso : listes prêtes à ajouter en un clic. */
+  packs: QuestPack[];
   pioched: string[];
   tasks: Task[];
 

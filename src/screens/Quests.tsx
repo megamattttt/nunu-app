@@ -129,6 +129,12 @@ export default function Quests({ nav }: { nav: Nav }) {
   const mine = s.customQuests.filter((q) => q.skill === sk.id);
   /** La compétence perso n'a pas de plateau : c'est une liste de rappels. */
   const isPerso = sk.id === 'perso';
+  const persoName = (s.profile as any).persoName || 'Perso';
+
+  /* L'espace perso prend le thème sombre de l'accueil ; les autres gardent la feuille claire. */
+  const P = isPerso
+    ? { sheet: C.ink, card: C.night, line: C.line, tx: '#fff', sub: 'rgba(255,255,255,.55)', soft: 'rgba(255,255,255,.06)', tabOn: C.lime, tabOnTx: C.ink, tabOff: 'rgba(255,255,255,.07)', tabOffTx: 'rgba(255,255,255,.55)' }
+    : { sheet: C.paper, card: '#fff', line: 'transparent', tx: C.ink, sub: 'rgba(11,11,12,.55)', soft: 'rgba(11,11,12,.05)', tabOn: C.ink, tabOnTx: C.paper, tabOff: 'rgba(11,11,12,.06)', tabOffTx: 'rgba(11,11,12,.55)' };
 
   const act = (row: (typeof rows)[number]) => {
     if (row.state !== 'now') return;
@@ -160,12 +166,20 @@ export default function Quests({ nav }: { nav: Nav }) {
         <div style={{ padding: '14px 22px 0', textAlign: 'center' }}>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             {isPerso ? (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,.05)', border: `1px solid ${sk.c}44`, borderRadius: 16, padding: '10px 14px' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,.05)', border: `1px solid ${sk.c}44`, borderRadius: 16, padding: '8px 12px 8px 14px' }}>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', background: sk.c, flex: 'none' }} />
                 <span style={{ minWidth: 0, textAlign: 'left' }}>
-                  <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)' }}>SANS CLASSEMENT</span>
-                  <span style={{ display: 'block', font: `800 15px/1 ${F.display}`, color: '#fff', letterSpacing: '-.02em', marginTop: 4 }}>{pxOf(s, sk.id)} PX</span>
+                  <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)' }}>MON ESPACE</span>
+                  <input
+                    value={persoName}
+                    onChange={(e) => d({ t: 'SET_PROFILE', patch: { persoName: e.target.value.slice(0, 22) } })}
+                    aria-label="Nom de mon espace perso"
+                    style={{ display: 'block', width: Math.max(6, persoName.length + 1) + 'ch', maxWidth: 200, background: 'transparent', border: 'none', outline: 'none', font: `800 17px/1.2 ${F.display}`, color: '#fff', letterSpacing: '-.02em', marginTop: 3, padding: 0 }}
+                  />
                 </span>
+                <span style={{ width: 1, height: 26, background: 'rgba(255,255,255,.12)', flex: 'none' }} />
+                <span style={{ font: `700 11px ${F.mono}`, color: sk.c, flex: 'none' }}>{pxOf(s, sk.id)} PX</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" strokeWidth="2" strokeLinejoin="round" style={{ flex: 'none' }}><path d="M4 20h4L20 8l-4-4L4 16z" /></svg>
               </span>
             ) : (
               <RankBadge rank={rank} skillName={`${sk.name} · ${pxOf(s, sk.id)} PX`} size="md" bg="rgba(255,255,255,.05)" />
@@ -191,14 +205,14 @@ export default function Quests({ nav }: { nav: Nav }) {
       </div>
 
       {/* Feuille claire */}
-      <div style={{ background: C.paper, borderRadius: '34px 34px 0 0', marginTop: 18, padding: '20px 22px', paddingBottom: sub === 'board' && now && !isPerso ? 86 : 26, minHeight: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ background: P.sheet, borderRadius: '34px 34px 0 0', marginTop: 18, padding: '20px 22px', paddingBottom: sub === 'board' && now && !isPerso ? 86 : 26, minHeight: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', gap: 7 }}>
           {SUBS.map(([k, label]) => (
             <Tap
               key={k} onTap={() => setSub(k)} haptic="soft"
               style={{
                 flex: 1, textAlign: 'center', font: `700 9.5px ${F.mono}`, letterSpacing: '.08em', padding: '11px 6px', borderRadius: 13, minHeight: 40,
-                background: sub === k ? C.ink : 'rgba(11,11,12,.06)', color: sub === k ? C.paper : 'rgba(11,11,12,.55)'
+                background: sub === k ? P.tabOn : P.tabOff, color: sub === k ? P.tabOnTx : P.tabOffTx
               }}
             >
               {label}
@@ -432,25 +446,25 @@ export default function Quests({ nav }: { nav: Nav }) {
           const photos = list.reduce((n, e) => n + e.photos.length, 0);
           return (
             <>
-              <div style={{ background: '#fff', borderRadius: 20, padding: '15px 17px' }}>
+              <div style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 20, padding: '15px 17px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <Kicker dark>JOURNAL · {sk.name.toUpperCase()}</Kicker>
-                  <span style={{ font: `700 11px ${F.mono}`, color: C.ink }}>{list.length} ENTRÉES</span>
+                  <Kicker dark={!isPerso}>JOURNAL · {(isPerso ? persoName : sk.name).toUpperCase()}</Kicker>
+                  <span style={{ font: `700 11px ${F.mono}`, color: P.tx }}>{list.length} ENTRÉES</span>
                 </div>
-                <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(11,11,12,.58)', marginTop: 9, textWrap: 'pretty' }}>
+                <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: P.sub, marginTop: 9, textWrap: 'pretty' }}>
                   Chaque palier validé ouvre une entrée à compléter : photos, note, ressenti, durée. {photos ? `${photos} photos enregistrées.` : 'Tout reste sur cet appareil.'}
                 </div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
                   <Tap
                     onTap={() => setEntry(newEntry(sk.id))} haptic="soft"
-                    style={{ flex: 1, minHeight: 46, borderRadius: 14, background: C.ink, color: C.lime, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                    style={{ flex: 1, minHeight: 46, borderRadius: 14, background: isPerso ? C.lime : C.ink, color: isPerso ? C.ink : C.lime, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                   >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.lime} strokeWidth="3"><path d="M12 5v14M5 12h14" /></svg>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={isPerso ? C.ink : C.lime} strokeWidth="3"><path d="M12 5v14M5 12h14" /></svg>
                     <span style={{ font: `800 13px ${F.display}`, letterSpacing: '-.01em' }}>NOUVELLE ENTRÉE</span>
                   </Tap>
                   <Tap
                     onTap={() => nav.open('journal')}
-                    style={{ flex: 'none', minHeight: 46, padding: '0 16px', borderRadius: 14, background: 'rgba(11,11,12,.06)', display: 'flex', alignItems: 'center', font: `700 10px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(11,11,12,.6)' }}
+                    style={{ flex: 'none', minHeight: 46, padding: '0 16px', borderRadius: 14, background: P.soft, display: 'flex', alignItems: 'center', font: `700 10px ${F.mono}`, letterSpacing: '.1em', color: P.sub }}
                   >
                     TOUT VOIR
                   </Tap>
@@ -460,8 +474,8 @@ export default function Quests({ nav }: { nav: Nav }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
                 {list.map((e) => <JournalCard key={e.id} e={e} onTap={() => setEntry(e)} />)}
                 {!list.length ? (
-                  <div style={{ font: `400 12.5px/1.5 ${F.body}`, color: 'rgba(11,11,12,.5)', padding: '4px 2px', textWrap: 'pretty' }}>
-                    Rien pour l’instant sur {sk.name.toLowerCase()}. Valide un palier, ou crée une entrée libre.
+                  <div style={{ font: `400 12.5px/1.5 ${F.body}`, color: P.sub, padding: '4px 2px', textWrap: 'pretty' }}>
+                    Rien pour l’instant sur {(isPerso ? persoName : sk.name).toLowerCase()}. Valide un palier, ou crée une entrée libre.
                   </div>
                 ) : null}
               </div>
@@ -471,34 +485,34 @@ export default function Quests({ nav }: { nav: Nav }) {
 
         {sub === 'coll' && (
           <>
-            <Kicker dark>TITRES</Kicker>
+            <Kicker dark={!isPerso}>TITRES</Kicker>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {(TITLES[sk.id] || []).map(([name, req], i) => {
                 const got = i <= Math.min(3, Math.floor(lvl / 2)) && lvl > 0;
                 return (
-                  <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 12, background: got ? '#fff' : 'rgba(11,11,12,.04)', borderRadius: 18, padding: '13px 15px' }}>
-                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: got ? sk.c : 'rgba(11,11,12,.2)', flex: 'none' }} />
+                  <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 12, background: got ? P.card : P.soft, border: `1px solid ${got ? P.line : 'transparent'}`, borderRadius: 18, padding: '13px 15px' }}>
+                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: got ? sk.c : P.soft, flex: 'none' }} />
                     <span style={{ flex: 1 }}>
-                      <span style={{ display: 'block', font: `700 13.5px ${F.body}`, color: got ? C.ink : 'rgba(11,11,12,.45)' }}>{name}</span>
-                      <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(11,11,12,.45)', marginTop: 2 }}>{req}</span>
+                      <span style={{ display: 'block', font: `700 13.5px ${F.body}`, color: got ? P.tx : P.sub }}>{name}</span>
+                      <span style={{ display: 'block', font: `400 11px ${F.body}`, color: P.sub, marginTop: 2 }}>{req}</span>
                     </span>
-                    <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: got ? C.ink : 'rgba(11,11,12,.4)', background: got ? C.lime : 'rgba(11,11,12,.07)', padding: '5px 9px', borderRadius: 8 }}>{got ? 'OBTENU' : 'À FAIRE'}</span>
+                    <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: got ? C.ink : P.sub, background: got ? C.lime : P.soft, padding: '5px 9px', borderRadius: 8 }}>{got ? 'OBTENU' : 'À FAIRE'}</span>
                   </div>
                 );
               })}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 6 }}>
-              <Kicker dark>BADGES</Kicker>
-              <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(11,11,12,.4)' }}>{s.badges.filter((b) => b.startsWith(sk.id)).length}/6</span>
+              <Kicker dark={!isPerso}>BADGES</Kicker>
+              <span style={{ font: `500 10px ${F.mono}`, color: P.sub }}>{s.badges.filter((b) => b.startsWith(sk.id)).length}/6</span>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
               {(BADGES[sk.id] || []).map(([label, glyph], i) => {
                 const got = s.badges.includes(sk.id + ':' + i);
                 return (
-                  <div key={label} style={{ background: got ? BADGE_C[i] : 'rgba(11,11,12,.05)', borderRadius: 16, padding: '14px 8px', textAlign: 'center' }}>
-                    <span style={{ display: 'block', font: `800 22px ${F.display}`, color: got ? C.ink : 'rgba(11,11,12,.25)' }}>{glyph}</span>
-                    <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.06em', color: got ? 'rgba(11,11,12,.7)' : 'rgba(11,11,12,.3)', marginTop: 6 }}>{label.toUpperCase()}</span>
+                  <div key={label} style={{ background: got ? BADGE_C[i] : P.soft, borderRadius: 16, padding: '14px 8px', textAlign: 'center' }}>
+                    <span style={{ display: 'block', font: `800 22px ${F.display}`, color: got ? C.ink : P.sub }}>{glyph}</span>
+                    <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.06em', color: got ? 'rgba(11,11,12,.7)' : P.sub, marginTop: 6 }}>{label.toUpperCase()}</span>
                   </div>
                 );
               })}

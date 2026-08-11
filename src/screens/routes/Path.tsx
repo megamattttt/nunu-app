@@ -33,7 +33,7 @@ export default function Path({ nav }: { nav: Nav }) {
 
   return (
     <div style={{ padding: '10px 22px 30px' }}>
-      <RouteHead title={sk.name} sub={solo ? 'Ton quotidien, sans classement' : 'Chemin de progression'} onBack={nav.back} />
+      <RouteHead title={solo ? ((s.profile as any).persoName || 'Perso').toUpperCase() : sk.name} sub={solo ? 'Ton quotidien, à ta main' : 'Chemin de progression'} onBack={nav.back} />
 
       {solo ? (
         /* Bilan tranquille : ce qui est fait, ce qui reste. Aucun rang. */

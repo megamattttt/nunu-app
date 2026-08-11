@@ -173,7 +173,7 @@ export default function Profile({ nav }: { nav: Nav }) {
                     </span>
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
-                        <span style={{ font: `700 12.5px ${F.body}`, color: 'rgba(255,255,255,.82)' }}>Sans classement</span>
+                        <span style={{ font: `700 12.5px ${F.body}`, color: 'rgba(255,255,255,.82)' }}>{(s.profile as any).persoName || 'Perso'}</span>
                         <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.45)' }}>{pxOf(s, sk.id)} PX</span>
                       </span>
                       <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 5 }}>
