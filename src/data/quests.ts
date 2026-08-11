@@ -14,10 +14,10 @@ export type Difficulty = 'facile' | 'moyen' | 'difficile' | 'legendaire';
 
 /** Ordre d'affichage, libellé court et couleur (palette resserrée). */
 export const DIFFS: Record<Difficulty, { label: string; short: string; c: string; txt: string; order: number; blocks: number }> = {
-  facile:     { label: 'FACILE',     short: 'F',  c: '#E6DFD1', txt: '#0B0B0C', order: 0, blocks: 1 },
-  moyen:      { label: 'MOYEN',      short: 'M',  c: '#C6F24E', txt: '#0B0B0C', order: 1, blocks: 2 },
-  difficile:  { label: 'DIFFICILE',  short: 'D',  c: '#FFC24B', txt: '#0B0B0C', order: 2, blocks: 3 },
-  legendaire: { label: 'LÉGENDAIRE', short: 'L',  c: '#FF4D3D', txt: '#FFFFFF', order: 3, blocks: 4 }
+  facile:     { label: 'FACILE',     short: 'F',  c: '#DED6C6', txt: '#0A0A0C', order: 0, blocks: 1 },
+  moyen:      { label: 'MOYEN',      short: 'M',  c: '#B9DE64', txt: '#0A0A0C', order: 1, blocks: 2 },
+  difficile:  { label: 'DIFFICILE',  short: 'D',  c: '#E8B863', txt: '#0A0A0C', order: 2, blocks: 3 },
+  legendaire: { label: 'LÉGENDAIRE', short: 'L',  c: '#E2685A', txt: '#FFFFFF', order: 3, blocks: 4 }
 };
 
 export const DIFF_LIST: Difficulty[] = ['facile', 'moyen', 'difficile', 'legendaire'];
@@ -60,9 +60,9 @@ export function suggestQuest(name: string, skill?: string): { diff: Difficulty; 
 /** Rareté d'une quête piochée — pondère PX et mise en scène. */
 export type Rarity = 'commune' | 'rare' | 'legendaire';
 export const RARITY: Record<Rarity, { label: string; c: string; mult: number; weight: number }> = {
-  commune:    { label: 'COMMUNE',    c: '#E6DFD1', mult: 1,   weight: 74 },
-  rare:       { label: 'RARE',       c: '#C6F24E', mult: 1.5, weight: 21 },
-  legendaire: { label: 'LÉGENDAIRE', c: '#FFC24B', mult: 2.5, weight: 5 }
+  commune:    { label: 'COMMUNE',    c: '#DED6C6', mult: 1,   weight: 74 },
+  rare:       { label: 'RARE',       c: '#B9DE64', mult: 1.5, weight: 21 },
+  legendaire: { label: 'LÉGENDAIRE', c: '#E8B863', mult: 2.5, weight: 5 }
 };
 
 /**

@@ -5,6 +5,7 @@ import { adapter } from './persistence';
 import { BOARDS, MAJOR, OBJ, skillById } from '../data/skills';
 import { rankOf, type Rank } from '../data/ranks';
 import type { Rarity, Difficulty } from '../data/quests';
+import { DIFF_LIST } from '../data/quests';
 import { levelOf } from './selectors';
 import { buzz, setHaptics } from '../lib/haptics';
 import { sfx, setSound } from '../lib/sound';
@@ -34,6 +35,9 @@ type Action =
   | { t: 'JOURNAL_DEL'; id: string }
   | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null }
   | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number; diff?: Difficulty; link?: string }
+  | { t: 'MOVE_QUEST'; skill: string; from: number; to: number }
+  | { t: 'SORT_QUESTS'; skill: string }
+  | { t: 'DEL_QUEST'; id: string }
   | { t: 'DRAW_USED' }
   | { t: 'TOGGLE_TASK'; id: string }
   | { t: 'ADD_TASK'; label: string; px: number }
@@ -60,6 +64,10 @@ type Runtime = { event: RewardEvent | null; share: ShareData | null; toast: stri
 type Store = GameState & Runtime;
 
 const uid = () => Math.random().toString(36).slice(2, 9);
+
+/** Historique borné : 90 jours, 400 lignes au plus. */
+const pushHistory = (h: GameState['history'], row: GameState['history'][number]) =>
+  [row, ...(h || [])].filter((x) => Date.now() - x.t < 90 * 864e5).slice(0, 400);
 
 /** Multiplicateur appliqué aux PX quand la jauge est pleine (« en feu »). */
 export const FIRE_MULT = 2;
@@ -184,6 +192,7 @@ function reducer(s: Store, a: Action): Store {
           ...s.journal
         ],
         combo: { n: chain, best: Math.max(s.combo.best, chain), last: Date.now() },
+        history: pushHistory(s.history, { t: Date.now(), px, skill: a.skill, name: a.name, kind: 'quete' }),
         progress: { ...s.progress, [a.skill]: { px: prog.px + px, done: prog.done + (isBase ? 1 : 0) } },
         customQuests: isBase ? s.customQuests : s.customQuests.map((q) => (q.name === a.name ? { ...q, done: true } : q)),
         px: s.px + px,
@@ -219,6 +228,27 @@ function reducer(s: Store, a: Action): Store {
 
     case 'DRAW_USED': return { ...s, freeDraws: Math.max(0, s.freeDraws - 1) };
 
+    case 'MOVE_QUEST': {
+      // Le glisser-déposer ne réordonne que les quêtes de la compétence affichée :
+      // on déplace dans le sous-tableau, puis on réinjecte à la même place globale.
+      const mine = s.customQuests.filter((q) => q.skill === a.skill);
+      if (a.from === a.to || !mine[a.from]) return s;
+      const moved = mine.slice();
+      moved.splice(a.to, 0, moved.splice(a.from, 1)[0]);
+      let i = 0;
+      return { ...s, customQuests: s.customQuests.map((q) => (q.skill === a.skill ? moved[i++] : q)) };
+    }
+
+    case 'SORT_QUESTS': {
+      const mine = s.customQuests.filter((q) => q.skill === a.skill).slice()
+        .sort((x, y) => DIFF_LIST.indexOf(x.diff || 'moyen') - DIFF_LIST.indexOf(y.diff || 'moyen') || x.px - y.px);
+      let j = 0;
+      return { ...s, customQuests: s.customQuests.map((q) => (q.skill === a.skill ? mine[j++] : q)), toast: 'Triées par difficulté' };
+    }
+
+    case 'DEL_QUEST':
+      return { ...s, customQuests: s.customQuests.filter((q) => q.id !== a.id), toast: 'Quête retirée du plateau' };
+
     case 'TOGGLE_TASK': {
       const task = s.tasks.find((t) => t.id === a.id);
       if (!task) return s;
@@ -236,6 +266,7 @@ function reducer(s: Store, a: Action): Store {
         onFire: on ? eng.onFire || eng.energy + Math.round(task.px / 2) >= 100 : eng.onFire,
         lastQuestAt: on ? Date.now() : s.lastQuestAt,
         combo: on ? { n: chain, best: Math.max(s.combo.best, chain), last: Date.now() } : s.combo,
+        history: on ? pushHistory(s.history, { t: Date.now(), px, skill: 'perso', name: task.label, kind: 'tache' }) : s.history,
         toast: on ? '+' + px + ' PX' : 'Tâche décochée'
       };
     }

@@ -21,6 +21,7 @@ import Diorama from './screens/routes/Diorama';
 import Journal from './screens/routes/Journal';
 import Banner from './screens/routes/Banner';
 import DuelQuiz from './screens/routes/DuelQuiz';
+import Week from './screens/routes/Week';
 
 export type Route = { name: string; data?: any } | null;
 export type Nav = {
@@ -66,13 +67,14 @@ export default function App() {
     diorama: <Diorama nav={nav} />,
     journal: <Journal nav={nav} />,
     banner: <Banner nav={nav} />,
-    quiz: <DuelQuiz nav={nav} />
+    quiz: <DuelQuiz nav={nav} />,
+    duels: <Duels nav={nav} />,
+    week: <Week nav={nav} />
   };
 
   const PAGES: Record<Page, JSX.Element> = {
     home: <Home nav={nav} />,
     quests: <Quests nav={nav} />,
-    duels: <Duels nav={nav} />,
     profile: <Profile nav={nav} />
   };
 
@@ -93,7 +95,7 @@ export default function App() {
       >
         {route ? ROUTES[route.name] || PAGES[page] : PAGES[page]}
       </main>
-      <TabBar page={page} onGo={go} badge={{ duels: openInvits || undefined }} />
+      <TabBar page={page} onGo={go} badge={{ profile: openInvits || undefined }} />
       <Toast />
       <RewardOverlay />
       <ShareCard />

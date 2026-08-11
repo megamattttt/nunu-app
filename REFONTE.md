@@ -1,5 +1,38 @@
 # Refonte NUNU — ce qui a changé
 
+## Passe « structure & design » (dernière en date)
+
+**Navigation — 3 onglets.** Accueil / Quêtes / Profil. L'onglet Défis devient une route ouverte
+depuis le profil (`nav.open('duels')`), avec la pastille d'invitations reportée sur Profil.
+
+**Accueil — en-tête compact.** Avatar rond + prénom + niveau + rang sur une seule ligne,
+deux jauges fines (expérience, énergie) en dessous. La liste des rangs par compétence
+n'est plus dupliquée ici : elle vit dans le profil.
+
+**Mode focus.** Interrupteur en haut de l'accueil : ne reste que la quête du jour.
+Choix mémorisé dans `localStorage` (`nunu.focus`).
+
+**Combo remonté.** La chaîne en cours s'affiche sur l'accueil, plus seulement dans Quêtes.
+
+**Quêtes — 3 sous-onglets.** Plateau / Journal / Collection.
+Les quêtes ajoutées forment un bloc à part, réordonnable au doigt (`components/DragList.tsx`,
+action `MOVE_QUEST`), avec tri par difficulté à la demande (`SORT_QUESTS`) et retrait (`DEL_QUEST`).
+Les tâches du quotidien restent un bloc distinct, en bas du plateau.
+Le classement des amis a rejoint l'écran Défis.
+
+**Semaine et statistiques.** Nouvel historique horodaté dans l'état (`history`), alimenté par
+chaque validation. Barres des 7 derniers jours (`components/WeekStrip.tsx`) sur l'accueil et le
+profil, bilan complet dans `screens/routes/Week.tsx` : PX, série, meilleur jour, comparaison à la
+semaine précédente, compétence la plus active, détail jour par jour, bouton de partage.
+
+**Journal.** Champ de recherche sur les titres et les notes, en plus du filtre par compétence.
+
+**Palette.** Accents désaturés (`lime` #B9DE64, `honey` #E8B863, `coral` #E2685A) et trois
+nouvelles couleurs : `azur` #6FA5D8 (information), `iris` #9C8AD6 (rare), `teal` #5CBFAE (réussite).
+Surfaces sombres étagées : `ink` / `night` / `slate` / `steel`, plus des filets `line`.
+Couleurs de compétences, de rangs, de difficultés et de confettis alignées sur cette palette.
+
+
 Stack inchangée : React 18 + TypeScript + Vite, état local dans `src/state/store.tsx`, PWA.
 
 ```bash

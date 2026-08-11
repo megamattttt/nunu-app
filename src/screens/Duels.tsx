@@ -1,23 +1,26 @@
 import React from 'react';
 import { C, F } from '../theme';
 import { useGame } from '../state/store';
-import { INVITS } from '../data/social';
-import { skillById } from '../data/skills';
+import { INVITS, FRIENDS_RANK } from '../data/social';
+import { skillById, SKILLS } from '../data/skills';
 import AvatarCut from '../components/avatar/AvatarCut';
-import { Empty, Kicker, Tap } from '../components/ui';
+import { BackBtn, Empty, Kicker, Tap } from '../components/ui';
 import type { Nav } from '../App';
 
 export default function Duels({ nav }: { nav: Nav }) {
   const { s, d } = useGame();
   const live = s.duels.filter((x) => x.status === 'en cours');
   const past = s.duels.filter((x) => x.status !== 'en cours');
+  const [fSkill, setFSkill] = React.useState(s.startSkill || SKILLS[0].id);
+  const friends = FRIENDS_RANK.filter((f) => f[0] !== 'moi').slice(0, 5);
 
   return (
     <div>
-      <header style={{ background: C.honey, padding: '20px 22px 24px', borderRadius: '0 0 34px 34px', position: 'relative', overflow: 'hidden' }}>
-        <span style={{ position: 'absolute', right: -50, bottom: -70, width: 180, height: 180, borderRadius: '50%', background: 'rgba(255,92,66,.4)' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', position: 'relative' }}>
-          <div style={{ font: `800 46px/.92 ${F.display}`, color: C.ink, letterSpacing: '-.03em' }}>DÉFIS</div>
+      <header style={{ background: C.honey, padding: '14px 22px 24px', borderRadius: '0 0 30px 30px', position: 'relative', overflow: 'hidden' }}>
+        <span style={{ position: 'absolute', right: -50, bottom: -70, width: 180, height: 180, borderRadius: '50%', background: 'rgba(226,104,90,.35)' }} />
+        <div style={{ position: 'relative' }}><BackBtn onTap={nav.back} light /></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', position: 'relative', marginTop: 10 }}>
+          <div style={{ font: `800 44px/.92 ${F.display}`, color: C.ink, letterSpacing: '-.03em' }}>DÉFIS</div>
           <div style={{ font: `500 10px ${F.mono}`, color: 'rgba(11,11,12,.6)', letterSpacing: '.12em', paddingBottom: 6 }}>{live.length} EN COURS</div>
         </div>
       </header>
@@ -59,7 +62,7 @@ export default function Duels({ nav }: { nav: Nav }) {
           onTap={() => nav.open('quiz', { who: 'lea', name: 'Léa Fontaine', skill: 'couture', flash: true })}
           style={{ background: C.violet, borderRadius: 26, padding: '18px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', overflow: 'hidden', minHeight: 84 }}
         >
-          <span style={{ position: 'absolute', right: -30, top: -40, width: 130, height: 130, borderRadius: '50%', background: 'rgba(198,242,78,.28)' }} />
+          <span style={{ position: 'absolute', right: -30, top: -40, width: 130, height: 130, borderRadius: '50%', background: 'rgba(185,222,100,.26)' }} />
           <span style={{ position: 'relative' }}>
             <span style={{ display: 'block', font: `800 26px/1 ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>DUEL ÉCLAIR</span>
             <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.75)', marginTop: 6 }}>Quatre questions contre un ami au hasard</span>
@@ -106,6 +109,41 @@ export default function Duels({ nav }: { nav: Nav }) {
             ))}
           </>
         ) : null}
+
+        {/* Amis par compétence — remonté de l'écran Quêtes */}
+        <Kicker style={{ marginTop: 8 }}>PROGRESSION DES AMIS</Kicker>
+        <div style={{ display: 'flex', gap: 7, overflowX: 'auto', margin: '0 -22px', padding: '0 22px' }}>
+          {SKILLS.filter((k) => !k.solo).map((k) => (
+            <Tap
+              key={k.id} onTap={() => setFSkill(k.id)} haptic="soft"
+              style={{
+                flex: 'none', minHeight: 38, padding: '0 14px', display: 'flex', alignItems: 'center', borderRadius: 11,
+                font: `700 10px ${F.mono}`, letterSpacing: '.1em',
+                background: fSkill === k.id ? k.c : 'rgba(255,255,255,.07)',
+                color: fSkill === k.id ? k.txt : 'rgba(255,255,255,.6)'
+              }}
+            >
+              {k.short}
+            </Tap>
+          ))}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {friends.map((f) => (
+            <div key={f[0]} style={{ display: 'flex', alignItems: 'center', gap: 12, background: C.night, border: `1px solid ${C.line}`, borderRadius: 18, padding: '12px 14px' }}>
+              <span style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', flex: 'none' }}><AvatarCut who={f[0]} crop="face" /></span>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+                  <span style={{ font: `700 13px ${F.body}`, color: '#fff' }}>{f[1]}</span>
+                  <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.45)' }}>{f[2]}</span>
+                </span>
+                <span style={{ display: 'block', height: 7, borderRadius: 99, background: 'rgba(255,255,255,.1)', marginTop: 7, overflow: 'hidden' }}>
+                  <span style={{ display: 'block', height: '100%', width: f[4] + '%', background: skillById(fSkill).c, borderRadius: 99 }} />
+                </span>
+              </span>
+              <Tap onTap={() => nav.open('quiz', { who: f[0], name: f[1], skill: fSkill })} style={{ font: `700 9px ${F.mono}`, letterSpacing: '.08em', color: C.ink, background: C.lime, padding: '10px 11px', borderRadius: 10, flex: 'none', minHeight: 40, display: 'flex', alignItems: 'center' }}>DÉFIER</Tap>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

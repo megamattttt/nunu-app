@@ -33,6 +33,7 @@ export const initialState: GameState = {
   flow: 0,
   combo: { n: 0, best: 0, last: null },
   journal: [],
+  history: [],
 
   px: 0,
   coins: 120,

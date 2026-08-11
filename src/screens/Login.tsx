@@ -38,7 +38,7 @@ export default function Login() {
       {/* Scène haute */}
       <div style={{ position: 'relative', overflow: 'hidden', padding: 'calc(var(--safe-top) + 20px) 26px 30px', flex: '1 0 auto' }}>
         <span style={{ position: 'absolute', right: -70, top: -80, width: 240, height: 240, borderRadius: '50%', background: 'rgba(255,255,255,.12)' }} />
-        <span style={{ position: 'absolute', left: -60, top: 120, width: 150, height: 150, borderRadius: '50%', background: 'rgba(198,242,78,.26)', animation: 'nuDrift 9s ease-in-out infinite' }} />
+        <span style={{ position: 'absolute', left: -60, top: 120, width: 150, height: 150, borderRadius: '50%', background: 'rgba(185,222,100,.24)', animation: 'nuDrift 9s ease-in-out infinite' }} />
         <span style={{ position: 'absolute', right: 30, bottom: 60, width: 14, height: 14, borderRadius: '50%', background: C.honey }} />
         <span style={{ position: 'absolute', left: 34, bottom: 24, width: 9, height: 9, borderRadius: '50%', background: 'rgba(255,255,255,.55)' }} />
 

@@ -1,7 +1,8 @@
 /* Base + réglages iOS. Le reste du style vit dans les composants (styles en ligne, comme le prototype). */
 :root {
-  --ink: #0B0B0C; --night: #17171A; --paper: #F6F4EF; --sand: #E6DFD1;
-  --lime: #C6F24E; --violet: #26262E; --coral: #FF4D3D; --honey: #FFC24B; --sky: #E6DFD1;
+  --ink: #0A0A0C; --night: #131318; --paper: #F4F2ED; --sand: #DED6C6;
+  --lime: #B9DE64; --violet: #1C1C23; --coral: #E2685A; --honey: #E8B863; --sky: #DED6C6;
+  --azur: #6FA5D8; --iris: #9C8AD6; --teal: #5CBFAE;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --nav-h: 76px;
@@ -63,7 +64,7 @@ button { cursor: pointer; padding: 0; }
 @keyframes nuDrift { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(8px, -10px); } }
 @keyframes nuTick { 0% { transform: scale(1); } 45% { transform: scale(1.22); } 100% { transform: scale(1); } }
 @keyframes nuFly { 0% { transform: translateY(0) scale(.4); opacity: 0; } 12% { opacity: 1; } 100% { transform: translateY(-96px) scale(1); opacity: 0; } }
-@keyframes nuPulse { 0% { box-shadow: 0 0 0 0 rgba(198,242,78,.7); } 70% { box-shadow: 0 0 0 12px rgba(198,242,78,0); } 100% { box-shadow: 0 0 0 0 rgba(198,242,78,0); } }
+@keyframes nuPulse { 0% { box-shadow: 0 0 0 0 rgba(185,222,100,.75); } 70% { box-shadow: 0 0 0 12px rgba(185,222,100,0); } 100% { box-shadow: 0 0 0 0 rgba(185,222,100,0); } }
 @keyframes nuBeam { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
 /* Guide de démarrage : entrée des slides selon le sens du swipe. */

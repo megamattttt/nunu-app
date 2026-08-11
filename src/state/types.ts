@@ -14,6 +14,9 @@ export type CustomQuest = {
 
 export type Task = { id: string; label: string; px: number; done: boolean };
 
+/** Une validation horodatée — matière première de la vue semaine et des statistiques. */
+export type HistoryRow = { t: number; px: number; skill: string; name: string; kind: 'quete' | 'tache' | 'duel' };
+
 export type LogRow = { name: string; tag: string; val: string; when: string };
 
 export type Duel = {
@@ -79,6 +82,9 @@ export type GameState = {
 
   /** Journal de progression : une entrée par palier validé + entrées libres. */
   journal: JournalEntry[];
+
+  /** Historique horodaté des validations (90 derniers jours). */
+  history: HistoryRow[];
 
   /* --- Deux monnaies seulement --- */
   px: number;                 // PX cumulés (niveau global du personnage)

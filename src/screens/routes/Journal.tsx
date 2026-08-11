@@ -14,12 +14,17 @@ const MONTH = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' 
 export default function Journal({ nav }: { nav: Nav }) {
   const { s } = useGame();
   const [filter, setFilter] = useState<string>('all');
+  const [q, setQ] = useState('');
   const [edit, setEdit] = useState<JournalEntry | null>(null);
 
-  const list = useMemo(
-    () => s.journal.filter((e) => filter === 'all' || e.skill === filter).slice().sort((a, b) => b.when - a.when),
-    [s.journal, filter]
-  );
+  const list = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    return s.journal
+      .filter((e) => filter === 'all' || e.skill === filter)
+      .filter((e) => !needle || (e.title + ' ' + e.note).toLowerCase().includes(needle))
+      .slice()
+      .sort((a, b) => b.when - a.when);
+  }, [s.journal, filter, q]);
 
   const groups = useMemo(() => {
     const out: [string, JournalEntry[]][] = [];
@@ -53,7 +58,32 @@ export default function Journal({ nav }: { nav: Nav }) {
         }
       />
 
-      <div style={{ display: 'flex', gap: 7, overflowX: 'auto', margin: '18px -22px 0', padding: '0 22px' }}>
+      {/* Recherche dans les titres et les notes */}
+      <div style={{ position: 'relative', marginTop: 18 }}>
+        <svg
+          width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="2.2"
+          style={{ position: 'absolute', left: 15, top: '50%', marginTop: -8 }}
+        >
+          <circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" />
+        </svg>
+        <input
+          value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher dans le journal…"
+          style={{
+            width: '100%', minHeight: 48, borderRadius: 16, padding: '0 42px 0 42px',
+            background: C.night, border: `1px solid ${C.line}`, color: '#fff', font: `400 15px ${F.body}`
+          }}
+        />
+        {q ? (
+          <Tap
+            onTap={() => setQ('')} aria-label="Effacer"
+            style={{ position: 'absolute', right: 6, top: 4, width: 40, height: 40, borderRadius: 99, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="2.4" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </Tap>
+        ) : null}
+      </div>
+
+      <div style={{ display: 'flex', gap: 7, overflowX: 'auto', margin: '12px -22px 0', padding: '0 22px' }}>
         {([['all', 'TOUT'], ...SKILLS.map((k) => [k.id, k.short] as [string, string])]).map(([id, label]) => (
           <Tap
             key={id} onTap={() => setFilter(id)} haptic="soft"
@@ -78,8 +108,8 @@ export default function Journal({ nav }: { nav: Nav }) {
         ))}
         {!list.length ? (
           <Empty
-            title="Journal vide"
-            text="Chaque palier validé ouvre une entrée à compléter. Tu peux aussi en créer une quand tu veux."
+            title={q ? 'Aucun résultat' : 'Journal vide'}
+            text={q ? `Rien ne correspond à « ${q} » dans les titres et les notes.` : 'Chaque palier validé ouvre une entrée à compléter. Tu peux aussi en créer une quand tu veux.'}
           />
         ) : null}
       </div>

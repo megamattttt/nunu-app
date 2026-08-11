@@ -70,7 +70,7 @@ export default function Validate({ nav }: { nav: Nav }) {
         {steps.map((label, i) => (
           <Tap
             key={label} onTap={() => toggle(i)}
-            style={{ display: 'flex', alignItems: 'center', gap: 13, background: done[i] ? 'rgba(198,242,78,.12)' : C.night, border: '1px solid ' + (done[i] ? 'rgba(198,242,78,.4)' : 'rgba(255,255,255,.08)'), borderRadius: 18, padding: '14px 15px', minHeight: 56 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 13, background: done[i] ? 'rgba(185,222,100,.13)' : C.night, border: '1px solid ' + (done[i] ? 'rgba(185,222,100,.42)' : 'rgba(255,255,255,.08)'), borderRadius: 18, padding: '14px 15px', minHeight: 56 }}
           >
             <span style={{ width: 26, height: 26, borderRadius: 9, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', background: done[i] ? C.lime : 'transparent', border: done[i] ? 'none' : '2px solid rgba(255,255,255,.2)', animation: done[i] ? 'nuTick .3s ease' : undefined }}>
               {done[i] ? <Check size={14} w={3.6} /> : null}

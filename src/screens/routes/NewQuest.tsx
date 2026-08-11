@@ -73,7 +73,7 @@ export default function NewQuest({ nav }: { nav: Nav }) {
           <Tap
             onTap={applyHint} haptic="soft"
             style={{
-              display: 'flex', alignItems: 'center', gap: 12, background: applied ? 'rgba(198,242,78,.1)' : C.night,
+              display: 'flex', alignItems: 'center', gap: 12, background: applied ? 'rgba(185,222,100,.12)' : C.night,
               border: `1px solid ${applied ? C.lime + '66' : 'rgba(255,255,255,.1)'}`, borderRadius: 20, padding: '13px 15px', minHeight: 58
             }}
           >

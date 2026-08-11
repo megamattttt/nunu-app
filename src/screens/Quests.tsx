@@ -4,11 +4,10 @@ import { useGame, COMBO_WINDOW, COMBO_STEPS, comboBonus } from '../state/store';
 import { BADGES, BADGE_C, SKILLS, TITLES, skillById } from '../data/skills';
 import { isInstant } from '../data/quests';
 import { TIER_TIPS } from '../data/tips';
-import { boardRows, levelOf, pxOf, skillRank, skillNextRank } from '../state/selectors';
-import { FRIENDS_RANK } from '../data/social';
-import AvatarCut from '../components/avatar/AvatarCut';
+import { boardRows, levelOf, pxOf, skillRank, skillNextRank, baseCount } from '../state/selectors';
 import SkillWheel from '../components/SkillWheel';
 import DiffBadge from '../components/DiffBadge';
+import DragList from '../components/DragList';
 import { RankIcon, RankBadge } from '../components/RankIcon';
 import JournalCard from '../components/JournalCard';
 import JournalEditor, { newEntry } from '../components/JournalEditor';
@@ -93,8 +92,8 @@ function ComboBar({ n, last, best }: { n: number; last: number | null; best: num
   );
 }
 
-type Sub = 'board' | 'journal' | 'perso' | 'coll' | 'amis';
-const SUBS: [Sub, string][] = [['board', 'PLATEAU'], ['journal', 'JOURNAL'], ['perso', 'PERSO'], ['coll', 'COLL.'], ['amis', 'AMIS']];
+type Sub = 'board' | 'journal' | 'coll';
+const SUBS: [Sub, string][] = [['board', 'PLATEAU'], ['journal', 'JOURNAL'], ['coll', 'COLLECTION']];
 
 export default function Quests({ nav }: { nav: Nav }) {
   const { s, d } = useGame();
@@ -113,7 +112,11 @@ export default function Quests({ nav }: { nav: Nav }) {
   const next = skillNextRank(s, sk.id);
   const now = rows.find((r) => r.state === 'now');
 
-  const friends = FRIENDS_RANK.filter((f) => f[0] !== 'moi').slice(0, 5);
+  // Le plateau d'origine porte la progression ; les quêtes ajoutées se réordonnent à la main.
+  const nBase = baseCount(sk.id);
+  const base = rows.slice(0, nBase);
+  const extras = rows.slice(nBase);
+  const mine = s.customQuests.filter((q) => q.skill === sk.id);
 
   const act = (row: (typeof rows)[number]) => {
     if (row.state !== 'now') return;
@@ -213,7 +216,7 @@ export default function Quests({ nav }: { nav: Nav }) {
                 <span style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(90deg, transparent 0 13px, rgba(11,11,12,.55) 13px 15px)' }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, font: `500 9px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.42)', marginTop: 10, position: 'relative' }}>
-                <span>{lvl}/{rows.length} PALIERS</span>
+                <span>{lvl}/{nBase} PALIERS</span>
                 <span>{next ? 'SUIVANT · ' + next.label : 'RANG MAXIMAL'}</span>
               </div>
               <div style={{ display: 'flex', gap: 9, marginTop: 13, background: 'rgba(255,255,255,.05)', borderRadius: 14, padding: '11px 12px', position: 'relative' }}>
@@ -223,7 +226,7 @@ export default function Quests({ nav }: { nav: Nav }) {
             </div>
 
             <div>
-              {rows.map((r, i) => {
+              {base.map((r, i) => {
                 const done = r.state === 'done', isNow = r.state === 'now';
                 const hit = flash?.ix === r.ix;
                 return (
@@ -232,9 +235,9 @@ export default function Quests({ nav }: { nav: Nav }) {
                     onTap={() => act(r)}
                     sound={isNow}
                     haptic={isNow && isInstant(r.rarity) ? 'levelup' : 'tap'}
-                    style={{ display: 'flex', gap: 14, position: 'relative', paddingBottom: 10, opacity: r.state === 'lock' ? .55 : 1 }}
+                    style={{ display: 'flex', gap: 14, position: 'relative', paddingBottom: 12, opacity: r.state === 'lock' ? .5 : 1 }}
                   >
-                    {i < rows.length - 1 ? (
+                    {i < base.length - 1 ? (
                       <span style={{ position: 'absolute', left: 22, top: 48, bottom: 0, width: 2, background: 'repeating-linear-gradient(180deg,rgba(11,11,12,.22) 0 4px,transparent 4px 9px)' }} />
                     ) : null}
                     <span
@@ -307,6 +310,79 @@ export default function Quests({ nav }: { nav: Nav }) {
               })}
             </div>
 
+            {/* Quêtes ajoutées : ordre libre, glisser-déposer par la poignée */}
+            {extras.length ? (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                  <Kicker dark>QUÊTES AJOUTÉES · {extras.length}</Kicker>
+                  <Tap
+                    onTap={() => d({ t: 'SORT_QUESTS', skill: sk.id })} haptic="soft"
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, minHeight: 32, padding: '0 10px', borderRadius: 9, background: 'rgba(10,10,12,.06)' }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.4" strokeLinecap="round"><path d="M4 7h16M4 12h10M4 17h5" /></svg>
+                    <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.ink }}>TRIER</span>
+                  </Tap>
+                </div>
+
+                <DragList count={extras.length} onMove={(from, to) => d({ t: 'MOVE_QUEST', skill: sk.id, from, to })}>
+                  {(i, handle, dragging) => {
+                    const r = extras[i];
+                    const done = r.state === 'done';
+                    const hit = flash?.ix === r.ix;
+                    return (
+                      <div
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 11, background: '#fff', borderRadius: 18, padding: '12px 13px',
+                          border: dragging ? `1px solid ${sk.c}` : '1px solid rgba(10,10,12,.07)',
+                          opacity: done ? .6 : 1
+                        }}
+                      >
+                        <span
+                          {...handle}
+                          aria-label="Déplacer"
+                          style={{ width: 30, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none', cursor: 'grab', touchAction: 'none' }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(10,10,12,.28)">
+                            <circle cx="9" cy="6" r="1.7" /><circle cx="15" cy="6" r="1.7" /><circle cx="9" cy="12" r="1.7" />
+                            <circle cx="15" cy="12" r="1.7" /><circle cx="9" cy="18" r="1.7" /><circle cx="15" cy="18" r="1.7" />
+                          </svg>
+                        </span>
+                        <Tap onTap={() => act(r)} sound={!done} style={{ flex: 1, minWidth: 0 }}>
+                          <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
+                            <span style={{ font: `700 14px ${F.body}`, color: C.ink, textDecoration: done ? 'line-through' : 'none' }}>{r.name}</span>
+                            <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(10,10,12,.4)' : C.ink, whiteSpace: 'nowrap' }}>+{s.onFire && !done ? r.px * 2 : r.px}</span>
+                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 7, flexWrap: 'wrap' }}>
+                            <DiffBadge diff={r.diff} size="sm" />
+                            {r.link ? (
+                              <Tap
+                                onTap={() => window.open(r.link!, '_blank', 'noopener')} haptic="soft"
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(10,10,12,.07)', borderRadius: 7, padding: '4px 8px' }}
+                              >
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.2" strokeLinejoin="round"><path d="M4 6h16v12H4z" /><path d="M10 9.5l5 2.5-5 2.5z" fill={C.ink} /></svg>
+                                <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: C.ink }}>TUTO</span>
+                              </Tap>
+                            ) : null}
+                            <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(10,10,12,.5)' }}>
+                              {done ? 'Validé' : isInstant(r.rarity) ? 'Un tap suffit' : 'Preuve à l’appui'}
+                            </span>
+                            {hit ? <span style={{ font: `700 11px ${F.mono}`, color: sk.c }}>+{flash!.px}</span> : null}
+                          </span>
+                        </Tap>
+                        <Tap
+                          onTap={() => { if (r.id && confirm('Retirer « ' + r.name + ' » du plateau ?')) d({ t: 'DEL_QUEST', id: r.id }); }}
+                          aria-label="Retirer"
+                          style={{ width: 34, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(10,10,12,.3)" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                        </Tap>
+                      </div>
+                    );
+                  }}
+                </DragList>
+              </>
+            ) : null}
+
             <Tap onTap={() => nav.open('newquest', { skill: sk.id })} style={{ display: 'flex', alignItems: 'center', gap: 12, background: C.ink, borderRadius: 20, padding: '15px 17px', minHeight: 56 }}>
               <span style={{ width: 28, height: 28, borderRadius: 10, background: C.sand, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="3"><path d="M12 5v14M5 12h14" /></svg>
@@ -316,6 +392,45 @@ export default function Quests({ nav }: { nav: Nav }) {
                 <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 2 }}>Nom, effort, moment de la journée</span>
               </span>
             </Tap>
+
+            {/* Tâches du quotidien — bloc à part, séparé du plateau */}
+            <div style={{ height: 1, background: 'rgba(10,10,12,.09)', margin: '10px 0 4px' }} />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Kicker dark>TÂCHES DU QUOTIDIEN</Kicker>
+              <span style={{ font: `700 10px ${F.mono}`, color: s.onFire ? C.coral : 'rgba(10,10,12,.45)' }}>
+                ÉNERGIE {s.energy}%
+              </span>
+            </div>
+            <div style={{ display: 'flex', marginTop: -4 }}>
+              <Bar pct={s.energy} c={s.onFire ? C.coral : C.lime} h={8} track="rgba(10,10,12,.08)" />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {s.tasks.map((t) => (
+                <Tap
+                  key={t.id} onTap={() => d({ t: 'TOGGLE_TASK', id: t.id })} haptic={t.done ? 'soft' : 'success'}
+                  style={{ display: 'flex', alignItems: 'center', gap: 13, background: t.done ? 'rgba(10,10,12,.05)' : '#fff', borderRadius: 18, padding: '14px 15px', minHeight: 56 }}
+                >
+                  <span style={{ width: 26, height: 26, borderRadius: 9, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.done ? C.lime : 'transparent', border: t.done ? 'none' : '2px solid rgba(10,10,12,.18)', animation: t.done ? 'nuTick .3s ease' : undefined }}>
+                    {t.done ? <Check size={14} w={3.6} /> : null}
+                  </span>
+                  <span style={{ flex: 1, font: `${t.done ? 400 : 700} 13.5px ${F.body}`, color: t.done ? 'rgba(10,10,12,.42)' : C.ink, textDecoration: t.done ? 'line-through' : 'none' }}>{t.label}</span>
+                  <span style={{ font: `700 11px ${F.mono}`, color: t.done ? 'rgba(10,10,12,.35)' : C.ink }}>+{t.px} PX</span>
+                </Tap>
+              ))}
+            </div>
+
+            <form
+              onSubmit={(e) => { e.preventDefault(); if (!newTask.trim()) return; d({ t: 'ADD_TASK', label: newTask.trim(), px: 8 }); setNewTask(''); }}
+              style={{ display: 'flex', gap: 8 }}
+            >
+              <input
+                value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="Ajouter une tâche…"
+                style={{ flex: 1, background: '#fff', border: '1px solid rgba(10,10,12,.12)', borderRadius: 16, padding: '14px', color: C.ink, font: `400 16px ${F.body}`, minHeight: 50 }}
+              />
+              <button type="submit" style={{ font: `700 11px ${F.mono}`, color: C.paper, background: C.ink, padding: '0 18px', borderRadius: 16, letterSpacing: '.08em', minHeight: 50 }}>AJOUTER</button>
+            </form>
           </>
         )}
 
@@ -361,52 +476,6 @@ export default function Quests({ nav }: { nav: Nav }) {
           );
         })()}
 
-        {sub === 'perso' && (
-          <>
-            <div style={{ background: '#fff', borderRadius: 22, padding: '15px 17px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <Kicker dark>ÉNERGIE</Kicker>
-                <span style={{ font: `700 12px ${F.mono}`, color: s.onFire ? C.coral : C.ink }}>{s.energy}%</span>
-              </div>
-              <div style={{ display: 'flex', marginTop: 11 }}><Bar pct={s.energy} c={s.onFire ? C.coral : C.lime} h={14} track="rgba(11,11,12,.08)" /></div>
-              <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(11,11,12,.58)', marginTop: 10, textWrap: 'pretty' }}>
-                Chaque quête et chaque tâche cochée remplit la jauge. Pleine, tu passes en feu : PX doublés jusqu’à ce qu’elle se vide. Sans rien valider pendant 24 h, elle retombe à zéro.
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {s.tasks.map((t) => (
-                <Tap
-                  key={t.id} onTap={() => d({ t: 'TOGGLE_TASK', id: t.id })} haptic={t.done ? 'soft' : 'success'}
-                  style={{ display: 'flex', alignItems: 'center', gap: 13, background: t.done ? 'rgba(11,11,12,.05)' : '#fff', borderRadius: 18, padding: '14px 15px', minHeight: 56 }}
-                >
-                  <span style={{ width: 26, height: 26, borderRadius: 9, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.done ? C.lime : 'transparent', border: t.done ? 'none' : '2px solid rgba(11,11,12,.2)', animation: t.done ? 'nuTick .3s ease' : undefined }}>
-                    {t.done ? <Check size={14} w={3.6} /> : null}
-                  </span>
-                  <span style={{ flex: 1, font: `${t.done ? 400 : 700} 13.5px ${F.body}`, color: t.done ? 'rgba(11,11,12,.42)' : C.ink, textDecoration: t.done ? 'line-through' : 'none' }}>{t.label}</span>
-                  <span style={{ font: `700 11px ${F.mono}`, color: t.done ? 'rgba(11,11,12,.35)' : C.ink }}>+{t.px} PX</span>
-                </Tap>
-              ))}
-              {!s.tasks.length ? (
-                <div style={{ font: `400 12.5px/1.5 ${F.body}`, color: 'rgba(11,11,12,.5)', padding: '4px 2px' }}>
-                  Rien pour l’instant. Ajoute une tâche du quotidien : elle compte comme une quête commune.
-                </div>
-              ) : null}
-            </div>
-
-            <form
-              onSubmit={(e) => { e.preventDefault(); if (!newTask.trim()) return; d({ t: 'ADD_TASK', label: newTask.trim(), px: 8 }); setNewTask(''); }}
-              style={{ display: 'flex', gap: 8 }}
-            >
-              <input
-                value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="Ajout rapide…"
-                style={{ flex: 1, background: '#fff', border: '1px solid rgba(11,11,12,.12)', borderRadius: 16, padding: '14px', color: C.ink, font: `400 16px ${F.body}`, minHeight: 50 }}
-              />
-              <button type="submit" style={{ font: `700 11px ${F.mono}`, color: C.paper, background: C.ink, padding: '0 18px', borderRadius: 16, letterSpacing: '.08em', minHeight: 50 }}>AJOUTER</button>
-            </form>
-          </>
-        )}
-
         {sub === 'coll' && (
           <>
             <Kicker dark>TITRES</Kicker>
@@ -444,31 +513,7 @@ export default function Quests({ nav }: { nav: Nav }) {
           </>
         )}
 
-        {sub === 'amis' && (
-          <>
-            <div style={{ font: `400 12.5px/1.4 ${F.body}`, color: 'rgba(11,11,12,.6)' }}>
-              Progression sur <b style={{ fontWeight: 700, color: C.ink }}>{sk.soft}</b> chez tes amis. Défie-les : l’enjeu est en PX.
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {friends.map((f) => (
-                <div key={f[0]} style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#fff', borderRadius: 18, padding: '12px 14px' }}>
-                  <span style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', flex: 'none' }}><AvatarCut who={f[0]} crop="face" /></span>
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
-                      <span style={{ font: `700 13px ${F.body}`, color: C.ink }}>{f[1]}</span>
-                      <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(11,11,12,.55)' }}>{f[2]}</span>
-                    </span>
-                    <span style={{ display: 'block', height: 8, borderRadius: 99, background: 'rgba(11,11,12,.08)', marginTop: 7, overflow: 'hidden' }}>
-                      <span style={{ display: 'block', height: '100%', width: f[4] + '%', background: sk.c, borderRadius: 99 }} />
-                    </span>
-                  </span>
-                  <Tap onTap={() => nav.open('quiz', { who: f[0], name: f[1], skill: sk.id })} style={{ font: `700 9px ${F.mono}`, letterSpacing: '.08em', color: C.ink, background: C.lime, padding: '10px 11px', borderRadius: 10, flex: 'none', minHeight: 40, display: 'flex', alignItems: 'center' }}>DÉFIER</Tap>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+              </div>
 
       {/* Action au pouce */}
       {sub === 'board' && now ? (

@@ -125,7 +125,7 @@ export default function Discover({ nav }: { nav: Nav }) {
         </>
       ) : (
         <div style={{ marginTop: 60, textAlign: 'center' }}>
-          <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(198,242,78,.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
+          <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(185,222,100,.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={C.lime} strokeWidth="2.4"><path d="M4 12.5l5 5L20 6.5" /></svg>
           </div>
           <div style={{ font: `800 24px ${F.display}`, color: '#fff', letterSpacing: '-.02em', marginTop: 20 }}>PIOCHE TERMINÉE</div>

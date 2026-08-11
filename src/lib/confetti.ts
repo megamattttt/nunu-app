@@ -1,6 +1,6 @@
 type Piece = { x: number; y: number; vx: number; vy: number; r: number; s: number; c: string; sh: number };
 
-const COLORS = ['#C6F24E', '#FF4D3D', '#FFC24B', '#E6DFD1', '#F6F4EF'];
+const COLORS = ['#B9DE64', '#E2685A', '#E8B863', '#6FA5D8', '#F4F2ED'];
 
 /** Confettis canvas, plein écran, auto-nettoyés. count 0 = désactivé. */
 export function confetti(count = 90, origin: { x?: number; y?: number } = {}) {

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { C, F } from '../theme';
+import { C, F, SIG } from '../theme';
 import { useGame } from '../state/store';
 import { SKILLS, skillById } from '../data/skills';
 import { QUOTES, CHALLENGES } from '../data/quests';
-import { globalLevel, globalPct, ownedObjects, questsDone, skillRank, pxOf, totalPx } from '../state/selectors';
+import { globalLevel, globalPct, ownedObjects, questsDone, skillRank, pxOf, totalPx, weekStats } from '../state/selectors';
 import { DIO_OBJ } from '../data/diorama';
 import AvatarCut from '../components/avatar/AvatarCut';
 import { RankIcon, RankBadge } from '../components/RankIcon';
@@ -11,6 +11,7 @@ import { TIER_TIPS } from '../data/tips';
 import DioramaScene from '../components/DioramaScene';
 import Logo from '../components/Logo';
 import ProfileEdit from '../components/ProfileEdit';
+import WeekStrip from '../components/WeekStrip';
 import { CADRE_C } from '../data/quiz';
 import { Kicker, Star, Tap } from '../components/ui';
 import type { Nav } from '../App';
@@ -22,7 +23,8 @@ export default function Profile({ nav }: { nav: Nav }) {
   const mainSkill = s.startSkill || SKILLS[0].id;
   const mainSk = skillById(mainSkill);
   const mainRank = skillRank(s, mainSkill);
-  const sig = ['#C6F24E','#FF4D3D','#FFC24B','#E6DFD1','#A9D94B','#F6F4EF','#DFF39A','#FFE0A8'][s.profile.sig];
+  const sig = SIG[s.profile.sig] || SIG[0];
+  const w = weekStats(s);
   const quote = QUOTES[s.banner.quote % QUOTES.length];
   const chall = CHALLENGES[s.banner.chall % CHALLENGES.length];
 
@@ -120,8 +122,47 @@ export default function Profile({ nav }: { nav: Nav }) {
           </div>
         </section>
 
+        {/* Ma semaine */}
+        <Tap
+          onTap={() => nav.open('week')}
+          style={{ background: C.night, border: `1px solid ${C.line}`, borderRadius: 26, padding: '17px 19px 15px' }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
+            <Kicker>MA SEMAINE</Kicker>
+            <span style={{ font: `700 11px ${F.mono}`, color: C.lime }}>{w.px} PX</span>
+          </div>
+          <div style={{ marginTop: 14 }}><WeekStrip days={w.days} h={40} /></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 13, gap: 10 }}>
+            <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.5)' }}>
+              {w.n} validations · {w.active}/7 jours actifs
+            </span>
+            <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.azur }}>BILAN COMPLET →</span>
+          </div>
+        </Tap>
+
+        {/* Défis — l'onglet a rejoint le profil */}
+        <Tap
+          onTap={() => nav.open('duels')}
+          style={{ background: C.night, border: `1px solid ${C.line}`, borderRadius: 22, padding: '17px 20px', display: 'flex', alignItems: 'center', gap: 14, minHeight: 68 }}
+        >
+          <span style={{ width: 38, height: 38, borderRadius: 13, background: C.honey, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill={C.ink}><path d="M13 3L5 14h6l-1 7 8-11h-6z" /></svg>
+          </span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: 'block', font: `800 18px ${F.display}`, color: '#fff', letterSpacing: '-.01em' }}>DÉFIS</span>
+            <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 3 }}>
+              {s.duels.filter((x) => x.status === 'en cours').length} en cours · {s.invitsOpen.length} invitations
+            </span>
+          </span>
+          {s.invitsOpen.length ? (
+            <span style={{ minWidth: 22, height: 22, borderRadius: 99, background: C.coral, color: '#fff', font: `700 10px ${F.mono}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none', padding: '0 6px' }}>
+              {s.invitsOpen.length}
+            </span>
+          ) : null}
+        </Tap>
+
         {/* Rangs par compétence */}
-        <section style={{ background: C.night, border: '1px solid rgba(255,255,255,.08)', borderRadius: 26, padding: '16px 18px' }}>
+        <section style={{ background: C.night, border: `1px solid ${C.line}`, borderRadius: 26, padding: '16px 18px' }}>
           <Kicker>RANGS PAR COMPÉTENCE</Kicker>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
             {SKILLS.map((sk) => {
