@@ -3,8 +3,8 @@ import { C, F } from '../../theme';
 import { useGame } from '../../state/store';
 import { AV_FRAME, AV_FRAME_LOCKS, AV_SIG, AV_TITLES } from '../../data/avatar';
 import {
-  AV_GROUPS, avatarSvg, ensureConfig, keysOfGroup, kindOf, labelOf,
-  lockOf, optionsOf, paletteOf, randomConfig, variantSvg
+  AV_GROUPS, viewSvg, ensureConfig, keysOfGroup, kindOf, labelOf,
+  lockOf, optionsOf, paletteOf, patternLabel, randomConfig, thumbSvg
 } from '../../lib/dicebear';
 import { levelOf } from '../../state/selectors';
 import { skillById } from '../../data/skills';
@@ -30,7 +30,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
   const isIdent = group === 4;
   const isFrame = key === '__frame';
 
-  const preview = useMemo(() => avatarSvg(av, 320), [av]);
+  const preview = useMemo(() => viewSvg(av, 'bust', 320), [av]);
 
   const locked = (k: string, i: number) => {
     const lock = k === '__frame' ? AV_FRAME_LOCKS[i] : lockOf(k, i);
@@ -201,19 +201,30 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
                     }}
                     haptic="soft"
                     style={{
-                      position: 'relative', width: isColor ? 46 : 66, minHeight: isColor ? 46 : 66, borderRadius: 15, overflow: 'hidden',
+                      position: 'relative', width: isColor ? 46 : 72, minHeight: isColor ? 46 : 72, borderRadius: 15, overflow: 'hidden',
                       border: on ? '3px solid ' + C.lime : '3px solid transparent',
-                      background: isColor ? '#' + value : 'rgba(255,255,255,.06)',
+                      background: isColor ? (value === 'transparent' ? 'rgba(255,255,255,.08)' : '#' + value) : 'rgba(255,255,255,.08)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
                       opacity: lock ? .45 : 1
                     }}
                   >
-                    {isColor ? null : isFrame ? (
+                    {isColor ? (
+                      value === 'transparent'
+                        ? <span style={{ font: `700 8px ${F.mono}`, letterSpacing: '.06em', color: 'rgba(255,255,255,.5)' }}>SANS</span>
+                        : null
+                    ) : isFrame ? (
                       <span style={{ width: 34, height: 34, borderRadius: 10, ...css(AV_FRAME[i].s), background: AV_FRAME[i].s ? undefined : 'rgba(255,255,255,.12)' }} />
                     ) : kind === 'toggle' ? (
                       <span style={{ font: `700 10px ${F.mono}`, letterSpacing: '.08em', color: on ? '#fff' : 'rgba(255,255,255,.55)' }}>{value === '0' ? 'NON' : 'OUI'}</span>
                     ) : (
-                      <Swatch svg={variantSvg(av, key, value, 72)} />
+                      <>
+                        <Swatch svg={thumbSvg(av, key, value, 88)} />
+                        {key === 'pattern' ? (
+                          <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, background: 'rgba(11,11,12,.62)', font: `700 7px ${F.mono}`, letterSpacing: '.06em', color: '#fff', padding: '3px 2px' }}>
+                            {patternLabel(value).toUpperCase()}
+                          </span>
+                        ) : null}
+                      </>
                     )}
                     {lock ? (
                       <span style={{ position: 'absolute', inset: 0, background: 'rgba(11,11,12,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: `700 8px ${F.mono}`, color: '#fff', letterSpacing: '.04em', padding: 3 }}>

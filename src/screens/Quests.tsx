@@ -159,14 +159,28 @@ export default function Quests({ nav }: { nav: Nav }) {
 
         <div style={{ padding: '14px 22px 0', textAlign: 'center' }}>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <RankBadge rank={rank} skillName={`${sk.name} · ${pxOf(s, sk.id)} PX`} size="md" bg="rgba(255,255,255,.05)" />
+            {isPerso ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,.05)', border: `1px solid ${sk.c}44`, borderRadius: 16, padding: '10px 14px' }}>
+                <span style={{ width: 9, height: 9, borderRadius: '50%', background: sk.c, flex: 'none' }} />
+                <span style={{ minWidth: 0, textAlign: 'left' }}>
+                  <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)' }}>SANS CLASSEMENT</span>
+                  <span style={{ display: 'block', font: `800 15px/1 ${F.display}`, color: '#fff', letterSpacing: '-.02em', marginTop: 4 }}>{pxOf(s, sk.id)} PX</span>
+                </span>
+              </span>
+            ) : (
+              <RankBadge rank={rank} skillName={`${sk.name} · ${pxOf(s, sk.id)} PX`} size="md" bg="rgba(255,255,255,.05)" />
+            )}
           </div>
           <div style={{ display: 'inline-flex', gap: 8, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             {sk.id !== 'perso' ? (
               <Tap onTap={() => nav.open('path', { skill: sk.id })} style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sk.c, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 36, display: 'flex', alignItems: 'center' }}>
                 VOIR LE CHEMIN
               </Tap>
-            ) : null}
+            ) : (
+              <Tap onTap={() => nav.open('path', { skill: sk.id })} style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.7)', border: `1px solid ${sk.c}66`, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 36, display: 'flex', alignItems: 'center' }}>
+                TOUT VOIR
+              </Tap>
+            )}
             {s.onFire ? (
               <span style={{ font: `700 10px ${F.mono}`, color: '#fff', background: C.coral, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em' }}>EN FEU · PX ×2</span>
             ) : (

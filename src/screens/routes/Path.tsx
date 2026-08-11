@@ -21,6 +21,9 @@ export default function Path({ nav }: { nav: Nav }) {
   const rows = boardRows(s, skill);
   const r = skillRank(s, skill);
   const next = skillNextRank(s, skill);
+  /** Compétence solo : pas de ladder, pas de comparaison, un ton plus calme. */
+  const solo = !!sk.solo;
+  const doneCount = rows.filter((x) => x.state === 'done').length;
 
   const act = (row: (typeof rows)[number]) => {
     if (row.state !== 'now') return;
@@ -30,9 +33,31 @@ export default function Path({ nav }: { nav: Nav }) {
 
   return (
     <div style={{ padding: '10px 22px 30px' }}>
-      <RouteHead title={sk.name} sub="Chemin de progression" onBack={nav.back} />
+      <RouteHead title={sk.name} sub={solo ? 'Ton quotidien, sans classement' : 'Chemin de progression'} onBack={nav.back} />
 
-      {/* Rang courant */}
+      {solo ? (
+        /* Bilan tranquille : ce qui est fait, ce qui reste. Aucun rang. */
+        <section style={{ background: 'rgba(255,255,255,.05)', border: `1px solid ${sk.c}44`, borderRadius: 26, padding: '20px 20px 18px', marginTop: 18 }}>
+          <Kicker>OÙ TU EN ES</Kicker>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, marginTop: 12 }}>
+            <span>
+              <span style={{ display: 'block', font: `800 40px/1 ${F.display}`, color: '#fff', letterSpacing: '-.04em' }}>{doneCount}</span>
+              <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.45)', marginTop: 6 }}>QUÊTES FAITES</span>
+            </span>
+            <span>
+              <span style={{ display: 'block', font: `800 40px/1 ${F.display}`, color: sk.c, letterSpacing: '-.04em' }}>{rows.length - doneCount}</span>
+              <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.45)', marginTop: 6 }}>EN ATTENTE</span>
+            </span>
+            <span style={{ flex: 1, textAlign: 'right' }}>
+              <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.6)', background: 'rgba(255,255,255,.07)', padding: '8px 12px', borderRadius: 99 }}>{pxOf(s, skill)} PX</span>
+            </span>
+          </div>
+          <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 16, textWrap: 'pretty' }}>
+            Pas de rang ici, rien à comparer avec personne. Ce qui compte, c’est ce que tu sors de ta tête.
+          </div>
+        </section>
+      ) : (
+      /* Rang courant */
       <section style={{ background: sk.c, color: sk.txt, borderRadius: 26, padding: '18px 20px', marginTop: 18 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 13, minWidth: 0 }}>
@@ -58,10 +83,11 @@ export default function Path({ nav }: { nav: Nav }) {
           <span style={{ font: `400 11.5px/1.45 ${F.body}`, opacity: .8, textWrap: 'pretty' }}>{TIER_TIPS[r.tier]}</span>
         </div>
       </section>
+      )}
 
       {/* Ligne de paliers */}
       <div style={{ marginTop: 20 }}>
-        <Kicker>LES PALIERS, DANS L’ORDRE</Kicker>
+        <Kicker>{solo ? 'TES QUÊTES, DANS L’ORDRE' : 'LES PALIERS, DANS L’ORDRE'}</Kicker>
         <div style={{ marginTop: 12 }}>
           {rows.map((row, i) => {
             const done = row.state === 'done', now = row.state === 'now';
@@ -78,7 +104,7 @@ export default function Path({ nav }: { nav: Nav }) {
                     width: 44, height: 44, borderRadius: '50%', flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     background: done ? sk.c : now ? C.lime : 'rgba(255,255,255,.08)',
                     border: now ? '2px solid #fff' : 'none',
-                    animation: now ? 'nuPulse 2.6s ease-out infinite' : undefined
+                    animation: now && !solo ? 'nuPulse 2.6s ease-out infinite' : undefined
                   }}
                 >
                   {done ? <Check /> : now ? <svg width="15" height="15" viewBox="0 0 24 24" fill={C.ink}><path d="M7 4l13 8-13 8z" /></svg>
@@ -90,7 +116,7 @@ export default function Path({ nav }: { nav: Nav }) {
                     <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(255,255,255,.35)' : C.lime, whiteSpace: 'nowrap' }}>+{row.px}</span>
                   </span>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 7 }}>
-                    <DiffBadge diff={row.diff} size="sm" />
+                    {solo ? null : <DiffBadge diff={row.diff} size="sm" />}
                     {row.link ? (
                       <Tap
                         onTap={() => window.open(row.link!, '_blank', 'noopener')} haptic="soft"

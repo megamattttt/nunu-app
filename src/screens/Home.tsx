@@ -89,12 +89,11 @@ export default function Home({ nav }: { nav: Nav }) {
           </span>
         </div>
 
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'stretch', gap: 15, marginTop: 14 }}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 15, marginTop: 14 }}>
           <AvatarFrame
             av={s.profile.av}
             crop="bust"
             size={116}
-            ratio={0.84}
             accent={mainRank.c}
             level={lvl}
             onTap={() => nav.open('avatar')}

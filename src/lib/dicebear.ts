@@ -6,19 +6,22 @@ import { bigEars } from '@dicebear/collection';
  * La bibliothèque est empaquetée avec l'application : aucune requête réseau,
  * la génération marche donc hors ligne dès que l'app est chargée.
  *
- * Les options ne sont jamais écrites en dur : elles sont lues dans le schéma
- * exposé par le style, ce qui garde l'écran de personnalisation aligné sur
- * la version installée de @dicebear/collection.
+ * Les options de style ne sont jamais écrites en dur : elles sont lues dans le
+ * schéma exposé par la collection. S'y ajoutent deux couches maison — la
+ * couleur de fond et un motif décoratif — composées autour du personnage.
  */
 
 export type AvConfig = Record<string, string>;
 
 const SCHEMA: Record<string, any> = ((bigEars as any).schema?.properties) || {};
 
-/** Options du cœur DiceBear (hors schéma de style) que l'on expose aussi. */
-const CORE_PALETTE: Record<string, string[]> = {
-  backgroundColor: ['transparent', '0A0A0C', '1C1C23', 'B9DE64', 'E8B863', 'E2685A', '6FA5D8', '9C8AD6', '5CBFAE', 'F4F2ED', 'DED6C6']
-};
+/** Boîte de dessin du style : tout le reste du fichier raisonne en unités 440. */
+const VB = 440;
+
+/* ---------------- Options maison ---------------- */
+
+const BG_PALETTE = ['transparent', '0A0A0C', '1C1C23', 'B9DE64', 'E8B863', 'E2685A', '6FA5D8', '9C8AD6', '5CBFAE', 'F4F2ED', 'DED6C6'];
+const PATTERN_PALETTE = ['FFFFFF', '0A0A0C', 'B9DE64', 'E8B863', 'E2685A', '6FA5D8', '9C8AD6', '5CBFAE', 'DED6C6'];
 
 /** Teintes ajoutées aux palettes du style, qui n'en proposent que quatre. */
 const EXTRA_PALETTE: Record<string, string[]> = {
@@ -26,14 +29,62 @@ const EXTRA_PALETTE: Record<string, string[]> = {
   skinColor: ['f2d3b1', '8c4a2f', '6b3520', '4b2e1d']
 };
 
-/** Toutes les clés d'option, dans l'ordre du schéma puis du cœur. */
-export const AV_KEYS = [...Object.keys(SCHEMA), ...Object.keys(CORE_PALETTE)];
+/** Motifs de fond : tracés simples, dessinés dans la boîte 440 × 440. */
+const PATTERNS: Record<string, (c: string) => string> = {
+  aucun: () => '',
+  rayures: (c) => Array.from({ length: 11 }, (_, i) =>
+    `<path d="M${-440 + i * 80} 440L${i * 80} 0" stroke="${c}" stroke-width="26" stroke-linecap="square"/>`).join(''),
+  grille: (c) => [
+    ...Array.from({ length: 6 }, (_, i) => `<path d="M${i * 88} 0V440" stroke="${c}" stroke-width="8"/>`),
+    ...Array.from({ length: 6 }, (_, i) => `<path d="M0 ${i * 88}H440" stroke="${c}" stroke-width="8"/>`)
+  ].join(''),
+  pois: (c) => Array.from({ length: 25 }, (_, i) =>
+    `<circle cx="${44 + (i % 5) * 88}" cy="${44 + Math.floor(i / 5) * 88}" r="15" fill="${c}"/>`).join(''),
+  anneaux: (c) => [70, 130, 190, 250].map((r) =>
+    `<circle cx="220" cy="220" r="${r}" fill="none" stroke="${c}" stroke-width="14"/>`).join(''),
+  rayons: (c) => Array.from({ length: 12 }, (_, i) => {
+    const a = (i * 30) * Math.PI / 180;
+    const b = (i * 30 + 13) * Math.PI / 180;
+    return `<path d="M220 220L${220 + Math.cos(a) * 400} ${220 + Math.sin(a) * 400}L${220 + Math.cos(b) * 400} ${220 + Math.sin(b) * 400}Z" fill="${c}"/>`;
+  }).join(''),
+  spirale: (c) => {
+    let d = 'M220 220';
+    for (let i = 0; i <= 220; i++) {
+      const a = i * 0.22, r = i * 1.35;
+      d += `L${(220 + Math.cos(a) * r).toFixed(1)} ${(220 + Math.sin(a) * r).toFixed(1)}`;
+    }
+    return `<path d="${d}" fill="none" stroke="${c}" stroke-width="13" stroke-linecap="round"/>`;
+  },
+  etincelles: (c) => [[70, 90, 34], [350, 70, 26], [90, 330, 26], [370, 320, 34], [220, 40, 20], [40, 220, 18], [400, 200, 18]]
+    .map(([x, y, s]) =>
+      `<path d="M${x} ${y - s}C${x + s * .18} ${y - s * .18} ${x + s * .18} ${y - s * .18} ${x + s} ${y}C${x + s * .18} ${y + s * .18} ${x + s * .18} ${y + s * .18} ${x} ${y + s}C${x - s * .18} ${y + s * .18} ${x - s * .18} ${y + s * .18} ${x - s} ${y}C${x - s * .18} ${y - s * .18} ${x - s * .18} ${y - s * .18} ${x} ${y - s}Z" fill="${c}"/>`).join(''),
+  arche: (c) => `<path d="M60 440V220a160 160 0 0 1 320 0v220Z" fill="${c}"/>`,
+  damier: (c) => Array.from({ length: 36 }, (_, i) => {
+    const x = i % 6, y = Math.floor(i / 6);
+    return (x + y) % 2 ? `<rect x="${x * 74}" y="${y * 74}" width="74" height="74" fill="${c}"/>` : '';
+  }).join(''),
+  vagues: (c) => Array.from({ length: 6 }, (_, i) =>
+    `<path d="M-20 ${40 + i * 80}q55 -46 110 0t110 0t110 0t110 0" fill="none" stroke="${c}" stroke-width="14" stroke-linecap="round"/>`).join(''),
+  confettis: (c) => Array.from({ length: 22 }, (_, i) => {
+    const x = (i * 97) % 420 + 10, y = (i * 143) % 410 + 10, r = (i * 37) % 180;
+    return `<rect x="${x}" y="${y}" width="34" height="12" rx="6" fill="${c}" transform="rotate(${r} ${x + 17} ${y + 6})"/>`;
+  }).join('')
+};
+
+export const PATTERN_IDS = Object.keys(PATTERNS);
+
+/** Clés gérées par l'application, hors schéma du style. */
+const APP_KEYS = ['backgroundColor', 'pattern', 'patternColor'];
+
+/** Toutes les clés d'option, dans l'ordre du schéma puis des couches maison. */
+export const AV_KEYS = [...Object.keys(SCHEMA), ...APP_KEYS];
 
 const isColorKey = (k: string) => /color$/i.test(k);
 const isProbaKey = (k: string) => /probability$/i.test(k);
 
 /** Valeurs possibles d'une option à choix. Vide pour les couleurs. */
 export function optionsOf(key: string): string[] {
+  if (key === 'pattern') return PATTERN_IDS;
   const p = SCHEMA[key];
   if (!p) return [];
   const items = p.items || p;
@@ -42,7 +93,8 @@ export function optionsOf(key: string): string[] {
 
 /** Palette d'une option de couleur : celle du style, élargie de quelques teintes. */
 export function paletteOf(key: string): string[] {
-  if (CORE_PALETTE[key]) return CORE_PALETTE[key];
+  if (key === 'backgroundColor') return BG_PALETTE;
+  if (key === 'patternColor') return PATTERN_PALETTE;
   const p = SCHEMA[key];
   const def = p?.default;
   const list = Array.isArray(def) ? def : def != null ? [def] : [];
@@ -54,42 +106,120 @@ export type AvKind = 'choice' | 'color' | 'toggle';
 
 export const kindOf = (key: string): AvKind => (isProbaKey(key) ? 'toggle' : isColorKey(key) ? 'color' : 'choice');
 
+/* ---------------- Cadrages ---------------- */
+
+/**
+ * Zones du visage, mesurées sur le rendu réel du style.
+ * Elles servent aux vignettes : chaque option se voit isolée, agrandie,
+ * au lieu d'obliger à chercher la différence sur un visage entier.
+ */
+const ZONES: Record<string, string> = {
+  face: '95 125 250 290',
+  skinColor: '95 125 250 290',
+  eyes: '152 238 132 76',
+  nose: '176 288 88 56',
+  mouth: '165 326 108 48',
+  cheek: '133 288 175 55',
+  cheekProbability: '133 288 175 55',
+  ear: '74 241 294 83',
+  hair: '80 95 280 190',
+  hairColor: '80 95 280 190',
+  frontHair: '119 149 202 113',
+  sideburn: '116 233 206 73'
+};
+
+/** Cadrages d'affichage, du portrait serré au plan large. */
+const VIEWS: Record<string, string> = {
+  face: '75 108 290 290',
+  bust: '48 78 344 344',
+  half: '48 78 344 344',
+  full: '20 50 400 400'
+};
+
+/** Options d'affichage qui doivent garder le fond et le décor. */
+const KEEP_SCENE = new Set(['pattern', 'patternColor', 'backgroundColor']);
+
 /* ---------------- Rendu ---------------- */
 
 const cache = new Map<string, string>();
+let clipSeq = 0;
 
-/** Options DiceBear déduites de la configuration enregistrée. */
-function toOptions(cfg: AvConfig, size: number) {
-  const o: Record<string, any> = { seed: cfg.seed || 'nunu', size };
-  for (const k of AV_KEYS) {
+/** Options passées au style : seules les clés qu'il connaît. */
+function styleOptions(cfg: AvConfig, size: number) {
+  const o: Record<string, any> = { seed: cfg.seed || 'nunu', size, backgroundColor: ['transparent'] };
+  for (const k of Object.keys(SCHEMA)) {
     const v = cfg[k];
     if (v === undefined || v === '') continue;
     if (isProbaKey(k)) o[k] = Number(v) || 0;
     else o[k] = [String(v).replace(/^#/, '')];
   }
-  return o;}
+  return o;
+}
 
-/** SVG complet, mémoïsé : le même avatar n'est calculé qu'une fois. */
-export function avatarSvg(cfg: AvConfig, size = 128): string {
-  const key = size + '|' + AV_KEYS.map((k) => cfg[k] ?? '').join(',') + '|' + (cfg.seed || '');
+const innerOf = (svg: string) => svg.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+
+type Opts = { view?: string; scene?: boolean; fit?: 'slice' | 'meet'; clip?: string };
+
+/**
+ * SVG complet et autonome : fond, motif, puis personnage.
+ * `view` est la fenêtre (viewBox) affichée, `scene` garde ou non le décor,
+ * `clip` découpe le dessin à une zone précise (vignettes d'option).
+ */
+export function avatarSvg(cfg: AvConfig, size = 128, opts: Opts = {}): string {
+  const view = opts.view || `0 0 ${VB} ${VB}`;
+  const scene = opts.scene !== false;
+  const fit = opts.fit || 'slice';
+  const clip = opts.clip || '';
+  const key = [size, view, scene, fit, clip, cfg.seed || '', ...AV_KEYS.map((k) => cfg[k] ?? '')].join('|');
   const hit = cache.get(key);
   if (hit) return hit;
-  // Le SVG doit remplir son conteneur : on neutralise les dimensions fixes.
-  const svg = createAvatar(bigEars, toOptions(cfg, size)).toString()
-    .replace(/(<svg[^>]*?)\swidth="[^"]*"/, '$1 width="100%"')
-    .replace(/(<svg[^>]*?)\sheight="[^"]*"/, '$1 height="100%"')
-    .replace(/<svg /, '<svg preserveAspectRatio="xMidYMid slice" style="display:block" ');
-  if (cache.size > 400) cache.clear();
+
+  const body = innerOf(createAvatar(bigEars, styleOptions(cfg, size)).toString());
+  const bg = scene ? (cfg.backgroundColor || 'transparent') : 'transparent';
+  const bgFill = bg === 'transparent' ? 'none' : '#' + bg.replace(/^#/, '');
+  const patId = scene ? (cfg.pattern || 'aucun') : 'aucun';
+  const patColor = '#' + (cfg.patternColor || 'FFFFFF').replace(/^#/, '');
+  const pattern = (PATTERNS[patId] || PATTERNS.aucun)(patColor);
+
+  const inner =
+    `<rect x="-40" y="-40" width="${VB + 80}" height="${VB + 80}" fill="${bgFill}"/>` +
+    (pattern ? `<g opacity="0.34">${pattern}</g>` : '') +
+    body;
+
+  let content = inner;
+  if (clip) {
+    const [x, y, w, h] = clip.split(' ');
+    const id = 'nuz' + (++clipSeq);
+    content = `<defs><clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}"/></clipPath></defs><g clip-path="url(#${id})">${inner}</g>`;
+  }
+
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${view}" width="100%" height="100%" ` +
+    `preserveAspectRatio="xMidYMid ${fit}" style="display:block">${content}</svg>`;
+
+  if (cache.size > 500) cache.clear();
   cache.set(key, svg);
   return svg;
 }
 
-/** Aperçu d'une variante isolée, utilisé par les vignettes du studio. */
-export const variantSvg = (cfg: AvConfig, key: string, value: string, size = 56) =>
-  avatarSvg({ ...cfg, [key]: value }, size);
+/** Rendu d'affichage, cadré selon le plan demandé. */
+export const viewSvg = (cfg: AvConfig, crop: string = 'bust', size = 256) =>
+  avatarSvg(cfg, size, { view: VIEWS[crop] || VIEWS.bust });
+
+/**
+ * Vignette d'option : la zone du visage concernée, agrandie, sans décor —
+ * l'élément se reconnaît au premier coup d'œil.
+ */
+export function thumbSvg(cfg: AvConfig, key: string, value: string, size = 84): string {
+  const next = { ...cfg, [key]: value };
+  if (KEEP_SCENE.has(key)) return avatarSvg(next, size, { view: `0 0 ${VB} ${VB}` });
+  const zone = ZONES[key];
+  if (!zone) return avatarSvg(next, size, { view: VIEWS.face, scene: false });
+  return avatarSvg(next, size, { view: zone, scene: false, fit: 'meet', clip: zone });
+}
 
 /** Avatar d'un ami : la graine suffit, tout le reste est déduit. */
-export const seedSvg = (seed: string, size = 96) => avatarSvg({ seed }, size);
+export const seedSvg = (seed: string, crop = 'bust', size = 96) => viewSvg({ seed }, crop, size);
 
 /* ---------------- Configuration ---------------- */
 
@@ -125,7 +255,6 @@ export function lastOption(key: string): AvConfig {
 
 /* ---------------- Habillage français ---------------- */
 
-/** Libellés d'écran. Une clé inconnue retombe sur son nom brut, lisible. */
 const LABELS: Record<string, string> = {
   seed: 'Graine',
   skinColor: 'Teint',
@@ -140,23 +269,28 @@ const LABELS: Record<string, string> = {
   hairColor: 'Couleur',
   frontHair: 'Frange',
   sideburn: 'Favoris',
-  backgroundColor: 'Fond'
+  backgroundColor: 'Fond',
+  pattern: 'Motif',
+  patternColor: 'Couleur du motif'
 };
 
 export const labelOf = (key: string) =>
   LABELS[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
+
+/** Nom lisible d'une variante de motif. */
+export const patternLabel = (id: string) => id.charAt(0).toUpperCase() + id.slice(1);
 
 /** Regroupement des options en onglets. L'ordre fixe la lecture de l'écran. */
 const GROUP_OF: Record<string, number> = {
   face: 0, skinColor: 0, eyes: 0, nose: 0, mouth: 0, ear: 0,
   hair: 1, hairColor: 1, frontHair: 1, sideburn: 1,
   cheek: 2, cheekProbability: 2,
-  backgroundColor: 3
+  backgroundColor: 3, pattern: 3, patternColor: 3
 };
 
 export const AV_GROUPS = ['VISAGE', 'CHEVEUX', 'DÉTAILS', 'DÉCOR', 'IDENTITÉ'];
 
-/** Clés d'un onglet, l'onglet Accessoires ramassant tout le reste. */
+/** Clés d'un onglet, l'onglet Détails ramassant tout le reste. */
 export const keysOfGroup = (g: number) =>
   AV_KEYS.filter((k) => k !== 'seed' && (GROUP_OF[k] ?? 2) === g);
 
@@ -169,7 +303,8 @@ export const AV_LOCK_RULES: Record<string, [number, string, number]> = {
   eyes: [4, 'photo', 6],
   mouth: [3, 'perso', 8],
   frontHair: [2, 'course', 9],
-  face: [2, 'cuisine', 7]
+  face: [2, 'cuisine', 7],
+  pattern: [3, 'jardin', 6]
 };
 
 /** Verrou associé à une variante, ou null si elle est libre. */

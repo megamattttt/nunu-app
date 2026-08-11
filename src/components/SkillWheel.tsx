@@ -156,7 +156,7 @@ export default function SkillWheel({
               <div style={{ position: 'relative', height: 46, marginBottom: -18 }}>
                 <span style={{ position: 'absolute', left: 16, bottom: 0, width: 54, height: 66, borderRadius: 10, background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.18)', transform: 'rotate(-7deg)' }} />
                 <span style={{ position: 'absolute', right: 18, bottom: 0, width: 62, height: 74, borderRadius: 10, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.16)', transform: 'rotate(6deg)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 8 }}>
-                  <RankIcon rank={r} size={22} bg={C.ink} pips={false} />
+                  {item.solo ? null : <RankIcon rank={r} size={22} bg={C.ink} pips={false} />}
                 </span>
                 <span style={{ position: 'absolute', left: '50%', marginLeft: -30, bottom: 4, width: 60, height: 78, borderRadius: 10, background: 'rgba(255,255,255,.2)', border: '1px solid rgba(255,255,255,.24)' }} />
               </div>
@@ -173,13 +173,17 @@ export default function SkillWheel({
               >
                 <span style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
                   <span style={{ font: `800 26px/1 ${F.display}`, color: item.txt, letterSpacing: '-.03em' }}>{item.short}</span>
-                  <RankIcon rank={r} size={20} bg={col} />
+                  {item.solo ? (
+                    <span style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${item.txt}`, opacity: .45, flex: 'none' }} />
+                  ) : (
+                    <RankIcon rank={r} size={20} bg={col} />
+                  )}
                 </span>
                 <span style={{ display: 'block' }}>
                   <span style={{ display: 'block', height: 6, borderRadius: 99, background: 'rgba(11,11,12,.18)', overflow: 'hidden' }}>
-                    <span style={{ display: 'block', height: '100%', width: r.pct + '%', borderRadius: 99, background: item.txt === '#FFFFFF' ? '#fff' : C.ink }} />
+                    <span style={{ display: 'block', height: '100%', width: (item.solo ? 100 : r.pct) + '%', borderRadius: 99, background: item.txt === '#FFFFFF' ? '#fff' : C.ink, opacity: item.solo ? .35 : 1 }} />
                   </span>
-                  <span style={{ display: 'block', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: item.txt, opacity: .62, marginTop: 7 }}>{r.short}</span>
+                  <span style={{ display: 'block', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: item.txt, opacity: .62, marginTop: 7 }}>{item.solo ? 'PERSO' : r.short}</span>
                 </span>
               </div>
             </div>
@@ -220,12 +224,16 @@ export default function SkillWheel({
           {sel.name}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginTop: 10, font: `500 12px ${F.body}`, color: 'rgba(255,255,255,.62)' }}>
-          <span>{doneCount} paliers</span>
+          <span>{doneCount} {sel.solo ? 'faites' : 'paliers'}</span>
           <span>{rows.length - doneCount} à venir</span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: rank.c }}>
-            <RankIcon rank={rank} size={16} bg={C.ink} pips={false} />
-            {rank.short}
-          </span>
+          {sel.solo ? (
+            <span style={{ color: 'rgba(255,255,255,.4)' }}>sans classement</span>
+          ) : (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: rank.c }}>
+              <RankIcon rank={rank} size={16} bg={C.ink} pips={false} />
+              {rank.short}
+            </span>
+          )}
         </div>
         <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.42)', marginTop: 10, maxWidth: 300, marginLeft: 'auto', marginRight: 'auto', textWrap: 'pretty' }}>
           Fais tourner la molette : la roue boucle sans fin.

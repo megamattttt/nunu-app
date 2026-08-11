@@ -36,12 +36,11 @@ export default function Profile({ nav }: { nav: Nav }) {
       <header style={{ background: C.sky, padding: '20px 22px 24px', borderRadius: '0 0 34px 34px', position: 'relative', overflow: 'hidden' }}>
         <span style={{ position: 'absolute', right: -60, top: -70, width: 210, height: 210, borderRadius: '50%', background: sig, opacity: .45 }} />
         <div style={{ display: 'grid', gridTemplateColumns: '128px 1fr', gap: 16, position: 'relative' }}>
-          {/* Personnage en pied, comme une fiche de jeu */}
+          {/* Portrait Big Ears — cadre carré, comme une carte de joueur */}
           <AvatarFrame
             av={s.profile.av}
-            crop="full"
+            crop="bust"
             size="100%"
-            ratio={128 / 208}
             accent={CADRE_C[s.profile.cadre]}
             label="STUDIO AVATAR"
             onTap={() => nav.open('avatar')}
@@ -158,10 +157,32 @@ export default function Profile({ nav }: { nav: Nav }) {
 
         {/* Rangs par compétence */}
         <section style={{ background: C.night, border: `1px solid ${C.line}`, borderRadius: 26, padding: '16px 18px' }}>
-          <Kicker>RANGS PAR COMPÉTENCE</Kicker>
+          <Kicker>PROGRESSION PAR COMPÉTENCE</Kicker>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
             {SKILLS.map((sk) => {
               const r = skillRank(s, sk.id);
+              // Compétence solo : aucune échelle de rang, juste ce qui a été fait.
+              if (sk.solo) {
+                const n = s.customQuests.filter((q) => q.skill === sk.id).length;
+                const done = s.customQuests.filter((q) => q.skill === sk.id && q.done).length;
+                return (
+                  <Tap key={sk.id} onTap={() => nav.open('path', { skill: sk.id })} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                    <span style={{ width: 30, height: 30, borderRadius: 10, background: sk.c, color: sk.txt, font: `800 12px ${F.display}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>{sk.short}</span>
+                    <span style={{ width: 24, display: 'flex', justifyContent: 'center', flex: 'none' }}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: sk.c, opacity: .7 }} />
+                    </span>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+                        <span style={{ font: `700 12.5px ${F.body}`, color: 'rgba(255,255,255,.82)' }}>Sans classement</span>
+                        <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.45)' }}>{pxOf(s, sk.id)} PX</span>
+                      </span>
+                      <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 5 }}>
+                        {done} faite{done > 1 ? 's' : ''} · {Math.max(0, n - done)} en attente
+                      </span>
+                    </span>
+                  </Tap>
+                );
+              }
               return (
                 <Tap key={sk.id} onTap={() => nav.open('path', { skill: sk.id })} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
                   <span style={{ width: 30, height: 30, borderRadius: 10, background: sk.c, color: sk.txt, font: `800 12px ${F.display}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>{sk.short}</span>
