@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { C, F } from '../theme';
 import { useGame } from '../state/store';
 import { skillById } from '../data/skills';
@@ -25,6 +25,18 @@ export default function JournalEditor({ entry, onClose }: { entry: JournalEntry;
   const file = useRef<HTMLInputElement | null>(null);
   const sk = skillById(e.skill);
   const set = (patch: Partial<JournalEntry>) => setE((v) => ({ ...v, ...patch }));
+
+  // Tant que la feuille est ouverte : Échap ferme, la page derrière ne défile plus.
+  useEffect(() => {
+    const onKey = (ev: KeyboardEvent) => { if (ev.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [onClose]);
 
   const addPhotos = async (list: FileList | null) => {
     if (!list?.length) return;
@@ -54,16 +66,21 @@ export default function JournalEditor({ entry, onClose }: { entry: JournalEntry;
   return (
     <div
       onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 82, background: 'rgba(11,11,12,.84)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 82, background: 'rgba(10,10,12,.84)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
     >
       <div
         onClick={(ev) => ev.stopPropagation()}
         style={{
-          width: '100%', maxWidth: 460, maxHeight: '92dvh', overflowY: 'auto', background: C.paper,
+          width: '100%', maxWidth: 460, maxHeight: '88dvh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', background: C.paper,
           borderRadius: '30px 30px 0 0', padding: '10px 20px calc(var(--dock-space) + 10px)', animation: 'nuSheet .34s cubic-bezier(.2,1,.3,1)'
         }}
       >
-        <span style={{ display: 'block', width: 42, height: 4, borderRadius: 99, background: 'rgba(11,11,12,.2)', margin: '0 auto 16px' }} />
+        <Tap
+          onTap={onClose} haptic="soft" aria-label="Fermer"
+          style={{ display: 'block', width: 52, height: 22, margin: '0 auto 10px' }}
+        >
+          <span style={{ display: 'block', width: 42, height: 4, borderRadius: 99, background: 'rgba(10,10,12,.22)', margin: '9px auto 0' }} />
+        </Tap>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ width: 30, height: 30, borderRadius: 10, background: sk.c, color: sk.txt, font: `800 12px ${F.display}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>{sk.short}</span>
@@ -75,6 +92,13 @@ export default function JournalEditor({ entry, onClose }: { entry: JournalEntry;
               {e.title || 'Nouvelle entrée'}
             </span>
           </span>
+          {/* Fermeture explicite : la feuille couvre presque tout l'écran. */}
+          <Tap
+            onTap={onClose} haptic="soft" aria-label="Fermer"
+            style={{ width: 44, height: 44, borderRadius: 99, flex: 'none', background: 'rgba(11,11,12,.07)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.6" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </Tap>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>

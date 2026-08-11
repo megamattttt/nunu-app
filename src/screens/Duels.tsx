@@ -4,6 +4,7 @@ import { useGame } from '../state/store';
 import { INVITS, FRIENDS_RANK } from '../data/social';
 import { skillById, SKILLS } from '../data/skills';
 import AvatarCut from '../components/avatar/AvatarCut';
+import AvatarFrame from '../components/AvatarFrame';
 import { BackBtn, Empty, Kicker, Tap } from '../components/ui';
 import type { Nav } from '../App';
 
@@ -32,7 +33,7 @@ export default function Duels({ nav }: { nav: Nav }) {
             <span style={{ position: 'absolute', left: 8, right: 8, top: 11, height: 60, borderRadius: 24, background: '#5B5B66' }} />
             <div style={{ position: 'relative', background: C.paper, borderRadius: 26, padding: '18px 20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <span style={{ width: 52, height: 52, borderRadius: 18, overflow: 'hidden', flex: 'none' }}><AvatarCut who={duel.who} crop="face" /></span>
+              <span style={{ width: 52, height: 52, flex: 'none' }}><AvatarFrame who={duel.who} crop="face" size={52} accent={C.coral} /></span>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <Kicker dark>DUEL EN COURS</Kicker>
                   <span style={{ display: 'block', font: `800 21px ${F.display}`, color: C.ink, letterSpacing: '-.01em', marginTop: 3 }}>{duel.name.toUpperCase()}</span>
@@ -77,7 +78,7 @@ export default function Duels({ nav }: { nav: Nav }) {
           const iv = INVITS[i];
           return (
             <div key={i} style={{ background: C.night, borderRadius: 20, padding: '13px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ width: 42, height: 42, borderRadius: 14, overflow: 'hidden', flex: 'none' }}><AvatarCut who={iv.who} crop="face" /></span>
+              <span style={{ width: 42, height: 42, flex: 'none' }}><AvatarFrame who={iv.who} crop="face" size={42} accent={C.honey} /></span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', font: `700 13.5px ${F.body}`, color: '#fff' }}>{iv.name}</span>
                 <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{iv.sub}</span>
@@ -130,7 +131,7 @@ export default function Duels({ nav }: { nav: Nav }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {friends.map((f) => (
             <div key={f[0]} style={{ display: 'flex', alignItems: 'center', gap: 12, background: C.night, border: `1px solid ${C.line}`, borderRadius: 18, padding: '12px 14px' }}>
-              <span style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', flex: 'none' }}><AvatarCut who={f[0]} crop="face" /></span>
+              <span style={{ width: 38, height: 38, flex: 'none' }}><AvatarFrame who={f[0]} crop="face" size={38} accent={skillById(fSkill).c} /></span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
                   <span style={{ font: `700 13px ${F.body}`, color: '#fff' }}>{f[1]}</span>

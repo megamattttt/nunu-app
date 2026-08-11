@@ -1,7 +1,7 @@
 import React from 'react';
 import { C, F } from '../theme';
 import { TIER_ICONS } from '../data/rankIcons';
-import { TIERS, type Rank } from '../data/ranks';
+import { TIERS, DIV_LABEL, type Rank } from '../data/ranks';
 
 /**
  * Icône de palier — unique source visuelle du rang dans toute l'app.
@@ -12,7 +12,6 @@ export function RankIcon({
 }: { rank: Rank; size?: number; bg?: string; pips?: boolean; style?: React.CSSProperties }) {
   const paths = TIER_ICONS[rank.tier] || TIER_ICONS[0];
   const divs = TIERS[rank.tier].divs;
-  const filled = rank.div >= 0 ? rank.div + 1 : 0;
 
   return (
     <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: Math.max(3, size * 0.14), flex: 'none', ...style }}>
@@ -29,18 +28,15 @@ export function RankIcon({
           />
         ))}
       </svg>
-      {pips && divs > 1 ? (
-        <span style={{ display: 'flex', gap: Math.max(2, size * 0.09) }}>
-          {Array.from({ length: divs }, (_, i) => (
-            <span
-              key={i}
-              style={{
-                width: Math.max(3, size * 0.16), height: Math.max(3, size * 0.16), borderRadius: 99,
-                background: i < filled ? rank.c : 'transparent',
-                border: i < filled ? 'none' : `1px solid ${rank.c}`, opacity: i < filled ? 1 : 0.4
-              }}
-            />
-          ))}
+      {pips && divs > 1 && rank.div >= 0 ? (
+        <span
+          style={{
+            font: `800 ${Math.max(8, Math.round(size * 0.36))}px ${F.mono}`,
+            letterSpacing: '.08em', color: rank.c, lineHeight: 1,
+            textShadow: `0 0 10px ${rank.c}55`
+          }}
+        >
+          {DIV_LABEL[rank.div]}
         </span>
       ) : null}
     </span>

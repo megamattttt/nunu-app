@@ -6,6 +6,7 @@ import { QUOTES, CHALLENGES } from '../data/quests';
 import { globalLevel, globalPct, ownedObjects, questsDone, skillRank, pxOf, totalPx, weekStats } from '../state/selectors';
 import { DIO_OBJ } from '../data/diorama';
 import AvatarCut from '../components/avatar/AvatarCut';
+import AvatarFrame from '../components/AvatarFrame';
 import { RankIcon, RankBadge } from '../components/RankIcon';
 import { TIER_TIPS } from '../data/tips';
 import DioramaScene from '../components/DioramaScene';
@@ -34,23 +35,15 @@ export default function Profile({ nav }: { nav: Nav }) {
         <span style={{ position: 'absolute', right: -60, top: -70, width: 210, height: 210, borderRadius: '50%', background: sig, opacity: .45 }} />
         <div style={{ display: 'grid', gridTemplateColumns: '128px 1fr', gap: 16, position: 'relative' }}>
           {/* Personnage en pied, comme une fiche de jeu */}
-          <Tap
+          <AvatarFrame
+            av={s.profile.av}
+            crop="full"
+            size="100%"
+            ratio={128 / 208}
+            accent={CADRE_C[s.profile.cadre]}
+            label="STUDIO AVATAR"
             onTap={() => nav.open('avatar')}
-            style={{ height: 208, borderRadius: 26, padding: 4, background: CADRE_C[s.profile.cadre], flex: 'none' }}
-          >
-            <span style={{ position: 'relative', width: '100%', height: '100%', borderRadius: 22, overflow: 'hidden', display: 'block', background: C.ink }}>
-              <AvatarCut av={s.profile.av} crop="full" />
-              <span
-                style={{
-                  position: 'absolute', left: 0, right: 0, bottom: 0, padding: '22px 10px 9px',
-                  background: 'linear-gradient(180deg,transparent,rgba(11,11,12,.88))',
-                  font: `500 8.5px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.65)', textAlign: 'center'
-                }}
-              >
-                STUDIO AVATAR
-              </span>
-            </span>
-          </Tap>
+          />
           <span style={{ flex: 1, minWidth: 0, alignSelf: 'center' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ font: `800 26px/1 ${F.display}`, color: C.ink, letterSpacing: '-.025em', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>@{s.profile.gamertag}</span>

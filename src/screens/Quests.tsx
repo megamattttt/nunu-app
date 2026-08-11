@@ -35,56 +35,66 @@ function ComboBar({ n, last, best }: { n: number; last: number | null; best: num
   const bonus = Math.round(comboBonus(n) * 100);
   const nextStep = COMBO_STEPS.find((v) => v > n);
   const hot = n >= 3;
+  const acc = hot ? C.coral : C.honey;
 
   return (
     <div
       style={{
-        background: hot ? `linear-gradient(120deg, ${C.ink}, #241A16 55%, ${C.ink})` : '#fff',
-        borderRadius: 20, padding: '15px 16px', position: 'relative', overflow: 'hidden',
-        border: hot ? `1px solid ${C.coral}55` : '1px solid rgba(11,11,12,.08)',
-        boxShadow: hot ? `0 22px 44px -30px ${C.coral}` : 'none'
+        background: `linear-gradient(125deg, ${C.ink}, ${hot ? '#2A1A17' : '#1E1B18'} 55%, ${C.ink})`,
+        borderRadius: 22, padding: '16px 17px', position: 'relative', overflow: 'hidden',
+        border: `1px solid ${acc}66`,
+        boxShadow: `0 22px 46px -30px ${acc}, inset 0 1px 0 rgba(255,255,255,.06)`
       }}
     >
-      {hot ? (
-        <>
-          <span style={{ position: 'absolute', right: -50, top: -60, width: 160, height: 160, borderRadius: '50%', background: C.coral, opacity: .2, animation: 'nuHalo 4s ease-in-out infinite' }} />
-          <span style={{ position: 'absolute', top: 0, bottom: 0, width: 90, background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent)', animation: 'nuShine 3.4s ease-in-out infinite' }} />
-        </>
-      ) : null}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 11, position: 'relative' }}>
+      <span style={{ position: 'absolute', right: -60, top: -70, width: 180, height: 180, borderRadius: '50%', background: acc, opacity: hot ? .22 : .12, animation: `nuHalo ${hot ? 4 : 7}s ease-in-out infinite` }} />
+      <span style={{ position: 'absolute', top: 0, bottom: 0, width: 90, background: `linear-gradient(90deg,transparent,${acc}22,transparent)`, animation: 'nuShine 3.6s ease-in-out infinite' }} />
+      {/* Trame technique */}
+      <span style={{ position: 'absolute', inset: 0, opacity: .5, backgroundImage: `repeating-linear-gradient(90deg, transparent 0 5px, rgba(255,255,255,.025) 5px 6px)` }} />
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 13, position: 'relative' }}>
+        {/* Multiplicateur dans une vignette à coins coupés */}
         <span
           key={n}
           style={{
-            font: `800 30px/1 ${F.display}`, letterSpacing: '-.04em', color: hot ? C.coral : C.ink, flex: 'none',
+            width: 54, height: 54, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            clipPath: 'polygon(16% 0, 84% 0, 100% 16%, 100% 84%, 84% 100%, 16% 100%, 0 84%, 0 16%)',
+            background: `linear-gradient(160deg, ${acc}, ${acc}55)`,
             animation: 'nuComboIn .42s cubic-bezier(.2,1.2,.3,1)'
           }}
         >
-          ×{n}
+          <span style={{ font: `800 24px/1 ${F.display}`, letterSpacing: '-.04em', color: C.ink }}>×{n}</span>
         </span>
+
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: hot ? 'rgba(255,255,255,.5)' : 'rgba(11,11,12,.45)' }}>
+          <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: acc }}>
             {hot ? 'COMBO CHAUD' : 'COMBO EN COURS'}
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 4, flexWrap: 'wrap' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 6, flexWrap: 'wrap' }}>
             {bonus ? (
-              <span style={{ font: `800 12px ${F.display}`, letterSpacing: '-.01em', color: hot ? C.ink : '#fff', background: hot ? C.coral : C.ink, padding: '4px 9px', borderRadius: 99 }}>
+              <span style={{ font: `800 12px ${F.display}`, letterSpacing: '-.01em', color: C.ink, background: acc, padding: '4px 9px', borderRadius: 8 }}>
                 +{bonus} % DE PX
               </span>
             ) : (
-              <span style={{ font: `700 11.5px ${F.body}`, color: hot ? '#fff' : C.ink }}>Enchaîne pour déclencher le bonus</span>
+              <span style={{ font: `700 11.5px ${F.body}`, color: '#fff' }}>Enchaîne pour déclencher le bonus</span>
             )}
             {nextStep ? (
-              <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.1em', color: hot ? 'rgba(255,255,255,.55)' : 'rgba(11,11,12,.45)' }}>×{nextStep} AU PROCHAIN PALIER</span>
+              <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.45)' }}>×{nextStep} AU PROCHAIN PALIER</span>
             ) : null}
           </span>
         </span>
-        <span style={{ font: `700 10px ${F.mono}`, color: hot ? 'rgba(255,255,255,.55)' : 'rgba(11,11,12,.4)', flex: 'none' }}>{mins} MIN</span>
+
+        <span style={{ flex: 'none', textAlign: 'right' }}>
+          <span style={{ display: 'block', font: `800 15px ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>{mins}</span>
+          <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.4)' }}>MIN</span>
+        </span>
       </div>
-      <span style={{ display: 'block', height: 6, borderRadius: 99, background: hot ? 'rgba(255,255,255,.14)' : 'rgba(11,11,12,.08)', overflow: 'hidden', marginTop: 12, position: 'relative' }}>
-        <span style={{ display: 'block', height: '100%', width: pct + '%', borderRadius: 99, background: hot ? `linear-gradient(90deg,${C.coral},${C.honey})` : C.ink, transition: 'width 1s linear' }} />
+
+      <span style={{ display: 'block', height: 7, borderRadius: 99, background: 'rgba(255,255,255,.1)', overflow: 'hidden', marginTop: 14, position: 'relative' }}>
+        <span style={{ display: 'block', height: '100%', width: pct + '%', borderRadius: 99, background: `linear-gradient(90deg,${acc},${C.honey})`, transition: 'width 1s linear' }} />
       </span>
+
       {best > 1 ? (
-        <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.12em', color: hot ? 'rgba(255,255,255,.35)' : 'rgba(11,11,12,.35)', marginTop: 9, position: 'relative' }}>
+        <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.35)', marginTop: 10, position: 'relative' }}>
           MEILLEURE CHAÎNE · ×{best}
         </span>
       ) : null}

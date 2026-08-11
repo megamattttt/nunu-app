@@ -4,7 +4,8 @@ import { useGame, COMBO_WINDOW, comboBonus } from '../state/store';
 import { SKILLS, skillById } from '../data/skills';
 import { globalLevel, globalPct, skillRank, todayQuest, weekStats } from '../state/selectors';
 import { isInstant, DIFFS } from '../data/quests';
-import AvatarCut from '../components/avatar/AvatarCut';
+import AvatarFrame from '../components/AvatarFrame';
+import Logo from '../components/Logo';
 import WeekStrip from '../components/WeekStrip';
 import { RankBadge } from '../components/RankIcon';
 import { Kicker, Tap } from '../components/ui';
@@ -82,17 +83,28 @@ export default function Home({ nav }: { nav: Nav }) {
       >
         <span style={{ position: 'absolute', right: -70, top: -90, width: 210, height: 210, borderRadius: '50%', background: s.onFire ? C.coral : mainSk.c, opacity: .13, animation: 'nuHalo 10s ease-in-out infinite' }} />
 
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 13 }}>
-          <Tap
-            onTap={() => nav.open('avatar')}
-            aria-label="Studio avatar"
+        {/* Bandeau de marque */}
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 16 }}>
+          <Logo size={19} word wordSize={14} color="rgba(255,255,255,.8)" />
+          <span
             style={{
-              width: 56, height: 56, borderRadius: '50%', overflow: 'hidden', flex: 'none', position: 'relative',
-              background: C.ink, border: `2px solid ${mainSk.c}`
+              font: `700 8.5px ${F.mono}`, letterSpacing: '.14em',
+              color: s.onFire ? C.coral : 'rgba(255,255,255,.4)',
+              border: `1px solid ${s.onFire ? C.coral + '66' : C.line}`, borderRadius: 99, padding: '5px 10px'
             }}
           >
-            <AvatarCut av={s.profile.av} crop="face" />
-          </Tap>
+            {s.onFire ? 'EN FEU · PX ×2' : `ÉNERGIE ${s.energy}%`}
+          </span>
+        </div>
+
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 13 }}>
+          <AvatarFrame
+            av={s.profile.av}
+            crop="face"
+            size={62}
+            accent={mainRank.c}
+            onTap={() => nav.open('avatar')}
+          />
 
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: 'block', font: `800 22px/1 ${F.display}`, color: '#fff', letterSpacing: '-.025em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -241,7 +253,7 @@ export default function Home({ nav }: { nav: Nav }) {
               <Kicker>ACTIVITÉ DES AMIS</Kicker>
               {PULSE.map(([who, name, what]) => (
                 <Tap key={who} onTap={() => nav.open('feed')} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', flex: 'none' }}><AvatarCut who={who} crop="face" /></span>
+                  <AvatarFrame who={who} crop="face" size={40} accent={C.azur} />
                   <span style={{ font: `400 12.5px/1.35 ${F.body}`, color: 'rgba(255,255,255,.75)' }}>
                     <b style={{ fontWeight: 700, color: '#fff' }}>{name}</b> {what}
                   </span>
