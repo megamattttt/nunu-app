@@ -128,12 +128,12 @@ const ZONES: Record<string, string> = {
   sideburn: '116 233 206 73'
 };
 
-/** Cadrages d'affichage, du portrait serré au plan large. */
+/** Cadrages d'affichage : large à dessein, pour ne jamais rogner oreilles ni coiffure. */
 const VIEWS: Record<string, string> = {
-  face: '75 108 290 290',
-  bust: '48 78 344 344',
-  half: '48 78 344 344',
-  full: '20 50 400 400'
+  face: '52 86 336 336',
+  bust: '22 52 396 396',
+  half: '22 52 396 396',
+  full: '0 26 440 440'
 };
 
 /** Options d'affichage qui doivent garder le fond et le décor. */

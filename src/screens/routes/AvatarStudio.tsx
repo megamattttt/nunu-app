@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { C, F } from '../../theme';
 import { useGame } from '../../state/store';
 import { AV_FRAME, AV_FRAME_LOCKS, AV_SIG, AV_TITLES } from '../../data/avatar';
@@ -31,6 +31,19 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
   const isFrame = key === '__frame';
 
   const preview = useMemo(() => viewSvg(av, 'bust', 320), [av]);
+
+  /* L'aperçu reste à l'écran pendant qu'on parcourt les variantes : il se
+     colle en haut et se resserre dès que la liste commence à défiler. */
+  const sentinel = useRef<HTMLDivElement>(null);
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    const el = sentinel.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([e]) => setCompact(!e.isIntersecting), { threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  const avSize = compact ? 84 : 190;
 
   const locked = (k: string, i: number) => {
     const lock = k === '__frame' ? AV_FRAME_LOCKS[i] : lockOf(k, i);
@@ -80,28 +93,56 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
 
   return (
     <div style={{ position: 'relative', minHeight: '86dvh', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px 0' }}>
-        {hideBack ? null : <BackBtn onTap={() => nav?.back()} />}
-        <span style={{ flex: 1 }} />
-        <Tap onTap={randomize} style={{ font: `700 10px ${F.mono}`, color: '#fff', background: 'rgba(255,255,255,.1)', padding: '13px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 44, display: 'flex', alignItems: 'center' }}>HASARD</Tap>
-      </div>
+      <div ref={sentinel} style={{ height: 1, flex: 'none' }} />
 
-      {/* Scène */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '18px 20px 6px' }}>
-        <span style={{ width: 190, height: 190, borderRadius: 34, overflow: 'hidden', display: 'block', ...css(AV_FRAME[(s.profile.cadre || 0) % AV_FRAME.length].s) }}>
+      <div
+        style={{
+          position: 'sticky', top: 'var(--safe-top)', zIndex: 20,
+          background: 'rgba(10,10,12,.92)', backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          boxShadow: compact ? '0 18px 30px -28px rgba(0,0,0,.9)' : 'none'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px 0' }}>
+          {hideBack ? null : <BackBtn onTap={() => nav?.back()} />}
+          <span style={{ flex: 1 }} />
+          <Tap onTap={randomize} style={{ font: `700 10px ${F.mono}`, color: '#fff', background: 'rgba(255,255,255,.1)', padding: '13px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 44, display: 'flex', alignItems: 'center' }}>HASARD</Tap>
+        </div>
+
+        {/* Scène */}
+        <div
+          style={{
+            display: 'flex', alignItems: 'center',
+            flexDirection: compact ? 'row' : 'column',
+            justifyContent: compact ? 'flex-start' : 'center',
+            gap: compact ? 14 : 12,
+            padding: compact ? '8px 20px 12px' : '18px 20px 12px',
+            transition: 'padding .26s cubic-bezier(.2,1,.3,1)'
+          }}
+        >
           <span
-            style={{ width: '100%', height: '100%', borderRadius: 28, overflow: 'hidden', display: 'block', background: C.ink }}
-            dangerouslySetInnerHTML={{ __html: preview }}
-          />
-        </span>
-        <span style={{ font: `800 24px ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>@{s.profile.gamertag}</span>
-        <span style={{ font: `700 10px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: AV_SIG[s.profile.sig], padding: '6px 12px', borderRadius: 99 }}>
-          {AV_TITLES[s.profile.titleIx][0].toUpperCase()}
-        </span>
+            style={{
+              width: avSize, height: avSize, borderRadius: compact ? 20 : 34, overflow: 'hidden', display: 'block', flex: 'none',
+              transition: 'width .26s cubic-bezier(.2,1,.3,1), height .26s cubic-bezier(.2,1,.3,1), border-radius .26s ease',
+              ...css(AV_FRAME[(s.profile.cadre || 0) % AV_FRAME.length].s)
+            }}
+          >
+            <span
+              style={{ width: '100%', height: '100%', borderRadius: compact ? 16 : 28, overflow: 'hidden', display: 'block', background: C.ink }}
+              dangerouslySetInnerHTML={{ __html: preview }}
+            />
+          </span>
+          <span style={{ minWidth: 0, textAlign: compact ? 'left' : 'center', display: 'flex', flexDirection: 'column', alignItems: compact ? 'flex-start' : 'center', gap: compact ? 6 : 12 }}>
+            <span style={{ font: `800 ${compact ? 17 : 24}px ${F.display}`, color: '#fff', letterSpacing: '-.02em', transition: 'font-size .2s ease' }}>@{s.profile.gamertag}</span>
+            <span style={{ font: `700 ${compact ? 9 : 10}px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: AV_SIG[s.profile.sig], padding: compact ? '5px 9px' : '6px 12px', borderRadius: 99 }}>
+              {AV_TITLES[s.profile.titleIx][0].toUpperCase()}
+            </span>
+          </span>
+        </div>
       </div>
 
       {/* Panneau */}
-      <div style={{ background: C.night, borderRadius: '28px 28px 0 0', marginTop: 12, padding: '14px 18px', paddingBottom: 78, flex: 1, borderTop: '1px solid rgba(255,255,255,.08)' }}>
+      <div style={{ background: C.night, borderRadius: '28px 28px 0 0', marginTop: 0, padding: '14px 18px', paddingBottom: 78, flex: 1, borderTop: '1px solid rgba(255,255,255,.08)' }}>
         <div style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 4 }}>
           {AV_GROUPS.map((g, i) => (
             <Tap

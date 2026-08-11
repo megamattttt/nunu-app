@@ -180,34 +180,38 @@ export default function Home({ nav }: { nav: Nav }) {
             onTap={validate}
             haptic="soft"
             style={{
-              borderRadius: 26, padding: focus ? '26px 22px 22px' : '18px 20px', position: 'relative', overflow: 'hidden',
-              background: `linear-gradient(118deg, ${C.lime}, #D6EE93, ${C.lime})`,
-              backgroundSize: '220% 100%', animation: `nuRise .5s cubic-bezier(.2,1,.3,1) .05s both, nuGrad 10s ease-in-out infinite`,
-              boxShadow: `0 24px 48px -32px ${C.lime}`
+              borderRadius: 26, padding: focus ? '24px 22px 22px' : '18px 20px', position: 'relative', overflow: 'hidden',
+              background: `linear-gradient(152deg, rgba(185,222,100,.13), rgba(255,255,255,.035) 58%, rgba(185,222,100,.07))`,
+              border: '1px solid rgba(185,222,100,.26)',
+              boxShadow: '0 22px 46px -38px rgba(0,0,0,.95)',
+              animation: 'nuRise .5s cubic-bezier(.2,1,.3,1) .05s both'
             }}
           >
-            <span style={{ position: 'absolute', top: 0, bottom: 0, width: 70, background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent)', animation: 'nuShine 5s ease-in-out infinite' }} />
+            <span style={{ position: 'absolute', right: -70, top: -90, width: 210, height: 210, borderRadius: '50%', background: C.lime, opacity: .1, animation: 'nuHalo 12s ease-in-out infinite' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', gap: 10 }}>
-              <span style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(10,10,12,.5)' }}>
-                {skillById(today.skill).name}
+              <span style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.lime, flex: 'none' }} />
+                <span style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {skillById(today.skill).name}
+                </span>
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: DIFFS[today.quest.diff].txt, background: DIFFS[today.quest.diff].c, padding: '4px 8px', borderRadius: 7 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 7, flex: 'none' }}>
+                <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.6)', border: `1px solid ${DIFFS[today.quest.diff].c}55`, padding: '4px 8px', borderRadius: 7 }}>
                   {DIFFS[today.quest.diff].label}
                 </span>
-                <span style={{ font: `700 11px ${F.mono}`, color: C.ink, background: 'rgba(10,10,12,.12)', padding: '4px 9px', borderRadius: 99 }}>
+                <span style={{ font: `700 11px ${F.mono}`, color: C.lime, background: 'rgba(185,222,100,.12)', padding: '4px 9px', borderRadius: 99 }}>
                   +{s.onFire ? today.quest.px * 2 : today.quest.px} PX
                 </span>
               </span>
             </div>
-            <div style={{ font: `800 ${focus ? 32 : 26}px/1.04 ${F.display}`, color: C.ink, letterSpacing: '-.025em', marginTop: focus ? 16 : 12, position: 'relative', textWrap: 'pretty' }}>
+            <div style={{ font: `800 ${focus ? 30 : 25}px/1.06 ${F.display}`, color: '#fff', letterSpacing: '-.025em', marginTop: focus ? 16 : 12, position: 'relative', textWrap: 'pretty' }}>
               {today.quest.name}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: focus ? 22 : 16, position: 'relative', gap: 10 }}>
-              <span style={{ font: `500 12px ${F.body}`, color: 'rgba(10,10,12,.6)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: focus ? 20 : 16, position: 'relative', gap: 10 }}>
+              <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.5)' }}>
                 {isInstant(today.quest.rarity) ? 'Un tap suffit' : 'Preuve requise'}
               </span>
-              <span style={{ font: `700 12px ${F.body}`, color: C.lime, background: C.ink, padding: '13px 24px', borderRadius: 99, minHeight: 46, display: 'flex', alignItems: 'center', flex: 'none' }}>VALIDER</span>
+              <span style={{ font: `700 12px ${F.body}`, color: C.ink, background: C.lime, padding: '13px 24px', borderRadius: 99, minHeight: 46, display: 'flex', alignItems: 'center', flex: 'none' }}>VALIDER</span>
             </div>
           </Tap>
         ) : null}

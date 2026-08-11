@@ -52,15 +52,23 @@ export default function AvatarFrame({
           background: `linear-gradient(150deg, ${accent}, ${accent}22 45%, ${accent}99)`
         }}
       />
-      {/* Corps du cadre */}
+      {/* Corps du cadre : fond seul, découpé aux coins */}
       <span
         style={{
           position: 'absolute', inset: 2, clipPath: CLIP, overflow: 'hidden',
           background: `linear-gradient(180deg, ${C.steel}, ${C.ink})`
         }}
-      >
+      />
+
+      {/* Personnage : couche libre, légèrement plus grande que le cadre.
+          Il déborde donc un peu des coins coupés plutôt que d'être rogné
+          net sur les côtés — oreilles et coiffures restent entières. */}
+      <span style={{ position: 'absolute', inset: '-4%', pointerEvents: 'none' }}>
         <AvatarCut av={av} who={who} crop={crop} />
-        {/* Balayage lumineux */}
+      </span>
+
+      {/* Reflets et voile bas, redessinés par-dessus dans la découpe */}
+      <span style={{ position: 'absolute', inset: 2, clipPath: CLIP, overflow: 'hidden', pointerEvents: 'none' }}>
         <span
           style={{
             position: 'absolute', top: 0, bottom: 0, width: '38%',
@@ -68,7 +76,6 @@ export default function AvatarFrame({
             animation: 'nuShine 6s ease-in-out infinite'
           }}
         />
-        {/* Voile bas pour asseoir les pastilles */}
         <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '38%', background: 'linear-gradient(180deg,transparent,rgba(10,10,12,.72))' }} />
       </span>
 
