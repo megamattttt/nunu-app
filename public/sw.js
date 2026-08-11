@@ -1,5 +1,9 @@
-/* NUNU service worker — cache statique + navigation offline. */
-const VERSION = 'nunu-v1';
+/* NUNU service worker — cache statique + navigation offline.
+   La bibliothèque DiceBear est empaquetée dans le bundle JS de l'application
+   (import statique, pas de chargement dynamique) : elle est donc mise en cache
+   par la règle « assets » ci-dessous dès la première visite, et la génération
+   d'avatars fonctionne ensuite sans réseau. */
+const VERSION = 'nunu-v2';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -24,8 +28,23 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Assets : cache d'abord, puis réseau + mise en cache.
-  if (url.origin === self.location.origin || url.host.includes('fonts.g')) {
+  const sameOrigin = url.origin === self.location.origin;
+
+  // Bundles JS/CSS (dont DiceBear) : cache d'abord, revalidation en arrière-plan.
+  if (sameOrigin && /\.(js|mjs|css)$/.test(url.pathname)) {
+    e.respondWith(
+      caches.open(VERSION).then((c) =>
+        c.match(req).then((hit) => {
+          const net = fetch(req).then((res) => { c.put(req, res.clone()).catch(() => {}); return res; }).catch(() => hit);
+          return hit || net;
+        })
+      )
+    );
+    return;
+  }
+
+  // Autres assets : cache d'abord, puis réseau + mise en cache.
+  if (sameOrigin || url.host.includes('fonts.g')) {
     e.respondWith(
       caches.match(req).then((hit) => hit || fetch(req).then((res) => {
         const copy = res.clone();

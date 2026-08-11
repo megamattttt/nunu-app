@@ -1,55 +1,82 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { C, F } from '../../theme';
 import { useGame } from '../../state/store';
-import { AV_CATS, AV_FRAME, AV_GROUPS, AV_L, AV_LOCKS, AV_SIG, AV_TITLES } from '../../data/avatar';
+import { AV_FRAME, AV_FRAME_LOCKS, AV_SIG, AV_TITLES } from '../../data/avatar';
+import {
+  AV_GROUPS, avatarSvg, ensureConfig, keysOfGroup, kindOf, labelOf,
+  lockOf, optionsOf, paletteOf, randomConfig, variantSvg
+} from '../../lib/dicebear';
 import { levelOf } from '../../state/selectors';
 import { skillById } from '../../data/skills';
-import AvatarCut from '../../components/avatar/AvatarCut';
 import { css } from '../../lib/css';
 import { BackBtn, Tap } from '../../components/ui';
 import { buzz } from '../../lib/haptics';
 import type { Nav } from '../../App';
 
+/** Vignette d'aperçu : le rendu réel de la variante, pas une étiquette. */
+function Swatch({ svg }: { svg: string }) {
+  return <span style={{ display: 'block', width: '100%', height: '100%', overflow: 'hidden', borderRadius: 12 }} dangerouslySetInnerHTML={{ __html: svg }} />;
+}
+
 export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hideBack }: { nav?: Nav; onDone?: () => void; ctaLabel?: string; hideBack?: boolean }) {
   const { s, d } = useGame();
-  const [group, setGroup] = useState(0);
-  const [cat, setCat] = useState('skin');
-  const av = s.profile.av;
-  const cats = AV_CATS.filter((c) => c.g === group);
-  const current = AV_CATS.find((c) => c.k === cat) || AV_CATS[0];
-  const isIdent = group === 5;
+  const av = useMemo(() => ensureConfig(s.profile.av), [s.profile.av]);
 
-  const locked = (key: string, i: number) => {
-    const lock = AV_LOCKS[key]?.[i];
+  const [group, setGroup] = useState(0);
+  const groupKeys = keysOfGroup(group);
+  const [cat, setCat] = useState<string>(() => keysOfGroup(0)[0] || '');
+  const key = groupKeys.includes(cat) ? cat : groupKeys[0] || '';
+  const kind = key ? kindOf(key) : 'choice';
+  const isIdent = group === 4;
+  const isFrame = key === '__frame';
+
+  const preview = useMemo(() => avatarSvg(av, 320), [av]);
+
+  const locked = (k: string, i: number) => {
+    const lock = k === '__frame' ? AV_FRAME_LOCKS[i] : lockOf(k, i);
     if (!lock) return null;
     return levelOf(s, lock[0]) >= lock[1] ? null : lock;
   };
 
-  const pick = (key: string, i: number) => {
-    const lock = locked(key, i);
-    if (lock) { buzz('error'); d({ t: 'TOAST', msg: skillById(lock[0]).name + ' niveau ' + lock[1] + ' pour débloquer' }); return; }
-    d({ t: 'SET_AV', patch: { [key]: i } });
+  const deny = (lock: [string, number]) => {
+    buzz('error');
+    d({ t: 'TOAST', msg: skillById(lock[0]).name + ' niveau ' + lock[1] + ' pour débloquer' });
+  };
+
+  const pick = (k: string, value: string, i: number) => {
+    const lock = locked(k, i);
+    if (lock) return deny(lock);
+    d({ t: 'SET_AV', patch: { [k]: value } });
   };
 
   const randomize = () => {
-    const patch: Record<string, number> = {};
-    AV_CATS.forEach((c) => {
-      const n = c.kind === 'c' ? (c.pal?.length || 1) : c.kind === 'f' ? AV_FRAME.length : (AV_L[c.k]?.length || 1);
-      let tries = 0, v = 0;
-      do { v = Math.floor(Math.random() * n); tries++; } while (locked(c.k, v) && tries < 12);
-      if (!locked(c.k, v)) patch[c.k] = v;
+    const cfg = randomConfig();
+    Object.keys(cfg).forEach((k) => {
+      const opts = optionsOf(k);
+      const i = opts.indexOf(cfg[k]);
+      if (i >= 0 && locked(k, i)) delete cfg[k];
     });
-    d({ t: 'SET_AV', patch });
+    d({ t: 'SET_AV', patch: cfg });
     buzz('success');
   };
-
-  const options = current.kind === 'c' ? (current.pal || []) : current.kind === 'f' ? AV_FRAME.map((f) => f.n) : (AV_L[current.k] || []);
 
   const save = () => {
     if (onDone) { onDone(); return; }
     d({ t: 'TOAST', msg: 'Avatar enregistré' });
     nav?.back();
   };
+
+  /* Options de la catégorie courante, sous une forme unique. */
+  const items: { value: string; i: number }[] = isFrame
+    ? AV_FRAME.map((f, i) => ({ value: String(i), i }))
+    : kind === 'color'
+      ? paletteOf(key).map((v, i) => ({ value: v, i }))
+      : kind === 'toggle'
+        ? [{ value: '0', i: 0 }, { value: '100', i: 1 }]
+        : optionsOf(key).map((v, i) => ({ value: v, i }));
+
+  const currentValue = isFrame ? String(s.profile.cadre || 0) : av[key];
+  const cats = [...groupKeys, ...(group === 3 ? ['__frame'] : [])];
 
   return (
     <div style={{ position: 'relative', minHeight: '86dvh', display: 'flex', flexDirection: 'column' }}>
@@ -61,10 +88,11 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
 
       {/* Scène */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '18px 20px 6px' }}>
-        <span style={{ width: 190, height: 190, borderRadius: 34, overflow: 'hidden', display: 'block', ...css(AV_FRAME[av.frame % AV_FRAME.length].s) }}>
-          <span style={{ width: '100%', height: '100%', borderRadius: 28, overflow: 'hidden', display: 'block', background: C.ink }}>
-            <AvatarCut av={av} crop={current.crop || 'bust'} />
-          </span>
+        <span style={{ width: 190, height: 190, borderRadius: 34, overflow: 'hidden', display: 'block', ...css(AV_FRAME[(s.profile.cadre || 0) % AV_FRAME.length].s) }}>
+          <span
+            style={{ width: '100%', height: '100%', borderRadius: 28, overflow: 'hidden', display: 'block', background: C.ink }}
+            dangerouslySetInnerHTML={{ __html: preview }}
+          />
         </span>
         <span style={{ font: `800 24px ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>@{s.profile.gamertag}</span>
         <span style={{ font: `700 10px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: AV_SIG[s.profile.sig], padding: '6px 12px', borderRadius: 99 }}>
@@ -72,13 +100,12 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
         </span>
       </div>
 
-      {/* Panneau. La barre d'action reste au-dessus du dock : le panneau
-          réserve sa hauteur + celle du dock (--dock-space). */}
+      {/* Panneau */}
       <div style={{ background: C.night, borderRadius: '28px 28px 0 0', marginTop: 12, padding: '14px 18px', paddingBottom: 78, flex: 1, borderTop: '1px solid rgba(255,255,255,.08)' }}>
         <div style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 4 }}>
           {AV_GROUPS.map((g, i) => (
             <Tap
-              key={g} onTap={() => { setGroup(i); const first = AV_CATS.find((c) => c.g === i); if (first) setCat(first.k); }} haptic="soft"
+              key={g} onTap={() => { setGroup(i); setCat(keysOfGroup(i)[0] || (i === 3 ? '__frame' : '')); }} haptic="soft"
               style={{ flex: 'none', font: `700 9.5px ${F.mono}`, letterSpacing: '.08em', padding: '11px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: group === i ? C.lime : 'rgba(255,255,255,.07)', color: group === i ? C.ink : 'rgba(255,255,255,.6)' }}
             >
               {g}
@@ -122,40 +149,71 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
                 ))}
               </div>
             </div>
+            <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 20, padding: '14px 16px' }}>
+              <div style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.14em' }}>GRAINE</div>
+              <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 6, textWrap: 'pretty' }}>
+                Elle fixe les détails que tu ne choisis pas. En changer donne un nouveau visage de base.
+              </div>
+              <div style={{ display: 'flex', gap: 9, alignItems: 'center', marginTop: 11 }}>
+                <input
+                  value={av.seed || ''} onChange={(e) => d({ t: 'SET_AV', patch: { seed: e.target.value.slice(0, 24) } })}
+                  style={{ flex: 1, minWidth: 0, background: 'rgba(255,255,255,.06)', borderRadius: 12, padding: '11px 12px', color: '#fff', font: `700 14px ${F.mono}`, minHeight: 44 }}
+                />
+                <Tap
+                  onTap={() => d({ t: 'SET_AV', patch: { seed: Math.random().toString(36).slice(2, 10) } })} haptic="soft"
+                  style={{ flex: 'none', font: `700 9.5px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: C.lime, padding: '0 14px', borderRadius: 12, minHeight: 44, display: 'flex', alignItems: 'center' }}
+                >
+                  TIRER
+                </Tap>
+              </div>
+            </div>
           </div>
         ) : (
           <>
             <div style={{ display: 'flex', gap: 6, marginTop: 12, overflowX: 'auto', paddingBottom: 4 }}>
-              {cats.map((c) => (
-                <Tap key={c.k} onTap={() => setCat(c.k)} haptic="soft" style={{ flex: 'none', font: `700 10.5px ${F.body}`, padding: '10px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: cat === c.k ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.05)', color: cat === c.k ? '#fff' : 'rgba(255,255,255,.55)' }}>{c.n}</Tap>
+              {cats.map((k) => (
+                <Tap key={k} onTap={() => setCat(k)} haptic="soft" style={{ flex: 'none', font: `700 10.5px ${F.body}`, padding: '10px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: key === k || (isFrame && k === '__frame') ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.05)', color: key === k || (isFrame && k === '__frame') ? '#fff' : 'rgba(255,255,255,.55)' }}>
+                  {k === '__frame' ? 'Cadre' : labelOf(k)}
+                </Tap>
               ))}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 15 }}>
-              <span style={{ font: `500 9.5px ${F.mono}`, color: 'rgba(255,255,255,.5)', letterSpacing: '.14em' }}>{current.n.toUpperCase()}</span>
-              <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.3)' }}>{(av[current.k] || 0) + 1} / {options.length}</span>
+              <span style={{ font: `500 9.5px ${F.mono}`, color: 'rgba(255,255,255,.5)', letterSpacing: '.14em' }}>
+                {(isFrame ? 'CADRE' : labelOf(key).toUpperCase())}
+              </span>
+              <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.3)' }}>{items.length} VARIANTES</span>
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9, marginTop: 12 }}>
-              {options.map((opt: string, i: number) => {
-                const on = (av[current.k] || 0) === i;
-                const lock = locked(current.k, i);
-                const isColor = current.kind === 'c';
+              {items.map(({ value, i }) => {
+                const on = currentValue === value;
+                const lock = locked(isFrame ? '__frame' : key, i);
+                const isColor = kind === 'color' && !isFrame;
                 return (
                   <Tap
-                    key={current.k + i} onTap={() => pick(current.k, i)} haptic="soft"
+                    key={key + value + i}
+                    onTap={() => {
+                      if (isFrame) {
+                        if (lock) return deny(lock);
+                        d({ t: 'SET_PROFILE', patch: { cadre: i } });
+                      } else pick(key, value, i);
+                    }}
+                    haptic="soft"
                     style={{
                       position: 'relative', width: isColor ? 46 : 66, minHeight: isColor ? 46 : 66, borderRadius: 15, overflow: 'hidden',
                       border: on ? '3px solid ' + C.lime : '3px solid transparent',
-                      background: isColor ? opt : 'rgba(255,255,255,.06)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: isColor ? 0 : 4,
+                      background: isColor ? '#' + value : 'rgba(255,255,255,.06)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
                       opacity: lock ? .45 : 1
                     }}
                   >
-                    {isColor ? null : current.kind === 'f' ? (
-                      <span style={{ width: 34, height: 34, borderRadius: 10, ...css(AV_FRAME[i].s), background: (AV_FRAME[i].s ? undefined : 'rgba(255,255,255,.12)') }} />
+                    {isColor ? null : isFrame ? (
+                      <span style={{ width: 34, height: 34, borderRadius: 10, ...css(AV_FRAME[i].s), background: AV_FRAME[i].s ? undefined : 'rgba(255,255,255,.12)' }} />
+                    ) : kind === 'toggle' ? (
+                      <span style={{ font: `700 10px ${F.mono}`, letterSpacing: '.08em', color: on ? '#fff' : 'rgba(255,255,255,.55)' }}>{value === '0' ? 'NON' : 'OUI'}</span>
                     ) : (
-                      <span style={{ font: `600 9px ${F.body}`, color: on ? '#fff' : 'rgba(255,255,255,.6)', lineHeight: 1.25 }}>{opt}</span>
+                      <Swatch svg={variantSvg(av, key, value, 72)} />
                     )}
                     {lock ? (
                       <span style={{ position: 'absolute', inset: 0, background: 'rgba(11,11,12,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: `700 8px ${F.mono}`, color: '#fff', letterSpacing: '.04em', padding: 3 }}>
@@ -191,6 +249,14 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
           <span style={{ font: `800 16px ${F.display}`, letterSpacing: '-.01em' }}>{ctaLabel}</span>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.8"><path d="M5 12h13M12 5l7 7-7 7" /></svg>
         </Tap>
+        <div
+          style={{
+            pointerEvents: 'auto', maxWidth: 460, margin: '9px auto 0', textAlign: 'center',
+            font: `400 9px ${F.body}`, color: 'rgba(255,255,255,.34)', letterSpacing: '.02em'
+          }}
+        >
+          Avatars Big Ears par The Visual Team, licence CC BY 4.0
+        </div>
       </div>
     </div>
   );

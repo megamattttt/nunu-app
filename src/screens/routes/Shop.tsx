@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { C, F } from '../../theme';
 import { useGame } from '../../state/store';
-import { CADRE_C, SHOP, SHOP_ACC_PATCH, SHOP_CATS, SHOP_FRAME_IX, SHOP_INTRO } from '../../data/quiz';
+import { CADRE_C, SHOP, SHOP_CATS, SHOP_FRAME_IX, SHOP_INTRO } from '../../data/quiz';
+import { lastOption } from '../../lib/dicebear';
 import { RouteHead, Tap } from '../../components/ui';
 import type { Nav } from '../../App';
 
@@ -14,7 +15,7 @@ export default function Shop({ nav }: { nav: Nav }) {
     if (s.owned[cat][ix]) return;
     d({ t: 'BUY', cat, ix, price, name });
     if (s.coins >= price) {
-      if (cat === 'acc') d({ t: 'SET_AV', patch: SHOP_ACC_PATCH[SHOP.acc[ix][2]] });
+      if (cat === 'acc') d({ t: 'SET_AV', patch: lastOption(SHOP.acc[ix][2]) });
       if (cat === 'cadre') d({ t: 'SET_PROFILE', patch: { cadre: ix } });
     }
   };

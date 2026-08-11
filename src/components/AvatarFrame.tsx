@@ -6,7 +6,7 @@ import AvatarCut from './avatar/AvatarCut';
 const CLIP = 'polygon(14% 0, 86% 0, 100% 14%, 100% 86%, 86% 100%, 14% 100%, 0 86%, 0 14%)';
 
 type Props = {
-  av?: Record<string, number>;
+  av?: Record<string, string>;
   who?: string;
   crop?: 'face' | 'bust' | 'full';
   size?: number | string;

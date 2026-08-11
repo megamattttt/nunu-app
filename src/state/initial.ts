@@ -1,4 +1,5 @@
 import type { GameState } from './types';
+import { randomConfig } from '../lib/dicebear';
 import { SKILLS } from '../data/skills';
 import { FEED0 } from '../data/social';
 
@@ -17,11 +18,7 @@ export const initialState: GameState = {
     titleIx: 0,
     sig: 0,
     cadre: 0,
-    av: {
-      skin: 2, face: 0, eyes: 0, eyeC: 0, lash: 2, brow: 1, nose: 0, mouth: 2, mark: 1, makeup: 1,
-      hair: 23, hairC: 2, streak: 0, beard: 0, top: 0, topC: 0, hat: 0, glasses: 0, jewel: 1,
-      bottom: 0, bottomC: 0, shoes: 0, bgPal: 0, bgStyle: 4, scene: 0, aura: 1, frame: 1
-    }
+    av: randomConfig()
   },
 
   progress: Object.fromEntries(SKILLS.map((s) => [s.id, { px: 0, done: 0 }])),

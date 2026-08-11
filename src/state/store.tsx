@@ -8,6 +8,7 @@ import type { Rarity, Difficulty } from '../data/quests';
 import { DIFF_LIST } from '../data/quests';
 import { IMPS, type Importance } from '../data/importance';
 import { scheduleReminders, DEFAULT_NOTIF, type NotifPrefs } from '../lib/notify';
+import { ensureConfig, randomConfig } from '../lib/dicebear';
 import { dueBucket } from '../lib/nlq';
 import { levelOf } from './selectors';
 import { buzz, setHaptics } from '../lib/haptics';
@@ -48,7 +49,7 @@ type Action =
   | { t: 'ADD_TASK'; label: string; px: number }
   | { t: 'DEL_TASK'; id: string }
   | { t: 'BUY'; cat: 'acc' | 'atelier' | 'cadre'; ix: number; price: number; name: string }
-  | { t: 'SET_AV'; patch: Record<string, number> }
+  | { t: 'SET_AV'; patch: Record<string, string> }
   | { t: 'SET_PROFILE'; patch: Record<string, any> }
   | { t: 'DIO'; patch: Record<string, any> }
   | { t: 'DIO_MOVE'; id: string; x: number; y: number }
@@ -100,13 +101,15 @@ function reducer(s: Store, a: Action): Store {
   switch (a.t) {
     case 'HYDRATE': {
       const next = { ...s, ...a.state, hydrated: true } as Store;
+      // L'ancien moteur d'avatar stockait des index : on migre vers Big Ears.
+      next.profile = { ...next.profile, av: ensureConfig(next.profile?.av) };
       return { ...next, ...decayed(next) };
     }
 
     case 'IDENTITY':
       return {
         ...s, logged: true, flow: 0,
-        profile: { ...s.profile, firstName: a.firstName, gamertag: a.gamertag }
+        profile: { ...s.profile, firstName: a.firstName, gamertag: a.gamertag, av: randomConfig() }
       };
 
     case 'LOGOUT': return { ...s, logged: false };

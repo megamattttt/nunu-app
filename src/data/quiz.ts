@@ -39,17 +39,16 @@ export const QBANK: Record<string, [string, string[], number][]> = {
 };
 
 export const SHOP = {
-  acc: [['Lunettes rondes',120,'glasses'],['Casquette d’atelier',180,'cap'],['Bandeau lime',150,'band']] as [string, number, string][],
+  acc: [['Coupe signature',120,'hair'],['Frange signature',180,'frontHair'],['Favoris signature',150,'sideburn']] as [string, number, string][],
   atelier: [['Machine à coudre',300],['Mannequin de tailleur',420],['Mur de tissus',260],['Lampe d’architecte',180],['Étagère à bobines',220],['Tapis chiné',140]] as [string, number][],
   cadre: [['Cadre lime',200],['Cadre doré',240],['Cadre coutures',480],['Cadre corail',900]] as [string, number][]
 };
 
 export const SHOP_CATS: [string, string][] = [['acc','ACCESSOIRES'],['atelier','ATELIER'],['cadre','CADRES']];
 export const SHOP_INTRO: Record<string, string> = {
-  acc: 'Des pièces qui s’ajoutent directement à ton avatar.',
+  acc: 'Des variantes rares qui s’ajoutent directement à ton avatar.',
   atelier: 'Du mobilier posé dans ton diorama papier découpé.',
   cadre: 'Le cadre de ta carte de profil et de ta bannière.'
 };
 export const CADRE_C = ['#B9DE64','#E8B863','#E2685A','#6FA5D8'];
-export const SHOP_ACC_PATCH: Record<string, Record<string, number>> = { glasses:{ glasses:1 }, cap:{ hat:3 }, band:{ hat:10 } };
 export const SHOP_FRAME_IX = [1, 3, 6, 7];

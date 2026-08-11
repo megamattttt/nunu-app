@@ -32,7 +32,8 @@ export type Duel = {
   status: 'en cours' | 'gagné' | 'perdu'; myScore?: number; theirScore?: number; deadline: string;
 };
 
-export type AvatarConfig = Record<string, number>;
+/** Configuration d'avatar Big Ears : une valeur de variante par option du style. */
+export type AvatarConfig = Record<string, string>;
 
 /** Entrée du journal de progression. */
 export type JournalEntry = {
