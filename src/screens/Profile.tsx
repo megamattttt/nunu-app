@@ -15,12 +15,14 @@ import ProfileEdit from '../components/ProfileEdit';
 import WeekStrip from '../components/WeekStrip';
 import { CADRE_C } from '../data/quiz';
 import { Kicker, Star, Tap } from '../components/ui';
+import { askNotif, notifState } from '../lib/notify';
 import type { Nav } from '../App';
 
 export default function Profile({ nav }: { nav: Nav }) {
   const { s, d } = useGame();
   const [edit, setEdit] = useState(false);
   const [settings, setSettings] = useState(false);
+  const [notifPerm, setNotifPerm] = useState(notifState());
   const mainSkill = s.startSkill || SKILLS[0].id;
   const mainSk = skillById(mainSkill);
   const mainRank = skillRank(s, mainSkill);
@@ -312,6 +314,55 @@ export default function Profile({ nav }: { nav: Nav }) {
                     </Tap>
                   </div>
                 ))}
+
+                <div style={{ borderTop: '1px solid rgba(255,255,255,.07)', paddingTop: 13, marginTop: 2 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                    <span style={{ minWidth: 0 }}>
+                      <span style={{ display: 'block', font: `500 13.5px ${F.body}`, color: 'rgba(255,255,255,.85)' }}>Rappels</span>
+                      <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.42)', marginTop: 2 }}>
+                        {notifPerm === 'denied'
+                          ? 'Bloqués par le navigateur'
+                          : notifPerm === 'unsupported'
+                            ? 'Non pris en charge sur cet appareil'
+                            : 'Notifications locales sur les quêtes datées'}
+                      </span>
+                    </span>
+                    <Tap
+                      onTap={async () => {
+                        const on = !s.notif?.on;
+                        if (on) setNotifPerm(await askNotif());
+                        d({ t: 'NOTIF', patch: { on } });
+                      }}
+                      style={{ width: 52, height: 30, borderRadius: 99, flex: 'none', background: s.notif?.on ? C.lime : 'rgba(255,255,255,.14)', padding: 3, display: 'flex', justifyContent: s.notif?.on ? 'flex-end' : 'flex-start' }}
+                    >
+                      <span style={{ width: 24, height: 24, borderRadius: '50%', background: s.notif?.on ? C.ink : 'rgba(255,255,255,.6)', transition: 'all .18s ease' }} />
+                    </Tap>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateRows: s.notif?.on ? '1fr' : '0fr', transition: 'grid-template-rows .28s cubic-bezier(.2,1,.3,1)' }}>
+                    <div style={{ overflow: 'hidden' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, padding: '12px 0 2px' }}>
+                        {([['at', 'À L’HEURE'], ['before', '10 MIN AVANT'], ['digest', 'RÉSUMÉ DU MATIN']] as const).map(([k, label]) => {
+                          const on = !!s.notif?.[k];
+                          return (
+                            <Tap
+                              key={k} onTap={() => d({ t: 'NOTIF', patch: { [k]: !on } })} haptic="soft"
+                              style={{
+                                font: `700 9px ${F.mono}`, letterSpacing: '.1em', padding: '9px 12px', borderRadius: 99, minHeight: 36,
+                                display: 'flex', alignItems: 'center',
+                                color: on ? C.ink : 'rgba(255,255,255,.5)',
+                                background: on ? C.lime : 'transparent',
+                                border: `1px solid ${on ? C.lime : 'rgba(255,255,255,.16)'}`
+                              }}
+                            >
+                              {label}
+                            </Tap>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {([
                   ['Modifier le profil', 'Prénom et gamertag', () => setEdit(true)],

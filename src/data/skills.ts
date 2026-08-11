@@ -6,10 +6,10 @@ export type Skill = {
 export const SKILLS: Skill[] = [
   { id:'couture', name:'COUTURE', soft:'la couture', short:'CO', c:'#E2685A', txt:'#FFFFFF', total:53, title:'Petite main affirmée', elo:'ARG II', next:'OR III', cap:1700, lvl:14 },
   { id:'course', name:'COURSE', soft:'la course', short:'CR', c:'#B9DE64', txt:'#0A0A0C', total:31, title:'Coureuse régulière', elo:'BRZ I', next:'ARG III', cap:1000, lvl:6 },
-  { id:'photo', name:'PHOTO', soft:'la photo', short:'PH', c:'#DED6C6', txt:'#0A0A0C', total:24, title:'Œil curieux', elo:'FER III', next:'FER II', cap:500, lvl:2 },
+  { id:'photo', name:'PHOTO', soft:'la photo', short:'PH', c:'#6FA5D8', txt:'#0A0A0C', total:24, title:'Œil curieux', elo:'FER III', next:'FER II', cap:500, lvl:2 },
   { id:'cuisine', name:'CUISINE', soft:'la cuisine', short:'CU', c:'#E8B863', txt:'#0A0A0C', total:40, title:'Bonne pâte', elo:'BRZ III', next:'BRZ II', cap:800, lvl:8 },
-  { id:'jardin', name:'JARDINAGE', soft:'le jardinage', short:'JA', c:'#93C169', txt:'#0A0A0C', total:22, title:'Main verte', elo:'FER I', next:'BRZ III', cap:400, lvl:3 },
-  { id:'perso', name:'PERSO', soft:'ton quotidien', short:'PE', c:'#EDE9E1', txt:'#0A0A0C', total:18, title:'Journée tenue', elo:null, next:null, cap:600, lvl:5, solo:true }
+  { id:'jardin', name:'JARDINAGE', soft:'le jardinage', short:'JA', c:'#5CBFAE', txt:'#0A0A0C', total:22, title:'Main verte', elo:'FER I', next:'BRZ III', cap:400, lvl:3 },
+  { id:'perso', name:'PERSO', soft:'ton quotidien', short:'PE', c:'#9C8AD6', txt:'#0A0A0C', total:18, title:'Journée tenue', elo:null, next:null, cap:600, lvl:5, solo:true }
 ];
 
 export const skillById = (id: string) => SKILLS.find((s) => s.id === id) || SKILLS[0];
@@ -21,7 +21,7 @@ export const BOARDS: Record<string, [string, number][]> = {
   photo: [['Régler en manuel',20],['Portrait à l’ombre',25],['Série de 3 images',35],['Lumière rasante',45],['Tirage papier',70]],
   cuisine: [['Pâte brisée maison',20],['Découpe régulière',25],['Sauce émulsionnée',35],['Pain au levain',60],['Menu 3 services',110]],
   jardin: [['Semis en godet',15],['Bouture réussie',25],['Compost équilibré',35],['Taille de printemps',45],['Potager en carrés',80]],
-  perso: [['Ranger mon appart',15],['Finir le livre',20],['Devoirs à jour',15],['Fleurs pour ma mère',25]]
+  perso: []
 };
 
 /** Paliers majeurs (mise en scène renforcée + récompense objet). */

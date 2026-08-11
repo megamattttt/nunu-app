@@ -8,11 +8,12 @@ import { boardRows, levelOf, pxOf, skillRank, skillNextRank, baseCount } from '.
 import SkillWheel from '../components/SkillWheel';
 import DiffBadge from '../components/DiffBadge';
 import DragList from '../components/DragList';
+import PersoBoard from '../components/PersoBoard';
 import { RankIcon, RankBadge } from '../components/RankIcon';
 import JournalCard from '../components/JournalCard';
 import JournalEditor, { newEntry } from '../components/JournalEditor';
 import type { JournalEntry } from '../state/types';
-import { Bar, Check, Kicker, Star, Tap } from '../components/ui';
+import { Check, Kicker, Star, Tap } from '../components/ui';
 import { buzz } from '../lib/haptics';
 import { sfx } from '../lib/sound';
 import type { Nav } from '../App';
@@ -111,7 +112,6 @@ export default function Quests({ nav }: { nav: Nav }) {
   const startId = s.startSkill || SKILLS[0].id;
   const [skillId, setSkillId] = useState(startId);
   const [sub, setSub] = useState<Sub>('board');
-  const [newTask, setNewTask] = useState('');
   const [help, setHelp] = useState(false);
   const [flash, setFlash] = useState<{ ix: number; px: number } | null>(null);
   const [entry, setEntry] = useState<JournalEntry | null>(null);
@@ -127,6 +127,8 @@ export default function Quests({ nav }: { nav: Nav }) {
   const base = rows.slice(0, nBase);
   const extras = rows.slice(nBase);
   const mine = s.customQuests.filter((q) => q.skill === sk.id);
+  /** La compétence perso n'a pas de plateau : c'est une liste de rappels. */
+  const isPerso = sk.id === 'perso';
 
   const act = (row: (typeof rows)[number]) => {
     if (row.state !== 'now') return;
@@ -160,9 +162,11 @@ export default function Quests({ nav }: { nav: Nav }) {
             <RankBadge rank={rank} skillName={`${sk.name} · ${pxOf(s, sk.id)} PX`} size="md" bg="rgba(255,255,255,.05)" />
           </div>
           <div style={{ display: 'inline-flex', gap: 8, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Tap onTap={() => nav.open('path', { skill: sk.id })} style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sk.c, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 36, display: 'flex', alignItems: 'center' }}>
-              VOIR LE CHEMIN
-            </Tap>
+            {sk.id !== 'perso' ? (
+              <Tap onTap={() => nav.open('path', { skill: sk.id })} style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sk.c, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 36, display: 'flex', alignItems: 'center' }}>
+                VOIR LE CHEMIN
+              </Tap>
+            ) : null}
             {s.onFire ? (
               <span style={{ font: `700 10px ${F.mono}`, color: '#fff', background: C.coral, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em' }}>EN FEU · PX ×2</span>
             ) : (
@@ -173,7 +177,7 @@ export default function Quests({ nav }: { nav: Nav }) {
       </div>
 
       {/* Feuille claire */}
-      <div style={{ background: C.paper, borderRadius: '34px 34px 0 0', marginTop: 18, padding: '20px 22px', paddingBottom: sub === 'board' && now ? 86 : 26, minHeight: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ background: C.paper, borderRadius: '34px 34px 0 0', marginTop: 18, padding: '20px 22px', paddingBottom: sub === 'board' && now && !isPerso ? 86 : 26, minHeight: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', gap: 7 }}>
           {SUBS.map(([k, label]) => (
             <Tap
@@ -188,7 +192,11 @@ export default function Quests({ nav }: { nav: Nav }) {
           ))}
         </div>
 
-        {sub === 'board' && (
+        {sub === 'board' && isPerso ? (
+          <PersoBoard onSettings={() => nav.go('profile')} />
+        ) : null}
+
+        {sub === 'board' && !isPerso && (
           <>
             <ComboBar n={s.combo.n} last={s.combo.last} best={s.combo.best} />
 
@@ -402,45 +410,6 @@ export default function Quests({ nav }: { nav: Nav }) {
                 <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 2 }}>Nom, effort, moment de la journée</span>
               </span>
             </Tap>
-
-            {/* Tâches du quotidien — bloc à part, séparé du plateau */}
-            <div style={{ height: 1, background: 'rgba(10,10,12,.09)', margin: '10px 0 4px' }} />
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Kicker dark>TÂCHES DU QUOTIDIEN</Kicker>
-              <span style={{ font: `700 10px ${F.mono}`, color: s.onFire ? C.coral : 'rgba(10,10,12,.45)' }}>
-                ÉNERGIE {s.energy}%
-              </span>
-            </div>
-            <div style={{ display: 'flex', marginTop: -4 }}>
-              <Bar pct={s.energy} c={s.onFire ? C.coral : C.lime} h={8} track="rgba(10,10,12,.08)" />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {s.tasks.map((t) => (
-                <Tap
-                  key={t.id} onTap={() => d({ t: 'TOGGLE_TASK', id: t.id })} haptic={t.done ? 'soft' : 'success'}
-                  style={{ display: 'flex', alignItems: 'center', gap: 13, background: t.done ? 'rgba(10,10,12,.05)' : '#fff', borderRadius: 18, padding: '14px 15px', minHeight: 56 }}
-                >
-                  <span style={{ width: 26, height: 26, borderRadius: 9, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.done ? C.lime : 'transparent', border: t.done ? 'none' : '2px solid rgba(10,10,12,.18)', animation: t.done ? 'nuTick .3s ease' : undefined }}>
-                    {t.done ? <Check size={14} w={3.6} /> : null}
-                  </span>
-                  <span style={{ flex: 1, font: `${t.done ? 400 : 700} 13.5px ${F.body}`, color: t.done ? 'rgba(10,10,12,.42)' : C.ink, textDecoration: t.done ? 'line-through' : 'none' }}>{t.label}</span>
-                  <span style={{ font: `700 11px ${F.mono}`, color: t.done ? 'rgba(10,10,12,.35)' : C.ink }}>+{t.px} PX</span>
-                </Tap>
-              ))}
-            </div>
-
-            <form
-              onSubmit={(e) => { e.preventDefault(); if (!newTask.trim()) return; d({ t: 'ADD_TASK', label: newTask.trim(), px: 8 }); setNewTask(''); }}
-              style={{ display: 'flex', gap: 8 }}
-            >
-              <input
-                value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="Ajouter une tâche…"
-                style={{ flex: 1, background: '#fff', border: '1px solid rgba(10,10,12,.12)', borderRadius: 16, padding: '14px', color: C.ink, font: `400 16px ${F.body}`, minHeight: 50 }}
-              />
-              <button type="submit" style={{ font: `700 11px ${F.mono}`, color: C.paper, background: C.ink, padding: '0 18px', borderRadius: 16, letterSpacing: '.08em', minHeight: 50 }}>AJOUTER</button>
-            </form>
           </>
         )}
 
@@ -526,7 +495,7 @@ export default function Quests({ nav }: { nav: Nav }) {
               </div>
 
       {/* Action au pouce */}
-      {sub === 'board' && now ? (
+      {sub === 'board' && !isPerso && now ? (
         <Tap
           onTap={() => act(now)}
           haptic="soft"

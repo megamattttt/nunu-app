@@ -68,5 +68,6 @@ export const initialState: GameState = {
 
   stats: { questsDone: 0, totalPx: 0, duelsWon: 0, postsSent: 0 },
   prefs: { sound: false, haptics: true, confetti: true },
+  notif: { on: false, at: true, before: true, digest: true },
   seen: { onboarding: false, questHelp: false, guide: false }
 };

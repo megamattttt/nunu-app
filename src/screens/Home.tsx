@@ -19,28 +19,6 @@ const PULSE = [
 
 const FOCUS_KEY = 'nunu.focus';
 
-/** Jauge fine : le libellé vit au-dessus, la valeur à droite. */
-function Gauge({ label, value, pct, c }: { label: string; value: string; pct: number; c: string }) {
-  const p = Math.max(0, Math.min(100, pct));
-  return (
-    <span style={{ display: 'block', flex: 1, minWidth: 0 }}>
-      <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
-        <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)' }}>{label}</span>
-        <span style={{ font: `700 10px ${F.mono}`, color: c }}>{value}</span>
-      </span>
-      <span style={{ display: 'block', height: 6, borderRadius: 99, background: 'rgba(255,255,255,.09)', overflow: 'hidden', marginTop: 7 }}>
-        <span
-          style={{
-            display: 'block', height: '100%', width: p + '%', background: c, borderRadius: 99,
-            transformOrigin: 'left', animation: 'nuStat .8s cubic-bezier(.2,1,.3,1) both',
-            transition: 'width .8s cubic-bezier(.2,1,.3,1)'
-          }}
-        />
-      </span>
-    </span>
-  );
-}
-
 export default function Home({ nav }: { nav: Nav }) {
   const { s, d } = useGame();
   const today = todayQuest(s);
@@ -62,6 +40,15 @@ export default function Home({ nav }: { nav: Nav }) {
 
   const comboLive = s.combo.n > 1 && s.combo.last && Date.now() - s.combo.last < COMBO_WINDOW;
 
+  /** Ambiance claire du HUD : elle suit l'heure de la journée. */
+  const hour = new Date().getHours();
+  const amb =
+    hour < 6 ? { k: 'NUIT', g: `linear-gradient(152deg, #EDEFF4, #DCE0EA 72%, #E6E9F0)`, a: C.teal, hello: 'ENCORE DEBOUT' }
+    : hour < 11 ? { k: 'MATIN', g: `linear-gradient(152deg, #FCF6E7, #F2E7D2 72%, #F7EFDF)`, a: C.honey, hello: 'BONJOUR' }
+    : hour < 18 ? { k: 'JOURNÉE', g: `linear-gradient(152deg, #F7F5F0, #E6EDF3 72%, #F1F3F2)`, a: C.azur, hello: 'SALUT' }
+    : hour < 22 ? { k: 'SOIRÉE', g: `linear-gradient(152deg, #F5F0F8, #E3DDEF 72%, #EDE8F4)`, a: C.iris, hello: 'BONSOIR' }
+    : { k: 'NUIT', g: `linear-gradient(152deg, #EDEFF4, #DCE0EA 72%, #E6E9F0)`, a: C.teal, hello: 'BONNE NUIT' };
+
   const validate = () => {
     if (!today) return;
     const q = today.quest;
@@ -73,64 +60,102 @@ export default function Home({ nav }: { nav: Nav }) {
 
   return (
     <div>
-      {/* En-tête compact : identité, rang, deux jauges */}
+      {/* HUD clair : buste, identité, expérience, constantes du jour */}
       <header
         style={{
-          background: `linear-gradient(155deg, ${C.slate}, ${C.night} 70%)`,
-          borderBottom: `1px solid ${C.line}`,
-          borderRadius: '0 0 30px 30px', padding: '16px 22px 20px', position: 'relative', overflow: 'hidden'
+          background: amb.g, borderRadius: '0 0 34px 34px', padding: '14px 20px 18px',
+          position: 'relative', overflow: 'hidden', boxShadow: '0 26px 54px -44px rgba(0,0,0,.95)'
         }}
       >
-        <span style={{ position: 'absolute', right: -70, top: -90, width: 210, height: 210, borderRadius: '50%', background: s.onFire ? C.coral : mainSk.c, opacity: .13, animation: 'nuHalo 10s ease-in-out infinite' }} />
+        <span style={{ position: 'absolute', right: -80, top: -110, width: 260, height: 260, borderRadius: '50%', background: s.onFire ? C.coral : amb.a, opacity: .2, animation: 'nuHalo 11s ease-in-out infinite' }} />
+        <span style={{ position: 'absolute', left: -60, bottom: -90, width: 190, height: 190, borderRadius: '50%', background: mainSk.c, opacity: .14, animation: 'nuHalo 14s ease-in-out infinite' }} />
+        <span style={{ position: 'absolute', inset: 0, opacity: .5, backgroundImage: 'repeating-linear-gradient(90deg, transparent 0 7px, rgba(10,10,12,.022) 7px 8px)' }} />
 
-        {/* Bandeau de marque */}
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 16 }}>
-          <Logo size={19} word wordSize={14} color="rgba(255,255,255,.8)" />
-          <span
-            style={{
-              font: `700 8.5px ${F.mono}`, letterSpacing: '.14em',
-              color: s.onFire ? C.coral : 'rgba(255,255,255,.4)',
-              border: `1px solid ${s.onFire ? C.coral + '66' : C.line}`, borderRadius: 99, padding: '5px 10px'
-            }}
-          >
-            {s.onFire ? 'EN FEU · PX ×2' : `ÉNERGIE ${s.energy}%`}
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+          <Logo size={19} word wordSize={14} color={C.ink} />
+          <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(10,10,12,.38)' }}>{amb.k}</span>
+            <span
+              style={{
+                font: `700 8.5px ${F.mono}`, letterSpacing: '.12em',
+                color: s.onFire ? '#fff' : 'rgba(10,10,12,.6)',
+                background: s.onFire ? C.coral : 'rgba(255,255,255,.65)',
+                border: `1px solid ${s.onFire ? C.coral : 'rgba(10,10,12,.1)'}`,
+                borderRadius: 99, padding: '5px 10px'
+              }}
+            >
+              {s.onFire ? 'EN FEU · PX ×2' : `ÉNERGIE ${s.energy}%`}
+            </span>
           </span>
         </div>
 
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 13 }}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'stretch', gap: 15, marginTop: 14 }}>
           <AvatarFrame
             av={s.profile.av}
-            crop="face"
-            size={62}
+            crop="bust"
+            size={116}
+            ratio={0.84}
             accent={mainRank.c}
+            level={lvl}
             onTap={() => nav.open('avatar')}
+            style={{ animation: 'nuRise .5s cubic-bezier(.2,1,.3,1) both' }}
           />
 
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: 'block', font: `800 22px/1 ${F.display}`, color: '#fff', letterSpacing: '-.025em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              SALUT, {firstName}
-            </span>
-            <Tap
-              onTap={() => nav.go('profile')}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}
-            >
-              <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: C.lime, borderRadius: 99, padding: '3px 8px' }}>NIV {lvl}</span>
-              <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.06em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{s.profile.gamertag}</span>
-            </Tap>
-          </span>
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 10 }}>
+            <div>
+              <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.2em', color: 'rgba(10,10,12,.4)' }}>{amb.hello}</span>
+              <span style={{ display: 'block', font: `800 27px/1 ${F.display}`, color: C.ink, letterSpacing: '-.035em', marginTop: 5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {firstName}
+              </span>
+              <Tap onTap={() => nav.go('profile')} style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 8 }}>
+                <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: C.lime, borderRadius: 99, padding: '4px 9px' }}>NIV {lvl}</span>
+                <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(10,10,12,.45)', letterSpacing: '.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{s.profile.gamertag}</span>
+              </Tap>
+            </div>
 
-          <span style={{ flex: 'none' }}>
-            <RankBadge rank={mainRank} skillName={mainSk.name} size="md" bg="rgba(255,255,255,.05)" onTap={() => nav.open('path', { skill: mainSkill })} />
+            <span style={{ display: 'flex', justifyContent: 'flex-start' }}>
+              <RankBadge rank={mainRank} skillName={mainSk.name} size="md" bg="rgba(255,255,255,.6)" onLight onTap={() => nav.open('path', { skill: mainSkill })} />
+            </span>
+          </div>
+        </div>
+
+        {/* Expérience : la barre se remplit à chaque ouverture */}
+        <div style={{ position: 'relative', marginTop: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+            <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(10,10,12,.42)' }}>EXPÉRIENCE</span>
+            <span style={{ font: `700 10px ${F.mono}`, color: C.ink }}>{globalPct(s)} % · NIV {lvl + 1}</span>
+          </div>
+          <span style={{ display: 'block', height: 10, borderRadius: 99, background: 'rgba(10,10,12,.09)', overflow: 'hidden', marginTop: 8, position: 'relative' }}>
+            <span
+              style={{
+                display: 'block', height: '100%', width: globalPct(s) + '%', borderRadius: 99,
+                background: `linear-gradient(90deg, ${C.lime}, ${amb.a})`,
+                transformOrigin: 'left', animation: 'nuStat 1.1s cubic-bezier(.2,1,.3,1) both',
+                transition: 'width .9s cubic-bezier(.2,1,.3,1)'
+              }}
+            />
+            <span style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(90deg, transparent 0 15px, rgba(244,242,237,.75) 15px 17px)' }} />
           </span>
         </div>
 
-        <div style={{ position: 'relative', display: 'flex', gap: 16, marginTop: 18 }}>
-          <Gauge label="EXPÉRIENCE" value={`${globalPct(s)} %`} pct={globalPct(s)} c={C.lime} />
-          <Gauge
-            label={s.onFire ? 'ÉNERGIE · ×2' : 'ÉNERGIE'}
-            value={s.energy + ' %'} pct={s.energy}
-            c={s.onFire ? C.coral : C.honey}
-          />
+        {/* Constantes du jour */}
+        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginTop: 12 }}>
+          {([
+            ['SÉRIE', w.streak > 1 ? w.streak + ' j' : w.streak === 1 ? '1 j' : '—', w.streak > 1 ? C.honey : 'rgba(10,10,12,.35)'],
+            ['SEMAINE', w.px + ' PX', C.ink],
+            [comboLive ? 'COMBO' : 'ÉNERGIE', comboLive ? '×' + s.combo.n : s.energy + ' %', comboLive ? C.coral : s.onFire ? C.coral : C.ink]
+          ] as const).map(([label, value, col]) => (
+            <Tap
+              key={label} onTap={() => nav.open('week')} haptic="soft"
+              style={{
+                background: 'rgba(255,255,255,.62)', border: '1px solid rgba(10,10,12,.07)', borderRadius: 14,
+                padding: '10px 11px', minHeight: 54, display: 'flex', flexDirection: 'column', justifyContent: 'center'
+              }}
+            >
+              <span style={{ font: `500 7.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(10,10,12,.4)' }}>{label}</span>
+              <span style={{ font: `800 17px/1 ${F.display}`, color: col, letterSpacing: '-.02em', marginTop: 5 }}>{value}</span>
+            </Tap>
+          ))}
         </div>
       </header>
 

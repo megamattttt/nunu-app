@@ -16,8 +16,8 @@ const DRAG_STEP = 62;
 
 const TICKS = 41;
 
-/** Couleur du dossier. « perso » est le seul dossier blanc. */
-const folderColor = (sk: Skill) => (sk.id === 'perso' ? '#FFFFFF' : sk.c);
+/** Couleur du dossier : chaque compétence a la sienne, sans exception. */
+const folderColor = (sk: Skill) => sk.c;
 
 /**
  * Sélecteur de compétences en roue : trois dossiers en arc de cercle,

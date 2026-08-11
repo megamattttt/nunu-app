@@ -6,6 +6,9 @@ import { BOARDS, MAJOR, OBJ, skillById } from '../data/skills';
 import { rankOf, type Rank } from '../data/ranks';
 import type { Rarity, Difficulty } from '../data/quests';
 import { DIFF_LIST } from '../data/quests';
+import { IMPS, type Importance } from '../data/importance';
+import { scheduleReminders, DEFAULT_NOTIF, type NotifPrefs } from '../lib/notify';
+import { dueBucket } from '../lib/nlq';
 import { levelOf } from './selectors';
 import { buzz, setHaptics } from '../lib/haptics';
 import { sfx, setSound } from '../lib/sound';
@@ -34,7 +37,9 @@ type Action =
   | { t: 'JOURNAL_SAVE'; entry: JournalEntry }
   | { t: 'JOURNAL_DEL'; id: string }
   | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null }
-  | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number; diff?: Difficulty; link?: string }
+  | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number; diff?: Difficulty; link?: string; due?: number | null; timed?: boolean; imp?: Importance }
+  | { t: 'EDIT_QUEST'; id: string; patch: Partial<{ name: string; due: number | null; timed: boolean; imp: Importance; px: number }> }
+  | { t: 'NOTIF'; patch: Partial<NotifPrefs> }
   | { t: 'MOVE_QUEST'; skill: string; from: number; to: number }
   | { t: 'SORT_QUESTS'; skill: string }
   | { t: 'DEL_QUEST'; id: string }
@@ -217,7 +222,7 @@ function reducer(s: Store, a: Action): Store {
     }
 
     case 'ADD_QUEST': {
-      const q = { id: uid(), skill: a.skill, name: a.name, px: a.px, when: a.when ?? 0, desc: a.desc, rarity: a.rarity, diff: a.diff, link: a.link, done: false };
+      const q = { id: uid(), skill: a.skill, name: a.name, px: a.px, when: a.when ?? 0, desc: a.desc, rarity: a.rarity, diff: a.diff, link: a.link, due: a.due ?? null, timed: a.timed, imp: a.imp, done: false };
       return {
         ...s,
         customQuests: [...s.customQuests, q],
@@ -225,6 +230,12 @@ function reducer(s: Store, a: Action): Store {
         toast: '« ' + a.name + ' » ajoutée au plateau'
       };
     }
+
+    case 'EDIT_QUEST':
+      return { ...s, customQuests: s.customQuests.map((q) => (q.id === a.id ? { ...q, ...a.patch } : q)) };
+
+    case 'NOTIF':
+      return { ...s, notif: { ...(s.notif || DEFAULT_NOTIF), ...a.patch } };
 
     case 'DRAW_USED': return { ...s, freeDraws: Math.max(0, s.freeDraws - 1) };
 
@@ -240,10 +251,20 @@ function reducer(s: Store, a: Action): Store {
     }
 
     case 'SORT_QUESTS': {
+      // Perso : échéance d'abord, l'importance départage. Ailleurs : difficulté puis effort.
+      const perso = a.skill === 'perso';
       const mine = s.customQuests.filter((q) => q.skill === a.skill).slice()
-        .sort((x, y) => DIFF_LIST.indexOf(x.diff || 'moyen') - DIFF_LIST.indexOf(y.diff || 'moyen') || x.px - y.px);
+        .sort((x, y) => perso
+          ? dueBucket(x.due ?? null) - dueBucket(y.due ?? null)
+            || (x.due ?? Infinity) - (y.due ?? Infinity)
+            || IMPS[x.imp || 'normal'].order - IMPS[y.imp || 'normal'].order
+          : DIFF_LIST.indexOf(x.diff || 'moyen') - DIFF_LIST.indexOf(y.diff || 'moyen') || x.px - y.px);
       let j = 0;
-      return { ...s, customQuests: s.customQuests.map((q) => (q.skill === a.skill ? mine[j++] : q)), toast: 'Triées par difficulté' };
+      return {
+        ...s,
+        customQuests: s.customQuests.map((q) => (q.skill === a.skill ? mine[j++] : q)),
+        toast: perso ? 'Triées par urgence' : 'Triées par difficulté'
+      };
     }
 
     case 'DEL_QUEST':
@@ -380,6 +401,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, [s]);
 
   useEffect(() => { setHaptics(s.prefs.haptics); setSound(s.prefs.sound); }, [s.prefs.haptics, s.prefs.sound]);
+
+  // Rappels : les minuteries sont réarmées dès qu'une quête datée ou un réglage change.
+  useEffect(() => {
+    if (!s.hydrated) return;
+    scheduleReminders(s.customQuests.filter((q) => q.due), s.notif || DEFAULT_NOTIF);
+  }, [s.customQuests, s.notif, s.hydrated]);
 
   // Effets sensoriels attachés aux récompenses.
   useEffect(() => {

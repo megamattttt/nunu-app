@@ -1,5 +1,7 @@
 import type { FeedPost } from '../data/social';
 import type { Rarity, Difficulty } from '../data/quests';
+import type { Importance } from '../data/importance';
+import type { NotifPrefs } from '../lib/notify';
 
 export type Progress = { px: number; done: number };
 
@@ -10,6 +12,12 @@ export type CustomQuest = {
   diff?: Difficulty;
   /** Lien joint à la quête (tuto, vidéo, article) — sauvegardé avec elle. */
   link?: string;
+  /** Échéance (horodatage). Utilisée par la compétence perso pour les rappels. */
+  due?: number | null;
+  /** L'heure a-t-elle été précisée ? Sinon l'échéance vaut « dans la journée ». */
+  timed?: boolean;
+  /** Importance — remplace la difficulté sur la compétence perso. */
+  imp?: Importance;
 };
 
 export type Task = { id: string; label: string; px: number; done: boolean };
@@ -110,5 +118,7 @@ export type GameState = {
 
   stats: { questsDone: number; totalPx: number; duelsWon: number; postsSent: number };
   prefs: { sound: boolean; haptics: boolean; confetti: boolean };
+  /** Rappels : réglage global, appliqué à toutes les quêtes datées. */
+  notif: NotifPrefs;
   seen: { onboarding: boolean; questHelp: boolean; guide: boolean };
 };

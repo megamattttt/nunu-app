@@ -45,8 +45,8 @@ export function RankIcon({
  * les quêtes et les cartes de partage.
  */
 export function RankBadge({
-  rank, skillName, size = 'lg', bg = 'rgba(11,11,12,.55)', onTap
-}: { rank: Rank; skillName?: string; size?: 'sm' | 'md' | 'lg'; bg?: string; onTap?: () => void }) {
+  rank, skillName, size = 'lg', bg = 'rgba(11,11,12,.55)', onLight, onTap
+}: { rank: Rank; skillName?: string; size?: 'sm' | 'md' | 'lg'; bg?: string; onLight?: boolean; onTap?: () => void }) {
   const S = size === 'lg' ? { ico: 46, pad: '12px 16px 12px 13px', label: 21, kicker: 8.5, r: 20 }
     : size === 'md' ? { ico: 32, pad: '9px 13px 9px 10px', label: 15, kicker: 8, r: 16 }
     : { ico: 22, pad: '6px 10px 6px 7px', label: 12, kicker: 7.5, r: 12 };
@@ -63,11 +63,11 @@ export function RankBadge({
       <RankIcon rank={rank} size={S.ico} bg={C.ink} />
       <span style={{ minWidth: 0 }}>
         {skillName ? (
-          <span style={{ display: 'block', font: `500 ${S.kicker}px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.5)' }}>
+          <span style={{ display: 'block', font: `500 ${S.kicker}px ${F.mono}`, letterSpacing: '.16em', color: onLight ? 'rgba(10,10,12,.45)' : 'rgba(255,255,255,.5)' }}>
             {skillName}
           </span>
         ) : null}
-        <span style={{ display: 'block', font: `800 ${S.label}px/1 ${F.display}`, color: rank.c, letterSpacing: '-.02em', marginTop: skillName ? 4 : 0, whiteSpace: 'nowrap' }}>
+        <span style={{ display: 'block', font: `800 ${S.label}px/1 ${F.display}`, color: onLight ? C.ink : rank.c, letterSpacing: '-.02em', marginTop: skillName ? 4 : 0, whiteSpace: 'nowrap' }}>
           {rank.label}
         </span>
       </span>
