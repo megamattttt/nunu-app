@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { C, F } from '../theme';
 import { useGame } from '../state/store';
 import { skillById } from '../data/skills';
-import { TIER_ICONS } from '../data/rankIcons';
+import { RANK_ART } from '../data/rankArt';
 import { skillRank } from '../state/selectors';
 import type { Rank } from '../data/ranks';
-import { TIERS } from '../data/ranks';
+import { TIERS, DIV_LABEL } from '../data/ranks';
 import { Tap } from './ui';
 
 const LOGO = import.meta.env.BASE_URL + 'icons/logo-mark.png';
@@ -30,35 +30,24 @@ function roundRect(x: any, l: number, t: number, w: number, h: number, r: number
   x.closePath();
 }
 
-/** Icône de palier dessinée sur le canvas — même géométrie que <RankIcon />. */
-function drawRankIcon(x: any, rank: Rank, cx: number, cy: number, size: number, bg: string) {
-  const paths = TIER_ICONS[rank.tier] || TIER_ICONS[0];
-  x.save();
-  x.translate(cx - size / 2, cy - size / 2);
-  x.scale(size / 24, size / 24);
-  x.lineJoin = 'round'; x.lineCap = 'round';
-  paths.forEach((p) => {
-    const path = new Path2D(p.d);
-    if (p.mode === 'fill') { x.fillStyle = rank.c; x.fill(path); }
-    else if (p.mode === 'knock' && p.fill) { x.fillStyle = bg; x.fill(path); }
-    else { x.strokeStyle = p.mode === 'knock' ? bg : rank.c; x.lineWidth = p.sw || 1.8; x.stroke(path); }
-  });
-  x.restore();
+/** Icône de palier dessinée sur le canvas — même fleur que <RankIcon />. */
+function drawRankIcon(x: any, rank: Rank, img: HTMLImageElement | null, cx: number, cy: number, size: number) {
+  if (img) {
+    x.save();
+    x.imageSmoothingEnabled = false;
+    x.drawImage(img, cx - size / 2, cy - size / 2, size, size);
+    x.restore();
+  }
 
-  // Indicatif de stade : segments remplis sous l'icône.
+  // Division en chiffres romains, sous la fleur.
   const divs = TIERS[rank.tier].divs;
-  if (divs > 1) {
-    const w = size * 0.14, gap = size * 0.07;
-    const total = divs * w + (divs - 1) * gap;
-    let px = cx - total / 2;
-    const py = cy + size / 2 + size * 0.13;
-    for (let i = 0; i < divs; i++) {
-      x.beginPath();
-      x.arc(px + w / 2, py, w / 2, 0, Math.PI * 2);
-      if (i <= rank.div) { x.fillStyle = rank.c; x.fill(); }
-      else { x.strokeStyle = rank.c; x.globalAlpha = 0.45; x.lineWidth = size * 0.02; x.stroke(); x.globalAlpha = 1; }
-      px += w + gap;
-    }
+  if (divs > 1 && rank.div >= 0) {
+    x.save();
+    x.textAlign = 'center';
+    x.fillStyle = rank.c;
+    x.font = `800 ${Math.round(size * 0.3)}px ${F.mono}`;
+    x.fillText(DIV_LABEL[rank.div], cx, cy + size / 2 + size * 0.3);
+    x.restore();
   }
 }
 
@@ -83,6 +72,8 @@ export default function ShareCard() {
       const x = cv.getContext('2d')!;
       const sk = skillById(data.skill);
       const rank = skillRank(s, data.skill);
+      const flower = await loadImg(RANK_ART[rank.tier] || RANK_ART[0]);
+      if (!alive) return;
 
       x.fillStyle = C.ink; x.fillRect(0, 0, W, H);
 
@@ -118,7 +109,7 @@ export default function ShareCard() {
       const baseY = 470 + Math.min(3, lines.length) * 92;
 
       // Icône de palier — même jeu d'icônes que dans l'app
-      drawRankIcon(x, rank, W / 2, baseY + 60, 150, C.ink);
+      drawRankIcon(x, rank, flower, W / 2, baseY + 60, 160);
 
       // Pastille de rang
       x.fillStyle = sk.c;

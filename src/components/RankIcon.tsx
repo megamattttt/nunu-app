@@ -1,33 +1,30 @@
 import React from 'react';
 import { C, F } from '../theme';
-import { TIER_ICONS } from '../data/rankIcons';
+import { RANK_ART, RANK_FILTER } from '../data/rankArt';
 import { TIERS, DIV_LABEL, type Rank } from '../data/ranks';
 
 /**
  * Icône de palier — unique source visuelle du rang dans toute l'app.
- * `bg` sert aux facettes évidées (elles reprennent la couleur du fond).
+ * Fleur en pixel art par palier ; la division s'écrit en chiffres romains dessous.
+ * `bg` est conservé pour compatibilité d'appel.
  */
 export function RankIcon({
   rank, size = 26, bg = C.ink, pips = true, style
 }: { rank: Rank; size?: number; bg?: string; pips?: boolean; style?: React.CSSProperties }) {
-  const paths = TIER_ICONS[rank.tier] || TIER_ICONS[0];
+  const src = RANK_ART[rank.tier] || RANK_ART[0];
+  const filter = RANK_FILTER[rank.tier];
   const divs = TIERS[rank.tier].divs;
 
   return (
-    <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: Math.max(3, size * 0.14), flex: 'none', ...style }}>
-      <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: 'block', overflow: 'visible' }}>
-        {paths.map((p, i) => (
-          <path
-            key={i}
-            d={p.d}
-            fill={p.mode === 'fill' ? rank.c : p.mode === 'knock' && p.fill ? bg : 'none'}
-            stroke={p.mode === 'knock' ? (p.fill ? 'none' : bg) : p.mode === 'line' ? rank.c : 'none'}
-            strokeWidth={p.sw || 1.8}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        ))}
-      </svg>
+    <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: Math.max(2, size * 0.1), flex: 'none', ...style }}>
+      <img
+        src={src} alt="" width={size} height={size}
+        style={{
+          display: 'block', width: size, height: size, objectFit: 'contain',
+          imageRendering: 'pixelated',
+          filter: `${filter ? filter + ' ' : ''}drop-shadow(0 ${Math.round(size * 0.14)}px ${Math.round(size * 0.4)}px ${rank.c}55)`
+        }}
+      />
       {pips && divs > 1 && rank.div >= 0 ? (
         <span
           style={{

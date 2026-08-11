@@ -6,16 +6,16 @@
 export type Tier = { name: string; short: string; c: string; txt: string; divs: number; cost: number };
 
 export const TIERS: Tier[] = [
-  { name: 'FER',          short: 'FER', c: '#8B8B95', txt: '#0B0B0C', divs: 4, cost: 100 },
-  { name: 'BRONZE',       short: 'BRZ', c: '#BC8659', txt: '#0B0B0C', divs: 4, cost: 160 },
-  { name: 'ARGENT',       short: 'ARG', c: '#B3BDC2', txt: '#0B0B0C', divs: 4, cost: 220 },
-  { name: 'OR',           short: 'OR',  c: '#E8B863', txt: '#0B0B0C', divs: 4, cost: 280 },
-  { name: 'PLATINE',      short: 'PLA', c: '#3E9B85', txt: '#0B0B0C', divs: 4, cost: 340 },
-  { name: 'ÉMERAUDE',     short: 'EME', c: '#5CBFAE', txt: '#0B0B0C', divs: 4, cost: 400 },
-  { name: 'DIAMANT',      short: 'DIA', c: '#9FC8E8', txt: '#0B0B0C', divs: 4, cost: 460 },
-  { name: 'MAÎTRE',       short: 'MAI', c: '#9C8AD6', txt: '#FFFFFF', divs: 1, cost: 2000 },
-  { name: 'GRAND MAÎTRE', short: 'GM',  c: '#E2685A', txt: '#FFFFFF', divs: 1, cost: 3000 },
-  { name: 'CHALLENGER',   short: 'CHA', c: '#B9DE64', txt: '#0B0B0C', divs: 1, cost: Infinity }
+  { name: 'FER',          short: 'FER', c: '#9AA0A6', txt: '#0B0B0C', divs: 4, cost: 100 },
+  { name: 'BRONZE',       short: 'BRZ', c: '#C08552', txt: '#0B0B0C', divs: 4, cost: 160 },
+  { name: 'ARGENT',       short: 'ARG', c: '#C9CCD1', txt: '#0B0B0C', divs: 4, cost: 220 },
+  { name: 'OR',           short: 'OR',  c: '#F0C64F', txt: '#0B0B0C', divs: 4, cost: 280 },
+  { name: 'PLATINE',      short: 'PLA', c: '#EE5A82', txt: '#0B0B0C', divs: 4, cost: 340 },
+  { name: 'ÉMERAUDE',     short: 'EME', c: '#7FB25C', txt: '#0B0B0C', divs: 4, cost: 400 },
+  { name: 'DIAMANT',      short: 'DIA', c: '#A8CDEF', txt: '#0B0B0C', divs: 4, cost: 460 },
+  { name: 'MAÎTRE',       short: 'MAI', c: '#F2879B', txt: '#FFFFFF', divs: 1, cost: 2000 },
+  { name: 'GRAND MAÎTRE', short: 'GM',  c: '#E8734F', txt: '#FFFFFF', divs: 1, cost: 3000 },
+  { name: 'CHALLENGER',   short: 'CHA', c: '#F3B563', txt: '#0B0B0C', divs: 1, cost: Infinity }
 ];
 
 export const DIV_LABEL = ['IV', 'III', 'II', 'I'];

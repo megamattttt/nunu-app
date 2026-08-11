@@ -282,12 +282,13 @@ src/lib/photo.ts
 # Passe rang / palette / quêtes
 
 ## Système de rang unique
-- `src/data/rankIcons.ts` : un jeu d'icônes SVG (viewBox 24) par palier de `TIERS` — bouclier
+- `src/data/rankArt.ts` : une fleur en pixel art par palier de `TIERS` (PNG dans
+  `public/icons/ranks/`). FER reprend la fleur d'ARGENT, assombrie par un filtre CSS.
+- Ancien jeu SVG supprimé. Repères historiques — bouclier
   contour (Fer), chevrons (Bronze, Argent), bouclier plein étoilé (Or), gemmes à facettes
   (Platine, Émeraude, Diamant), couronne (Maître), couronne ailée (Grand Maître),
   étoile rayonnante (Challenger). Formes géométriques nettes, dans l'esprit d'`avatarEngine`.
-- `src/components/RankIcon.tsx` : `<RankIcon />` (icône + indicatif de stade en points remplis,
-  jamais le texte « III ») et `<RankBadge />` (icône + libellé + couleur du tier, tailles sm/md/lg).
+- `src/components/RankIcon.tsx` : `<RankIcon />` (fleur + division en chiffres romains dessous) et `<RankBadge />` (icône + libellé + couleur du tier, tailles sm/md/lg).
 - Réutilisés à l'identique : Accueil, Profil, Quêtes, Chemin, roue de compétences, et
   `ShareCard.tsx` (mêmes tracés redessinés en `Path2D` sur le canvas d'export).
 
