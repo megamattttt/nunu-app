@@ -4,7 +4,8 @@ import { useGame } from '../../state/store';
 import { AV_FRAME, AV_FRAME_LOCKS, AV_SIG, AV_TITLES } from '../../data/avatar';
 import {
   AV_GROUPS, viewSvg, bleedSvg, ensureConfig, keysOfGroup, kindOf, labelOf,
-  lockOf, optionsOf, paletteOf, patternLabel, randomConfig, thumbSvg
+  lockOf, optionsOf, paletteOf, patternLabel, randomConfig, thumbSvg,
+  avatarSvg, garmentPieces, garmentColors, garmentValue, parseGarment, defaultColor
 } from '../../lib/dicebear';
 import { levelOf } from '../../state/selectors';
 import { skillById } from '../../data/skills';
@@ -21,6 +22,15 @@ function Swatch({ svg }: { svg: string }) {
   return <span style={{ display: 'block', width: '100%', height: '100%', overflow: 'hidden', borderRadius: 12 }} dangerouslySetInnerHTML={{ __html: svg }} />;
 }
 
+/** Aperçu buste d'une tenue (pièce + teinte) sur l'avatar courant. */
+function GarmentThumb({ value, av }: { value: string; av: any }) {
+  const svg = useMemo(
+    () => avatarSvg({ ...av, garment: value }, 88, { view: '120 250 220 190' }),
+    [value, av]
+  );
+  return <span style={{ display: 'block', width: '100%', height: '100%', overflow: 'hidden', borderRadius: 12 }} dangerouslySetInnerHTML={{ __html: svg }} />;
+}
+
 export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hideBack }: { nav?: Nav; onDone?: () => void; ctaLabel?: string; hideBack?: boolean }) {
   const { s, d } = useGame();
   const av = useMemo(() => ensureConfig(s.profile.av), [s.profile.av]);
@@ -30,8 +40,14 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
   const [cat, setCat] = useState<string>(() => keysOfGroup(0)[0] || '');
   const key = groupKeys.includes(cat) ? cat : groupKeys[0] || '';
   const kind = key ? kindOf(key) : 'choice';
-  const isIdent = group === 4;
+  const isIdent = group === 5;
+  const isTenue = group === 4;
   const isFrame = key === '__frame';
+
+  // Tenue : pièce sélectionnée (1ʳᵉ étape). Déduite de la config, ou 'aucun'.
+  const currentPiece = parseGarment(av.garment).id;
+  const [tenuePiece, setTenuePiece] = useState<string>(currentPiece);
+  const activePiece = tenuePiece || currentPiece || 'aucun';
 
   const preview = useMemo(() => viewSvg(av, 'bust', 320), [av]);
   const previewTop = useMemo(() => bleedSvg(av, 'bust', 320), [av]);
@@ -72,16 +88,29 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
   };
 
   /* Options de la catégorie courante, sous une forme unique. */
-  const items: { value: string; i: number }[] = isFrame
-    ? AV_FRAME.map((f, i) => ({ value: String(i), i }))
-    : kind === 'color'
-      ? paletteOf(key).map((v, i) => ({ value: v, i }))
-      : kind === 'toggle'
-        ? [{ value: '0', i: 0 }, { value: '100', i: 1 }]
-        : optionsOf(key).map((v, i) => ({ value: v, i }));
+  const items: { value: string; i: number }[] = isTenue
+    ? garmentColors(activePiece).map((c, i) => ({ value: c, i }))
+    : isFrame
+      ? AV_FRAME.map((f, i) => ({ value: String(i), i }))
+      : kind === 'color'
+        ? paletteOf(key).map((v, i) => ({ value: v, i }))
+        : kind === 'toggle'
+          ? [{ value: '0', i: 0 }, { value: '100', i: 1 }]
+          : optionsOf(key).map((v, i) => ({ value: v, i }));
 
-  const currentValue = isFrame ? String(s.profile.cadre || 0) : av[key];
+  const currentValue = isTenue
+    ? parseGarment(av.garment).color
+    : isFrame ? String(s.profile.cadre || 0) : av[key];
   const cats = [...groupKeys, ...(group === 3 ? ['__frame'] : [])];
+
+  // Choix d'une pièce : applique la 1ʳᵉ teinte si on quitte 'aucun'.
+  const pickPiece = (id: string) => {
+    setTenuePiece(id);
+    if (id === 'aucun') { d({ t: 'SET_AV', patch: { garment: 'aucun' } }); return; }
+    const cur = parseGarment(av.garment);
+    const color = cur.id === id && cur.color ? cur.color : defaultColor(id);
+    d({ t: 'SET_AV', patch: { garment: garmentValue(id, color) } });
+  };
 
   return (
     <div style={{ position: 'relative', minHeight: '86dvh', display: 'flex', flexDirection: 'column' }}>
@@ -135,7 +164,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
         <div style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 4 }}>
           {AV_GROUPS.map((g, i) => (
             <Tap
-              key={g} onTap={() => { setGroup(i); setCat(keysOfGroup(i)[0] || (i === 3 ? '__frame' : '')); }} haptic="soft"
+              key={g} onTap={() => { setGroup(i); setCat(keysOfGroup(i)[0] || (i === 3 ? '__frame' : '')); if (i === 4) setTenuePiece(parseGarment(s.profile.av?.garment).id); }} haptic="soft"
               style={{ flex: 'none', font: `700 9.5px ${F.mono}`, letterSpacing: '.08em', padding: '11px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: group === i ? C.lime : 'rgba(255,255,255,.07)', color: group === i ? C.ink : 'rgba(255,255,255,.6)' }}
             >
               {g}
@@ -207,20 +236,31 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
         ) : (
           <>
             <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
-              {cats.map((k) => (
-                <Tap key={k} onTap={() => setCat(k)} haptic="soft" style={{ flex: 'none', font: `700 10.5px ${F.body}`, padding: '10px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: key === k || (isFrame && k === '__frame') ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.05)', color: key === k || (isFrame && k === '__frame') ? '#fff' : 'rgba(255,255,255,.55)' }}>
-                  {k === '__frame' ? 'Cadre' : labelOf(k)}
-                </Tap>
-              ))}
+              {isTenue
+                ? garmentPieces().map((pc) => (
+                    <Tap key={pc.id} onTap={() => pickPiece(pc.id)} haptic="soft" style={{ flex: 'none', font: `700 10.5px ${F.body}`, padding: '10px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: activePiece === pc.id ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.05)', color: activePiece === pc.id ? '#fff' : 'rgba(255,255,255,.55)' }}>
+                      {pc.label}
+                    </Tap>
+                  ))
+                : cats.map((k) => (
+                    <Tap key={k} onTap={() => setCat(k)} haptic="soft" style={{ flex: 'none', font: `700 10.5px ${F.body}`, padding: '10px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: key === k || (isFrame && k === '__frame') ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.05)', color: key === k || (isFrame && k === '__frame') ? '#fff' : 'rgba(255,255,255,.55)' }}>
+                      {k === '__frame' ? 'Cadre' : labelOf(k)}
+                    </Tap>
+                  ))}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 13 }}>
               <span style={{ font: `500 9.5px ${F.mono}`, color: 'rgba(255,255,255,.5)', letterSpacing: '.14em' }}>
-                {(isFrame ? 'CADRE' : labelOf(key).toUpperCase())}
+                {(isTenue ? (activePiece === 'aucun' ? 'TENUE' : 'TEINTE') : isFrame ? 'CADRE' : labelOf(key).toUpperCase())}
               </span>
-              <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.3)' }}>{items.length} VARIANTES</span>
+              <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.3)' }}>{items.length} {isTenue ? 'TEINTES' : 'VARIANTES'}</span>
             </div>
 
+            {isTenue && activePiece === 'aucun' ? (
+              <div style={{ marginTop: 14, font: `500 11px ${F.body}`, color: 'rgba(255,255,255,.4)' }}>
+                Choisis une pièce ci-dessus pour l'habiller, puis sa teinte.
+              </div>
+            ) : null}
             {/* Variantes en bandeau : on fait défiler du pouce, l'aperçu ne bouge plus. */}
             <div
               style={{
@@ -231,12 +271,13 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
             >
               {items.map(({ value, i }) => {
                 const on = currentValue === value;
-                const lock = locked(isFrame ? '__frame' : key, i);
+                const lock = isTenue ? null : locked(isFrame ? '__frame' : key, i);
                 const isColor = kind === 'color' && !isFrame;
                 return (
                   <Tap
                     key={key + value + i}
                     onTap={() => {
+                      if (isTenue) { d({ t: 'SET_AV', patch: { garment: garmentValue(activePiece, value) } }); return; }
                       if (isFrame) {
                         if (lock) return deny(lock);
                         d({ t: 'SET_PROFILE', patch: { cadre: i } });
@@ -245,14 +286,16 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
                     haptic="soft"
                     style={{
                       position: 'relative', flex: 'none', scrollSnapAlign: 'center',
-                      width: isColor ? 62 : 84, height: isColor ? 62 : 84, borderRadius: 16, overflow: 'hidden',
+                      width: isTenue ? 84 : isColor ? 62 : 84, height: isTenue ? 84 : isColor ? 62 : 84, borderRadius: 16, overflow: 'hidden',
                       border: on ? '3px solid ' + C.lime : '3px solid transparent',
-                      background: isColor ? (value === 'transparent' ? 'rgba(255,255,255,.08)' : '#' + value) : 'rgba(255,255,255,.08)',
+                      background: isTenue ? 'rgba(255,255,255,.08)' : isColor ? (value === 'transparent' ? 'rgba(255,255,255,.08)' : '#' + value) : 'rgba(255,255,255,.08)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
                       opacity: lock ? .45 : 1
                     }}
                   >
-                    {isColor ? (
+                    {isTenue ? (
+                      <GarmentThumb value={garmentValue(activePiece, value)} av={av} />
+                    ) : isColor ? (
                       value === 'transparent'
                         ? <span style={{ font: `700 8px ${F.mono}`, letterSpacing: '.06em', color: 'rgba(255,255,255,.5)' }}>SANS</span>
                         : null

@@ -1,5 +1,6 @@
 import { createAvatar } from '@dicebear/core';
 import { bigEars } from '@dicebear/collection';
+import { garmentSvg, garmentPieces, garmentColors, garmentValue, parseGarment, defaultColor } from '../data/garments';
 
 /**
  * Avatars « Big Ears » (The Visual Team, CC BY 4.0) générés localement.
@@ -74,7 +75,7 @@ const PATTERNS: Record<string, (c: string) => string> = {
 export const PATTERN_IDS = Object.keys(PATTERNS);
 
 /** Clés gérées par l'application, hors schéma du style. */
-const APP_KEYS = ['backgroundColor', 'pattern', 'patternColor'];
+const APP_KEYS = ['backgroundColor', 'pattern', 'patternColor', 'garment'];
 
 /** Toutes les clés d'option, dans l'ordre du schéma puis des couches maison. */
 export const AV_KEYS = [...Object.keys(SCHEMA), ...APP_KEYS];
@@ -182,9 +183,12 @@ export function avatarSvg(cfg: AvConfig, size = 128, opts: Opts = {}): string {
   const patColor = '#' + (cfg.patternColor || 'FFFFFF').replace(/^#/, '');
   const pattern = (PATTERNS[patId] || PATTERNS.aucun)(patColor);
 
+  const garment = scene ? garmentSvg(cfg.garment) : '';
+
   const inner =
     `<rect x="-40" y="-40" width="${VB + 80}" height="${VB + 80}" fill="${bgFill}"/>` +
     (pattern ? `<g opacity="0.34">${pattern}</g>` : '') +
+    garment +
     body;
 
   let content = inner;
@@ -277,6 +281,7 @@ const LABELS: Record<string, string> = {
   hairColor: 'Couleur',
   frontHair: 'Frange',
   sideburn: 'Favoris',
+  garment: 'Pièce',
   backgroundColor: 'Fond',
   pattern: 'Motif',
   patternColor: 'Couleur du motif'
@@ -293,10 +298,14 @@ const GROUP_OF: Record<string, number> = {
   face: 0, skinColor: 0, eyes: 0, nose: 0, mouth: 0, ear: 0,
   hair: 1, hairColor: 1, frontHair: 1, sideburn: 1,
   cheek: 2, cheekProbability: 2,
-  backgroundColor: 3, pattern: 3, patternColor: 3
+  backgroundColor: 3, pattern: 3, patternColor: 3,
+  garment: 4
 };
 
-export const AV_GROUPS = ['VISAGE', 'CHEVEUX', 'DÉTAILS', 'DÉCOR', 'IDENTITÉ'];
+export const AV_GROUPS = ['VISAGE', 'CHEVEUX', 'DÉTAILS', 'DÉCOR', 'TENUE', 'IDENTITÉ'];
+
+// Sélecteurs de tenue (pièce → teinte) réexposés pour le studio
+export { garmentPieces, garmentColors, garmentValue, parseGarment, defaultColor };
 
 /** Clés d'un onglet, l'onglet Détails ramassant tout le reste. */
 export const keysOfGroup = (g: number) =>
