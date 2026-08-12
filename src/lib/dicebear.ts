@@ -1,6 +1,7 @@
 import { createAvatar } from '@dicebear/core';
 import { bigEars } from '@dicebear/collection';
 import { garmentSvg, garmentPieces, garmentColors, garmentValue, parseGarment, defaultColor } from '../data/garments';
+import { neckSvg, neckShapes, neckLabel, neckRise, NECK_IDS } from '../data/necks';
 
 /**
  * Avatars « Big Ears » (The Visual Team, CC BY 4.0) générés localement.
@@ -75,7 +76,7 @@ const PATTERNS: Record<string, (c: string) => string> = {
 export const PATTERN_IDS = Object.keys(PATTERNS);
 
 /** Clés gérées par l'application, hors schéma du style. */
-const APP_KEYS = ['backgroundColor', 'pattern', 'patternColor', 'garment'];
+const APP_KEYS = ['backgroundColor', 'pattern', 'patternColor', 'garment', 'cou'];
 
 /** Toutes les clés d'option, dans l'ordre du schéma puis des couches maison. */
 export const AV_KEYS = [...Object.keys(SCHEMA), ...APP_KEYS];
@@ -86,6 +87,7 @@ const isProbaKey = (k: string) => /probability$/i.test(k);
 /** Valeurs possibles d'une option à choix. Vide pour les couleurs. */
 export function optionsOf(key: string): string[] {
   if (key === 'pattern') return PATTERN_IDS;
+  if (key === 'cou') return [...NECK_IDS];
   const p = SCHEMA[key];
   if (!p) return [];
   const items = p.items || p;
@@ -184,12 +186,20 @@ export function avatarSvg(cfg: AvConfig, size = 128, opts: Opts = {}): string {
   const pattern = (PATTERNS[patId] || PATTERNS.aucun)(patColor);
 
   const garment = scene ? garmentSvg(cfg.garment) : '';
+  // Le cou se glisse entre la tenue et le personnage : il comble le menton →
+  // encolure sans jamais passer devant le visage. Sa teinte suit celle du visage.
+  const neck = scene ? neckSvg(cfg.cou, cfg.skinColor) : '';
+  // Le personnage est légèrement remonté quand un cou est porté : sans ça, le
+  // menton du style touche l'encolure et le cou ne se verrait pas.
+  const rise = neckRise(cfg.cou);
+  const figure = rise ? `<g transform="translate(0 ${-rise})">${body}</g>` : body;
 
   const inner =
     `<rect x="-40" y="-40" width="${VB + 80}" height="${VB + 80}" fill="${bgFill}"/>` +
     (pattern ? `<g opacity="0.34">${pattern}</g>` : '') +
     garment +
-    body;
+    neck +
+    figure;
 
   let content = inner;
   if (clip) {
@@ -282,6 +292,7 @@ const LABELS: Record<string, string> = {
   frontHair: 'Frange',
   sideburn: 'Favoris',
   garment: 'Pièce',
+  cou: 'Cou',
   backgroundColor: 'Fond',
   pattern: 'Motif',
   patternColor: 'Couleur du motif'
@@ -299,13 +310,16 @@ const GROUP_OF: Record<string, number> = {
   hair: 1, hairColor: 1, frontHair: 1, sideburn: 1,
   cheek: 2, cheekProbability: 2,
   backgroundColor: 3, pattern: 3, patternColor: 3,
-  garment: 4
+  garment: 4, cou: 4
 };
 
 export const AV_GROUPS = ['VISAGE', 'CHEVEUX', 'DÉTAILS', 'DÉCOR', 'TENUE', 'IDENTITÉ'];
 
 // Sélecteurs de tenue (pièce → teinte) réexposés pour le studio
 export { garmentPieces, garmentColors, garmentValue, parseGarment, defaultColor };
+
+// Sélecteur de cou réexposé pour le studio (couleur déduite du teint)
+export { neckShapes, neckLabel };
 
 /** Clés d'un onglet, l'onglet Détails ramassant tout le reste. */
 export const keysOfGroup = (g: number) =>
