@@ -23,7 +23,7 @@ export type CustomQuest = {
 export type Task = { id: string; label: string; px: number; done: boolean };
 
 /** Pack de quêtes perso : un nom, une liste de tâches, ajouté en un clic. */
-export type QuestPack = { id: string; name: string; items: string[]; mine?: boolean };
+export type QuestPack = { id: string; name: string; items: string[]; icon?: string; mine?: boolean };
 
 /** Une validation horodatée — matière première de la vue semaine et des statistiques. */
 export type HistoryRow = { t: number; px: number; skill: string; name: string; kind: 'quete' | 'tache' | 'duel' };

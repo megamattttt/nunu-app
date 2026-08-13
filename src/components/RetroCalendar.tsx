@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { C, F } from '../theme';
 import { useGame } from '../state/store';
 import {
-  MONTHS, WEEKDAYS, avgOf, dayBg, dayKey, filled, moodColor, moodLabel,
+  DEFAULT_FACE, MONTHS, WEEKDAYS, avgOf, dayBg, dayKey, faceLabel, filled, moodColor, moodSrc,
   monthGrid, weekGrid, weekStart, type DayCheckin as Entry, type Scale
 } from '../data/checkin';
 import { MoodFace } from './DayCheckin';
@@ -10,28 +10,46 @@ import { Kicker, Tap } from './ui';
 
 type Period = 'week' | 'month';
 
-/** Une case du calendrier : fond = humeur, points = quêtes validées ce jour-là. */
-function Cell({ day, mood, quests, dark, sel, onTap }: {
-  day: string | null; mood: Scale; quests: number; dark: boolean; sel: boolean; onTap: () => void;
+/** Une case du calendrier : fond = humeur, visage = humeur, points = quêtes validées. */
+function Cell({ day, mood, face, quests, dark, sel, onTap }: {
+  day: string | null; mood: Scale; face?: string; quests: number; dark: boolean; sel: boolean; onTap: () => void;
 }) {
   if (!day) return <span />;
   const today = day === dayKey();
   const n = Number(day.slice(8));
   const tx = dark ? '#fff' : C.ink;
+  const noted = !!(mood || face);
   return (
     <Tap
-      onTap={onTap} haptic="soft" aria-label={`${n} — ${moodLabel(mood)}`}
+      onTap={onTap} haptic="soft" aria-label={`${n} — ${faceLabel({ mood, face })}`}
       style={{
-        position: 'relative', aspectRatio: '1', borderRadius: 11, display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', gap: 3, minHeight: 34,
+        position: 'relative', aspectRatio: '1', borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        minHeight: 34, overflow: 'hidden',
         background: dayBg(mood, dark),
         border: sel ? `2px solid ${tx}` : today ? `1px solid ${dark ? 'rgba(255,255,255,.5)' : 'rgba(11,11,12,.45)'}` : '1px solid transparent'
       }}
     >
-      <span style={{ font: `700 11px ${F.mono}`, color: mood ? tx : dark ? 'rgba(255,255,255,.4)' : 'rgba(11,11,12,.4)' }}>{n}</span>
-      <span style={{ display: 'flex', gap: 2, height: 4 }}>
+      {noted ? (
+        <span style={{ position: 'absolute', inset: '15%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img
+            src={moodSrc(face || DEFAULT_FACE[mood])} alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'transparent' }}
+          />
+        </span>
+      ) : null}
+      <span
+        style={{
+          position: noted ? 'absolute' : 'relative', top: noted ? 1 : undefined, left: noted ? 3 : undefined,
+          font: `700 ${noted ? 8 : 11}px ${F.mono}`,
+          color: noted ? tx : dark ? 'rgba(255,255,255,.4)' : 'rgba(11,11,12,.4)',
+          textShadow: noted ? (dark ? '0 1px 2px rgba(0,0,0,.65)' : '0 1px 2px rgba(255,255,255,.7)') : 'none'
+        }}
+      >
+        {n}
+      </span>
+      <span style={{ position: 'absolute', bottom: 2, display: 'flex', gap: 2, height: 4 }}>
         {Array.from({ length: Math.min(3, quests) }, (_, i) => (
-          <span key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: C.lime }} />
+          <span key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: C.lime, boxShadow: '0 0 0 1px rgba(10,10,12,.35)' }} />
         ))}
       </span>
     </Tap>
@@ -165,6 +183,7 @@ export default function RetroCalendar({ skill, dark = true }: { skill: string; d
             <Cell
               key={k || 'x' + i} day={k}
               mood={(k ? checkins[k]?.mood : 0) || 0}
+              face={k ? checkins[k]?.face : undefined}
               quests={k ? byDay[k]?.n || 0 : 0}
               dark={dark} sel={!!k && sel === k}
               onTap={() => setSel(sel === k ? null : k)}
@@ -176,9 +195,17 @@ export default function RetroCalendar({ skill, dark = true }: { skill: string; d
       {/* Légende du code couleur */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap' }}>
         <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.14em', color: sub }}>HUMEUR</span>
-        <span style={{ display: 'flex', gap: 3 }}>
+        <span style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           {([1, 2, 3, 4, 5] as Scale[]).map((v) => (
-            <span key={v} style={{ width: 16, height: 8, borderRadius: 3, background: dayBg(v, dark) }} />
+            <span
+              key={v}
+              style={{
+                width: 20, height: 20, borderRadius: 6, background: dayBg(v, dark),
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}
+            >
+              <img src={moodSrc(DEFAULT_FACE[v])} alt="" style={{ width: 14, height: 14, background: 'transparent' }} />
+            </span>
           ))}
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 5, marginLeft: 4 }}>
@@ -191,13 +218,13 @@ export default function RetroCalendar({ skill, dark = true }: { skill: string; d
       {sel ? (
         <div style={{ background: soft, borderRadius: 14, padding: '12px 13px', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <MoodFace v={(selEntry?.mood || 0) as Scale} size={24} color={selEntry?.mood ? moodColor(selEntry.mood) : sub} />
+            <MoodFace v={(selEntry?.mood || 0) as Scale} face={selEntry?.face} size={28} color={sub} />
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{ display: 'block', font: `700 12.5px ${F.body}`, color: tx }}>
                 {new Date(sel + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' })}
               </span>
               <span style={{ display: 'block', font: `500 10.5px ${F.body}`, color: sub, marginTop: 2 }}>
-                {selEntry?.mood ? moodLabel(selEntry.mood) : 'Humeur non notée'} · {selQuests.length} validation{selQuests.length > 1 ? 's' : ''}
+                {selEntry?.mood || selEntry?.face ? faceLabel(selEntry) : 'Humeur non notée'} · {selQuests.length} validation{selQuests.length > 1 ? 's' : ''}
               </span>
             </span>
             {byDay[sel]?.px ? <span style={{ font: `700 11px ${F.mono}`, color: dark ? C.lime : C.ink, flex: 'none' }}>+{byDay[sel].px} PX</span> : null}

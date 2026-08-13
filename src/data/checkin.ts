@@ -1,10 +1,10 @@
 /**
  * Point du jour — humeur, motivation, énergie, pensées, idées, tags.
  *
- * Fichier de données autonome : les échelles, le code couleur et les petits
- * utilitaires de calendrier vivent ici. Aucune dépendance au thème ni au store,
- * pour que le calendrier de rétrospective, l'accueil et la feuille de saisie
- * partagent exactement les mêmes couleurs.
+ * Fichier de données autonome : les échelles, le code couleur, les visages
+ * d'humeur et les petits utilitaires de calendrier vivent ici. Aucune
+ * dépendance au thème ni au store, pour que le calendrier de rétrospective,
+ * l'accueil et la feuille de saisie partagent exactement les mêmes couleurs.
  */
 
 export type Scale = 0 | 1 | 2 | 3 | 4 | 5;
@@ -12,7 +12,10 @@ export type Scale = 0 | 1 | 2 | 3 | 4 | 5;
 export type DayCheckin = {
   /** Clé du jour, 'AAAA-MM-JJ' en heure locale. */
   day: string;
+  /** Valence 1..5 — sert au code couleur et aux moyennes. */
   mood: Scale;
+  /** Visage choisi (identifiant de FACES). Absent sur les points anciens. */
+  face?: string;
   motivation: Scale;
   energie: Scale;
   /** Heures de sommeil, null si non renseigné. */
@@ -23,18 +26,58 @@ export type DayCheckin = {
   at: number;
 };
 
-/** Les 5 visages. L'ordre est celui de la rangée de boutons. */
-export const MOODS: { v: Scale; label: string; c: string; mouth: string }[] = [
-  { v: 1, label: 'Difficile', c: '#E8654F', mouth: 'M8 16c1.4-2.2 6.6-2.2 8 0' },
-  { v: 2, label: 'Mitigé',    c: '#E9A13B', mouth: 'M8 15.8c1.4-1.1 6.6-1.1 8 0' },
-  { v: 3, label: 'Neutre',    c: '#C7C2B4', mouth: 'M8.5 15.6h7' },
-  { v: 4, label: 'Bien',      c: '#7EC4B0', mouth: 'M8 15c1.4 1.6 6.6 1.6 8 0' },
-  { v: 5, label: 'Excellent', c: '#B9DE64', mouth: 'M8 14.6c1.4 2.6 6.6 2.6 8 0' }
+/** Les 5 niveaux de valence : le code couleur des calendriers. */
+export const MOODS: { v: Scale; label: string; c: string }[] = [
+  { v: 1, label: 'Difficile', c: '#E8654F' },
+  { v: 2, label: 'Mitigé',    c: '#E9A13B' },
+  { v: 3, label: 'Neutre',    c: '#C7C2B4' },
+  { v: 4, label: 'Bien',      c: '#7EC4B0' },
+  { v: 5, label: 'Excellent', c: '#B9DE64' }
 ];
+
+/** Dossier des visages peints, servis depuis `public/moods/`. */
+const FACE_DIR = import.meta.env.BASE_URL + 'moods/';
+
+export const moodSrc = (id: string) => FACE_DIR + id + '.png';
+
+/**
+ * Les onze visages, du plus dur au plus lumineux. `v` est la valence : elle
+ * décide de la couleur de la case de calendrier et entre dans les moyennes.
+ */
+export const FACES: { id: string; label: string; v: Scale }[] = [
+  { id: 'colere',    label: 'Colère',    v: 1 },
+  { id: 'peur',      label: 'Peur',      v: 1 },
+  { id: 'triste',    label: 'Triste',    v: 1 },
+  { id: 'mecontent', label: 'Mécontent', v: 2 },
+  { id: 'malade',    label: 'Malade',    v: 2 },
+  { id: 'perdu',     label: 'Perdu',     v: 2 },
+  { id: 'gene',      label: 'Gêné',      v: 3 },
+  { id: 'timide',    label: 'Timide',    v: 3 },
+  { id: 'content',   label: 'Content',   v: 4 },
+  { id: 'zen',       label: 'Zen',       v: 5 },
+  { id: 'heureux',   label: 'Heureux',   v: 5 }
+];
+
+/** Visage par défaut d'une valence, pour les points notés avant les visages. */
+export const DEFAULT_FACE: Record<number, string> = {
+  1: 'triste', 2: 'mecontent', 3: 'timide', 4: 'content', 5: 'heureux'
+};
+
+export const faceById = (id?: string | null) => FACES.find((f) => f.id === id);
+
+/** Visage d'un point du jour : celui choisi, sinon celui de sa valence. */
+export function faceOf(c?: { mood?: number; face?: string } | null) {
+  if (!c) return undefined;
+  return faceById(c.face) || (c.mood ? faceById(DEFAULT_FACE[c.mood]) : undefined);
+}
 
 export const moodOf = (v: Scale) => MOODS.find((m) => m.v === v);
 export const moodColor = (v: Scale) => moodOf(v)?.c || '';
 export const moodLabel = (v: Scale) => moodOf(v)?.label || 'Non noté';
+
+/** Libellé affiché : le nom du visage si on en a un, sinon la valence. */
+export const faceLabel = (c?: { mood?: number; face?: string } | null) =>
+  faceOf(c)?.label || moodLabel((c?.mood || 0) as Scale);
 
 /** Hex + alpha → rgba(), pour teinter une case de calendrier sans la délaver. */
 export function hexA(hex: string, a: number): string {

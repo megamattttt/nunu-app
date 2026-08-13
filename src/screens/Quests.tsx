@@ -10,6 +10,7 @@ import DiffBadge from '../components/DiffBadge';
 import DragList from '../components/DragList';
 import PersoBoard from '../components/PersoBoard';
 import RetroCalendar from '../components/RetroCalendar';
+import BorderGlow from '../components/BorderGlow';
 import { RankIcon, RankBadge } from '../components/RankIcon';
 import JournalCard from '../components/JournalCard';
 import JournalEditor, { newEntry } from '../components/JournalEditor';
@@ -161,10 +162,15 @@ function MainQuest({ row, skill, px, combo, total, flash, onTap, connector }: {
         {flash ? <Check /> : row.major ? <Star /> : <svg width="15" height="15" viewBox="0 0 24 24" fill={C.ink}><path d="M7 4l13 8-13 8z" /></svg>}
       </span>
 
+      <BorderGlow
+        borderRadius={24} glowRadius={32} glowIntensity={0.95} animated
+        backgroundColor={C.ink} colors={[acc, C.honey, skill.c]}
+        style={{ flex: 1, minWidth: 0 }}
+      >
       <Tap
         onTap={onTap} sound haptic={isInstant(row.rarity) ? 'levelup' : 'tap'}
         style={{
-          flex: 1, minWidth: 0, position: 'relative', overflow: 'hidden', borderRadius: 24,
+          minWidth: 0, position: 'relative', overflow: 'hidden', borderRadius: 24,
           background: `linear-gradient(150deg, ${C.ink}, #16181A 60%, ${C.ink})`,
           border: `1px solid ${acc}55`, padding: '16px 17px 15px',
           boxShadow: `0 26px 50px -34px ${acc}, 0 14px 30px -22px rgba(0,0,0,.9)`
@@ -207,6 +213,7 @@ function MainQuest({ row, skill, px, combo, total, flash, onTap, connector }: {
           <span style={{ font: `700 12px ${F.body}`, color: C.ink, background: acc, padding: '13px 22px', borderRadius: 99, minHeight: 46, display: 'flex', alignItems: 'center', flex: 'none' }}>VALIDER</span>
         </span>
       </Tap>
+      </BorderGlow>
     </div>
   );
 }

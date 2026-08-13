@@ -43,7 +43,7 @@ type Action =
   | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number; diff?: Difficulty; link?: string; due?: number | null; timed?: boolean; imp?: Importance }
   | { t: 'EDIT_QUEST'; id: string; patch: Partial<{ name: string; due: number | null; timed: boolean; imp: Importance; px: number }> }
   | { t: 'PACK_ADD'; items: string[] }
-  | { t: 'PACK_SAVE'; pack: { id?: string; name: string; items: string[] } }
+  | { t: 'PACK_SAVE'; pack: { id?: string; name: string; items: string[]; icon?: string } }
   | { t: 'PACK_DEL'; id: string }
   | { t: 'NOTIF'; patch: Partial<NotifPrefs> }
   | { t: 'MOVE_QUEST'; skill: string; from: number; to: number }

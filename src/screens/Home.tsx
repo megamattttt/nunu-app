@@ -8,7 +8,8 @@ import AvatarFrame from '../components/AvatarFrame';
 import Logo from '../components/Logo';
 import WeekStrip from '../components/WeekStrip';
 import DayCheckin, { MoodFace } from '../components/DayCheckin';
-import { dayBg, dayKey, filled, lastDays, moodLabel, type DayCheckin as Checkin, type Scale } from '../data/checkin';
+import { dayBg, dayKey, faceLabel, filled, lastDays, type DayCheckin as Checkin, type Scale } from '../data/checkin';
+import BorderGlow from '../components/BorderGlow';
 import { RankBadge } from '../components/RankIcon';
 import { Kicker, Tap } from '../components/ui';
 import type { Nav } from '../App';
@@ -103,10 +104,11 @@ export default function Home({ nav }: { nav: Nav }) {
               onTap={() => nav.go('profile')} haptic="soft"
               style={{
                 display: 'flex', alignItems: 'center', gap: 9, background: C.ink, borderRadius: 15,
-                padding: '8px 13px 8px 12px', boxShadow: '0 14px 26px -20px rgba(0,0,0,.9)'
+                padding: '7px 12px 7px 11px', border: `1.5px solid ${C.lime}`,
+                boxShadow: '0 14px 26px -20px rgba(0,0,0,.9)'
               }}
             >
-              <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.2em', color: 'rgba(255,255,255,.5)', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>NIVEAU</span>
+              <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.2em', color: '#fff', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>NIV</span>
               <span style={{ font: `800 30px/1 ${F.display}`, color: C.lime, letterSpacing: '-.04em' }}>{lvl}</span>
             </Tap>
           </span>
@@ -246,20 +248,25 @@ export default function Home({ nav }: { nav: Nav }) {
             ) : null}
           </div>
 
-          <Tap
-            onTap={() => setCheckinOpen(true)} haptic="soft"
-            style={{
-              display: 'block', marginTop: 12, background: C.night, border: `1px solid ${noted && mine.mood ? dayBg(mine.mood as Scale, true) : C.line}`,
-              borderRadius: 24, padding: '16px 18px', position: 'relative', overflow: 'hidden'
-            }}
+          <BorderGlow
+            borderRadius={24} glowRadius={30} glowIntensity={0.8} animated
+            backgroundColor={C.night} colors={[C.lime, C.iris, C.teal]}
+            style={{ marginTop: 12 }}
           >
+            <Tap
+              onTap={() => setCheckinOpen(true)} haptic="soft"
+              style={{
+                display: 'block', background: C.night, border: `1px solid ${noted && mine.mood ? dayBg(mine.mood as Scale, true) : C.line}`,
+                borderRadius: 24, padding: '16px 18px', position: 'relative', overflow: 'hidden'
+              }}
+            >
             <span style={{ position: 'absolute', right: -60, top: -80, width: 190, height: 190, borderRadius: '50%', background: noted && mine.mood ? dayBg(mine.mood as Scale, true) : C.iris, opacity: .35, animation: 'nuHalo 10s ease-in-out infinite' }} />
 
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }}>
-              <MoodFace v={(noted ? mine.mood : 0) as Scale} size={38} />
+              <MoodFace v={(noted ? mine.mood : 0) as Scale} face={noted ? mine.face : undefined} size={44} />
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', font: `800 17px ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>
-                  {noted ? moodLabel(mine.mood) : 'Comment va aujourd’hui ?'}
+                  {noted ? faceLabel(mine) : 'Comment va aujourd’hui ?'}
                 </span>
                 <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 4, textWrap: 'pretty' }}>
                   {noted
@@ -289,16 +296,20 @@ export default function Home({ nav }: { nav: Nav }) {
                 <span
                   key={k}
                   style={{
-                    flex: 1, height: 22, borderRadius: 7, background: dayBg((checkins[k]?.mood || 0) as Scale, true),
-                    border: k === dayKey() ? '1px solid rgba(255,255,255,.45)' : '1px solid transparent'
+                    flex: 1, height: 26, borderRadius: 7, background: dayBg((checkins[k]?.mood || 0) as Scale, true),
+                    border: k === dayKey() ? '1px solid rgba(255,255,255,.45)' : '1px solid transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
                   }}
-                />
+                >
+                  <MoodFace v={(checkins[k]?.mood || 0) as Scale} face={checkins[k]?.face} size={18} color="rgba(255,255,255,.22)" />
+                </span>
               ))}
             </div>
             <span style={{ position: 'relative', display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.35)', marginTop: 8 }}>
               9 DERNIERS JOURS
             </span>
-          </Tap>
+            </Tap>
+          </BorderGlow>
         </div>
 
         {/* Combo en cours — remonté de l'écran Quêtes */}

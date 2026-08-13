@@ -2,24 +2,33 @@ import React, { useState } from 'react';
 import { C, F } from '../theme';
 import { useGame } from '../state/store';
 import {
-  MOODS, SCALE_LABELS, SUGGESTED_TAGS, dayKey, emptyCheckin, moodColor,
+  FACES, SCALE_LABELS, SUGGESTED_TAGS, dayKey, emptyCheckin, faceLabel, faceOf, moodColor, moodSrc,
   type DayCheckin as Entry, type Scale
 } from '../data/checkin';
 import { Tap } from './ui';
+import BorderGlow from './BorderGlow';
 import { buzz } from '../lib/haptics';
 import { sfx } from '../lib/sound';
 
-/** Visage d'humeur. `v` à 0 rend un visage neutre grisé. */
-export function MoodFace({ v, size = 26, color }: { v: Scale; size?: number; color?: string }) {
-  const m = MOODS.find((x) => x.v === v);
-  const c = color || (m ? m.c : 'rgba(255,255,255,.35)');
+/**
+ * Visage d'humeur : le sticker peint, sur fond transparent, sans cadre. Si le
+ * jour n'est pas noté, on garde un contour vide plutôt qu'un visage arbitraire.
+ */
+export function MoodFace({ v, face, size = 26, color }: { v: Scale; face?: string; size?: number; color?: string }) {
+  const f = faceOf({ mood: v, face });
+  if (!f) {
+    const c = color || 'rgba(255,255,255,.3)';
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ display: 'block', flex: 'none' }}>
+        <circle cx="12" cy="12" r="9.5" stroke={c} strokeWidth="1.5" strokeDasharray="3 3.4" />
+      </svg>
+    );
+  }
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ display: 'block', flex: 'none' }}>
-      <circle cx="12" cy="12" r="10" stroke={c} strokeWidth="1.7" />
-      <circle cx="9" cy="10.2" r="1.4" fill={c} />
-      <circle cx="15" cy="10.2" r="1.4" fill={c} />
-      <path d={m ? m.mouth : 'M8.5 15.6h7'} stroke={c} strokeWidth="1.9" strokeLinecap="round" />
-    </svg>
+    <img
+      src={moodSrc(f.id)} alt={f.label} width={size} height={size}
+      style={{ width: size, height: size, display: 'block', flex: 'none', background: 'transparent' }}
+    />
   );
 }
 
@@ -119,24 +128,26 @@ export default function DayCheckin({ day = dayKey(), onClose }: { day?: string; 
               {dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1)}
             </span>
           </span>
-          <MoodFace v={e.mood} size={34} />
+          <MoodFace v={e.mood} face={e.face} size={40} />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 18 }}>
-          <Field label="HUMEUR" hint={e.mood ? MOODS[e.mood - 1].label : undefined}>
-            <div style={{ display: 'flex', gap: 7 }}>
-              {MOODS.map((m) => {
-                const on = e.mood === m.v;
+          <Field label="HUMEUR" hint={e.face || e.mood ? faceLabel(e) : undefined}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 7 }}>
+              {FACES.map((f) => {
+                const on = e.face === f.id;
                 return (
                   <Tap
-                    key={m.v} onTap={() => set({ mood: on ? 0 : m.v })} haptic="soft" aria-label={m.label}
+                    key={f.id} onTap={() => set(on ? { mood: 0, face: undefined } : { mood: f.v, face: f.id })}
+                    haptic="soft" aria-label={f.label}
                     style={{
-                      flex: 1, minHeight: 62, borderRadius: 16, display: 'flex', flexDirection: 'column', alignItems: 'center',
-                      justifyContent: 'center', gap: 4, background: on ? m.c : 'rgba(255,255,255,.05)',
-                      border: `1px solid ${on ? m.c : 'rgba(255,255,255,.08)'}`, transition: 'background .15s ease'
+                      aspectRatio: '1', minHeight: 46, borderRadius: 15, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: on ? `${moodColor(f.v)}2E` : 'rgba(255,255,255,.04)',
+                      border: `1.5px solid ${on ? moodColor(f.v) : 'transparent'}`,
+                      opacity: e.face && !on ? .5 : 1, transition: 'opacity .15s ease, background .15s ease'
                     }}
                   >
-                    <MoodFace v={m.v} size={25} color={on ? C.ink : 'rgba(255,255,255,.55)'} />
+                    <MoodFace v={f.v} face={f.id} size={30} />
                   </Tap>
                 );
               })}
@@ -251,12 +262,14 @@ export default function DayCheckin({ day = dayKey(), onClose }: { day?: string; 
           >
             ANNULER
           </Tap>
-          <Tap
-            onTap={save} haptic="success"
-            style={{ flex: 1, minHeight: 52, borderRadius: 16, background: acc, color: C.ink, display: 'flex', alignItems: 'center', justifyContent: 'center', font: `800 14px ${F.display}`, letterSpacing: '-.01em' }}
-          >
-            ENREGISTRER
-          </Tap>
+          <BorderGlow borderRadius={16} glowRadius={26} glowIntensity={0.85} colors={[acc, C.honey, C.teal]} backgroundColor={acc} style={{ flex: 1 }}>
+            <Tap
+              onTap={save} haptic="success"
+              style={{ minHeight: 52, borderRadius: 16, background: acc, color: C.ink, display: 'flex', alignItems: 'center', justifyContent: 'center', font: `800 14px ${F.display}`, letterSpacing: '-.01em' }}
+            >
+              ENREGISTRER
+            </Tap>
+          </BorderGlow>
         </div>
       </div>
     </div>

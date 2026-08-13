@@ -3,6 +3,8 @@ import { C, F } from '../theme';
 import { useGame } from '../state/store';
 import { IMPS, nextImp, type Importance } from '../data/importance';
 import { PACKS } from '../data/packs';
+import { DEFAULT_PACK_ICON, PACK_ICONS, packIconLabel } from '../data/packIcons';
+import PackIcon from './PackIcon';
 import { parseQuest, dueLabel, dueBucket, BUCKETS } from '../lib/nlq';
 import { askNotif, notifState, notifSupported } from '../lib/notify';
 import { Check, Kicker, Tap } from './ui';
@@ -26,18 +28,16 @@ function Pill({ c, txt, children }: { c: string; txt: string; children: React.Re
   );
 }
 
-/** Un pack : nom, aperçu du contenu, ajout en un clic, contenu dépliable. */
-function PackCard({ pack, open, onOpen, onAddAll, onAddOne, onDelete }: {
+/** Un pack : icône, nom, aperçu du contenu, ajout en un clic, contenu dépliable. */
+function PackCard({ pack, open, onOpen, onAddAll, onAddOne, onEdit, onDelete }: {
   pack: QuestPack; open: boolean; onOpen: () => void; onAddAll: () => void;
-  onAddOne: (name: string) => void; onDelete?: () => void;
+  onAddOne: (name: string) => void; onEdit?: () => void; onDelete?: () => void;
 }) {
   return (
     <div style={{ ...CARD, padding: '13px 14px', borderColor: open ? `${C.iris}66` : C.line }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
         <Tap onTap={onOpen} haptic="soft" style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 11 }}>
-          <span style={{ width: 30, height: 30, borderRadius: 10, flex: 'none', background: 'rgba(156,138,214,.18)', border: `1px solid ${C.iris}55`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.iris} strokeWidth="2.2" strokeLinejoin="round"><path d="M4 7h6l2 2h8v10H4z" /></svg>
-          </span>
+          <PackIcon id={pack.icon} size={30} />
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: 'block', font: `700 13px ${F.body}`, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pack.name}</span>
             <span style={{ display: 'block', font: `400 10.5px ${F.body}`, color: 'rgba(255,255,255,.42)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -66,8 +66,13 @@ function PackCard({ pack, open, onOpen, onAddAll, onAddOne, onDelete }: {
               <span style={{ flex: 1, font: `500 12.5px ${F.body}`, color: 'rgba(255,255,255,.8)' }}>{it}</span>
             </Tap>
           ))}
+          {onEdit ? (
+            <Tap onTap={onEdit} haptic="soft" style={{ marginTop: 2, minHeight: 36, display: 'flex', alignItems: 'center', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.lime }}>
+              MODIFIER CE PACK
+            </Tap>
+          ) : null}
           {onDelete ? (
-            <Tap onTap={onDelete} style={{ marginTop: 2, minHeight: 36, display: 'flex', alignItems: 'center', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.coral }}>
+            <Tap onTap={onDelete} style={{ minHeight: 36, display: 'flex', alignItems: 'center', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.coral }}>
               SUPPRIMER CE PACK
             </Tap>
           ) : null}
@@ -88,7 +93,7 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
   const [impOverride, setImpOverride] = useState<Importance | null>(null);
   const [doneOpen, setDoneOpen] = useState(false);
   const [openPack, setOpenPack] = useState<string | null>(null);
-  const [newPack, setNewPack] = useState<{ name: string; items: string } | null>(null);
+  const [newPack, setNewPack] = useState<{ id?: string; name: string; items: string; icon: string } | null>(null);
   const [perm, setPerm] = useState(notifState());
   const [, tick] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -139,8 +144,13 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
     if (!newPack) return;
     const items = newPack.items.split(/[\n,]/).map((v) => v.trim()).filter(Boolean);
     if (!newPack.name.trim() || !items.length) return;
-    d({ t: 'PACK_SAVE', pack: { name: newPack.name.trim(), items } });
+    d({ t: 'PACK_SAVE', pack: { id: newPack.id, name: newPack.name.trim(), items, icon: newPack.icon } });
     setNewPack(null);
+  };
+
+  const editPack = (p: QuestPack) => {
+    setNewPack({ id: p.id, name: p.name, items: p.items.join('\n'), icon: p.icon || DEFAULT_PACK_ICON });
+    setOpenPack(null);
   };
 
   const askPerm = async () => { setPerm(await askNotif()); d({ t: 'NOTIF', patch: { on: true } }); };
@@ -320,7 +330,7 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
         <Kicker>PACKS DE QUÊTES</Kicker>
         <Tap
-          onTap={() => setNewPack(newPack ? null : { name: '', items: '' })} haptic="soft"
+          onTap={() => setNewPack(newPack ? null : { name: '', items: '', icon: DEFAULT_PACK_ICON })} haptic="soft"
           style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.lime, minHeight: 32, display: 'flex', alignItems: 'center' }}
         >
           {newPack ? 'ANNULER' : '+ CRÉER'}
@@ -329,22 +339,51 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
 
       {newPack ? (
         <div style={{ ...CARD, padding: '14px 15px', borderColor: `${C.lime}44` }}>
-          <input
-            value={newPack.name} onChange={(e) => setNewPack({ ...newPack, name: e.target.value.slice(0, 28) })}
-            placeholder="Nom du pack (ex. Entretien maison)"
-            style={{ width: '100%', background: 'rgba(255,255,255,.05)', borderRadius: 12, padding: '11px 12px', color: '#fff', font: `700 14px ${F.body}`, minHeight: 44, border: 'none', outline: 'none' }}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+            <span style={{ width: 44, height: 44, borderRadius: 14, flex: 'none', background: 'rgba(255,255,255,.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <PackIcon id={newPack.icon} size={28} />
+            </span>
+            <input
+              value={newPack.name} onChange={(e) => setNewPack({ ...newPack, name: e.target.value.slice(0, 28) })}
+              placeholder="Nom du pack (ex. Entretien maison)"
+              style={{ flex: 1, minWidth: 0, background: 'rgba(255,255,255,.05)', borderRadius: 12, padding: '11px 12px', color: '#fff', font: `700 14px ${F.body}`, minHeight: 44, border: 'none', outline: 'none' }}
+            />
+          </div>
+
+          {/* Choix de l'icône : la vignette du pack dans la liste */}
+          <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)', marginTop: 13 }}>
+            ICÔNE · {packIconLabel(newPack.icon).toUpperCase()}
+          </span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6, marginTop: 9 }}>
+            {PACK_ICONS.map((ic) => {
+              const on = newPack.icon === ic.id;
+              return (
+                <Tap
+                  key={ic.id} onTap={() => setNewPack({ ...newPack, icon: ic.id })} haptic="soft" aria-label={ic.label}
+                  style={{
+                    aspectRatio: '1', minHeight: 44, borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: on ? 'rgba(185,222,100,.14)' : 'rgba(255,255,255,.04)',
+                    border: `1.5px solid ${on ? C.lime : 'transparent'}`,
+                    opacity: on ? 1 : .78, transition: 'opacity .15s ease, background .15s ease'
+                  }}
+                >
+                  <PackIcon id={ic.id} size={24} />
+                </Tap>
+              );
+            })}
+          </div>
+
           <textarea
             value={newPack.items} onChange={(e) => setNewPack({ ...newPack, items: e.target.value })}
             placeholder="Une tâche par ligne&#10;Nettoyer le sol&#10;Faire les vitres"
             rows={4}
-            style={{ width: '100%', background: 'rgba(255,255,255,.05)', borderRadius: 12, padding: '11px 12px', color: '#fff', font: `500 13px/1.5 ${F.body}`, marginTop: 9, border: 'none', outline: 'none', resize: 'vertical' }}
+            style={{ width: '100%', background: 'rgba(255,255,255,.05)', borderRadius: 12, padding: '11px 12px', color: '#fff', font: `500 13px/1.5 ${F.body}`, marginTop: 13, border: 'none', outline: 'none', resize: 'vertical' }}
           />
           <Tap
             onTap={saveNewPack} haptic="success"
             style={{ marginTop: 10, minHeight: 46, borderRadius: 14, background: C.lime, color: C.ink, display: 'flex', alignItems: 'center', justifyContent: 'center', font: `800 13px ${F.display}` }}
           >
-            ENREGISTRER LE PACK
+            {newPack.id ? 'ENREGISTRER LES MODIFICATIONS' : 'ENREGISTRER LE PACK'}
           </Tap>
         </div>
       ) : null}
@@ -358,6 +397,7 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
             onOpen={() => setOpenPack(openPack === p.id ? null : p.id)}
             onAddAll={() => d({ t: 'PACK_ADD', items: p.items })}
             onAddOne={(name) => d({ t: 'PACK_ADD', items: [name] })}
+            onEdit={p.mine ? () => editPack(p) : undefined}
             onDelete={p.mine ? () => d({ t: 'PACK_DEL', id: p.id }) : undefined}
           />
         ))}
