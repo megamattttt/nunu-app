@@ -9,6 +9,7 @@ import { DIFF_LIST } from '../data/quests';
 import { IMPS, type Importance } from '../data/importance';
 import { scheduleReminders, DEFAULT_NOTIF, type NotifPrefs } from '../lib/notify';
 import { ensureConfig, randomConfig } from '../lib/dicebear';
+import type { DayCheckin } from '../data/checkin';
 import { dueBucket } from '../lib/nlq';
 import { levelOf } from './selectors';
 import { buzz, setHaptics } from '../lib/haptics';
@@ -37,6 +38,7 @@ type Action =
   | { t: 'FINISH_FLOW' }
   | { t: 'JOURNAL_SAVE'; entry: JournalEntry }
   | { t: 'JOURNAL_DEL'; id: string }
+  | { t: 'CHECKIN_SAVE'; entry: DayCheckin }
   | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null }
   | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number; diff?: Difficulty; link?: string; due?: number | null; timed?: boolean; imp?: Importance }
   | { t: 'EDIT_QUEST'; id: string; patch: Partial<{ name: string; due: number | null; timed: boolean; imp: Importance; px: number }> }
@@ -70,7 +72,9 @@ type Action =
   | { t: 'TOAST'; msg: string | null };
 
 type Runtime = { event: RewardEvent | null; share: ShareData | null; toast: string | null; hydrated: boolean };
-type Store = GameState & Runtime;
+/** Points du jour, indexés par clé de jour ('AAAA-MM-JJ'). Persistés avec le reste. */
+type Journalling = { checkins?: Record<string, DayCheckin> };
+type Store = GameState & Runtime & Journalling;
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -151,6 +155,15 @@ function reducer(s: Store, a: Action): Store {
     }
     case 'JOURNAL_DEL':
       return { ...s, journal: s.journal.filter((e) => e.id !== a.id), toast: 'Entrée supprimée' };
+
+    case 'CHECKIN_SAVE':
+      // Un seul point par jour : il écrase le précédent et alimente le code
+      // couleur des calendriers de rétrospective.
+      return {
+        ...s,
+        checkins: { ...(s.checkins || {}), [a.entry.day]: a.entry },
+        toast: 'Point du jour enregistré'
+      };
 
     case 'VALIDATE': {
       const base = (BOARDS[a.skill] || []).length;

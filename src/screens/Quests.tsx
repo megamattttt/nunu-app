@@ -9,6 +9,7 @@ import SkillWheel from '../components/SkillWheel';
 import DiffBadge from '../components/DiffBadge';
 import DragList from '../components/DragList';
 import PersoBoard from '../components/PersoBoard';
+import RetroCalendar from '../components/RetroCalendar';
 import { RankIcon, RankBadge } from '../components/RankIcon';
 import JournalCard from '../components/JournalCard';
 import JournalEditor, { newEntry } from '../components/JournalEditor';
@@ -106,11 +107,127 @@ function ComboBar({ n, last, best }: { n: number; last: number | null; best: num
 type Sub = 'board' | 'journal' | 'coll';
 const SUBS: [Sub, string][] = [['board', 'PLATEAU'], ['journal', 'JOURNAL'], ['coll', 'COLLECTION']];
 
+/** Dernier onglet de compétence visité — l'arrivée se fait sur Perso. */
+const LAST_SKILL_KEY = 'nunu.lastSkill';
+
+/** Compteur de PX qui monte : la quête principale annonce son gain. */
+function useCountUp(target: number, ms = 620) {
+  const [v, setV] = useState(target);
+  useEffect(() => {
+    let raf = 0; const t0 = performance.now(); const from = 0;
+    const step = (t: number) => {
+      const p = Math.min(1, (t - t0) / ms);
+      setV(Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms]);
+  return v;
+}
+
+/**
+ * La quête principale active. Elle remplace la ligne ordinaire dans le chemin :
+ * même colonne à gauche pour ne pas casser la timeline, mais une carte sombre,
+ * un halo qui pulse, un compteur de PX et un gros bouton de validation.
+ */
+function MainQuest({ row, skill, px, combo, total, flash, onTap, connector }: {
+  row: { name: string; ix: number; px: number; diff: any; rarity: any; major?: boolean; link?: string };
+  skill: { c: string; name: string }; px: number; combo: number; total: number;
+  flash: number | null; onTap: () => void; connector: boolean;
+}) {
+  const count = useCountUp(px);
+  const acc = C.lime;
+  return (
+    <div style={{ display: 'flex', gap: 14, position: 'relative', paddingBottom: 14 }}>
+      {connector ? (
+        <span style={{ position: 'absolute', left: 22, top: 52, bottom: 0, width: 2, background: 'repeating-linear-gradient(180deg,rgba(11,11,12,.22) 0 4px,transparent 4px 9px)' }} />
+      ) : null}
+      <span
+        style={{
+          width: 44, height: 44, borderRadius: '50%', flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          position: 'relative', background: flash ? skill.c : acc, border: '2px solid ' + C.ink,
+          animation: flash ? 'nuTick .4s cubic-bezier(.2,1.4,.3,1)' : 'nuPulse 2.6s ease-out infinite'
+        }}
+      >
+        {flash ? (
+          <>
+            <span style={{ position: 'absolute', inset: -2, borderRadius: '50%', border: '3px solid ' + C.ink, animation: 'nuBurst .7s cubic-bezier(.2,1,.3,1) forwards' }} />
+            <span style={{ position: 'absolute', left: '50%', bottom: '100%', marginLeft: -26, width: 52, textAlign: 'center', font: `800 17px ${F.display}`, color: C.ink, animation: 'nuFly 1s cubic-bezier(.2,1,.3,1) forwards', whiteSpace: 'nowrap' }}>
+              +{flash}
+            </span>
+          </>
+        ) : null}
+        {flash ? <Check /> : row.major ? <Star /> : <svg width="15" height="15" viewBox="0 0 24 24" fill={C.ink}><path d="M7 4l13 8-13 8z" /></svg>}
+      </span>
+
+      <Tap
+        onTap={onTap} sound haptic={isInstant(row.rarity) ? 'levelup' : 'tap'}
+        style={{
+          flex: 1, minWidth: 0, position: 'relative', overflow: 'hidden', borderRadius: 24,
+          background: `linear-gradient(150deg, ${C.ink}, #16181A 60%, ${C.ink})`,
+          border: `1px solid ${acc}55`, padding: '16px 17px 15px',
+          boxShadow: `0 26px 50px -34px ${acc}, 0 14px 30px -22px rgba(0,0,0,.9)`
+        }}
+      >
+        <span style={{ position: 'absolute', right: -70, top: -80, width: 200, height: 200, borderRadius: '50%', background: acc, opacity: .18, animation: 'nuHalo 5s ease-in-out infinite' }} />
+        <span style={{ position: 'absolute', left: -50, bottom: -70, width: 150, height: 150, borderRadius: '50%', background: skill.c, opacity: .14, animation: 'nuHalo 8s ease-in-out infinite' }} />
+        <span style={{ position: 'absolute', top: 0, bottom: 0, width: 90, background: `linear-gradient(90deg,transparent,${acc}1f,transparent)`, animation: 'nuShine 4.2s ease-in-out infinite' }} />
+
+        <span style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: acc, animation: 'nuHalo 2.2s ease-in-out infinite' }} />
+            <span style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: acc }}>QUÊTE PRINCIPALE</span>
+          </span>
+          {combo > 1 ? (
+            <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.08em', color: C.ink, background: C.coral, borderRadius: 99, padding: '3px 8px' }}>COMBO ×{combo}</span>
+          ) : null}
+          <span style={{ marginLeft: 'auto', font: `500 8.5px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.4)' }}>PALIER {row.ix} / {total}</span>
+        </span>
+
+        <span style={{ position: 'relative', display: 'block', font: `800 24px/1.1 ${F.display}`, color: '#fff', letterSpacing: '-.03em', marginTop: 11, textWrap: 'pretty' }}>
+          {row.name}
+        </span>
+
+        <span style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 9, marginTop: 12, flexWrap: 'wrap' }}>
+          <DiffBadge diff={row.diff} size="sm" />
+          <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.5)' }}>
+            {isInstant(row.rarity) ? 'Un tap suffit' : 'Preuve à l’appui'}
+          </span>
+          {row.link ? (
+            <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)', border: '1px solid rgba(255,255,255,.18)', borderRadius: 7, padding: '4px 8px' }}>TUTO DISPO</span>
+          ) : null}
+        </span>
+
+        <span style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 15 }}>
+          <span style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
+            <span style={{ font: `800 30px/1 ${F.display}`, color: acc, letterSpacing: '-.04em' }}>+{count}</span>
+            <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.4)' }}>PX</span>
+          </span>
+          <span style={{ font: `700 12px ${F.body}`, color: C.ink, background: acc, padding: '13px 22px', borderRadius: 99, minHeight: 46, display: 'flex', alignItems: 'center', flex: 'none' }}>VALIDER</span>
+        </span>
+      </Tap>
+    </div>
+  );
+}
+
 export default function Quests({ nav }: { nav: Nav }) {
   const { s, d } = useGame();
   // La compétence en cours ouvre toujours la roue.
   const startId = s.startSkill || SKILLS[0].id;
-  const [skillId, setSkillId] = useState(startId);
+  // À l'ouverture on tombe sur l'espace perso ; ensuite le dernier onglet
+  // visité est mémorisé pour la session suivante.
+  const [skillId, setSkillIdRaw] = useState<string>(() => {
+    try {
+      const v = localStorage.getItem(LAST_SKILL_KEY);
+      if (v && (v === 'perso' || SKILLS.some((k) => k.id === v))) return v;
+    } catch { /* ignoré */ }
+    return 'perso';
+  });
+  const setSkillId = (id: string) => {
+    setSkillIdRaw(id);
+    try { localStorage.setItem(LAST_SKILL_KEY, id); } catch { /* ignoré */ }
+  };
   const [sub, setSub] = useState<Sub>('board');
   const [help, setHelp] = useState(false);
   const [flash, setFlash] = useState<{ ix: number; px: number } | null>(null);
@@ -275,6 +392,14 @@ export default function Quests({ nav }: { nav: Nav }) {
               {base.map((r, i) => {
                 const done = r.state === 'done', isNow = r.state === 'now';
                 const hit = flash?.ix === r.ix;
+                if (isNow) return (
+                  <MainQuest
+                    key={r.name + i} row={r} skill={sk} px={s.onFire ? r.px * 2 : r.px}
+                    combo={s.combo.n} total={nBase}
+                    flash={hit ? flash!.px : null}
+                    onTap={() => act(r)} connector={i < base.length - 1}
+                  />
+                );
                 return (
                   <Tap
                     key={r.name + i}
@@ -446,6 +571,8 @@ export default function Quests({ nav }: { nav: Nav }) {
           const photos = list.reduce((n, e) => n + e.photos.length, 0);
           return (
             <>
+              <RetroCalendar skill={sk.id} dark={isPerso} />
+
               <div style={{ background: P.card, border: `1px solid ${P.line}`, borderRadius: 20, padding: '15px 17px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <Kicker dark={!isPerso}>JOURNAL · {(isPerso ? persoName : sk.name).toUpperCase()}</Kicker>

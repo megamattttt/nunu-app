@@ -186,8 +186,9 @@ export function avatarSvg(cfg: AvConfig, size = 128, opts: Opts = {}): string {
   const pattern = (PATTERNS[patId] || PATTERNS.aucun)(patColor);
 
   const garment = scene ? garmentSvg(cfg.garment) : '';
-  // Le cou se glisse entre la tenue et le personnage : il comble le menton →
-  // encolure sans jamais passer devant le visage. Sa teinte suit celle du visage.
+  // Le cou est au tout premier plan de l'arrière-plan : il passe SOUS la tenue
+  // et sous le visage, il ne se voit donc que dans l'échancrure de l'encolure.
+  // Sa teinte suit celle du visage.
   const neck = scene ? neckSvg(cfg.cou, cfg.skinColor) : '';
   // Le personnage est légèrement remonté quand un cou est porté : sans ça, le
   // menton du style touche l'encolure et le cou ne se verrait pas.
@@ -197,8 +198,8 @@ export function avatarSvg(cfg: AvConfig, size = 128, opts: Opts = {}): string {
   const inner =
     `<rect x="-40" y="-40" width="${VB + 80}" height="${VB + 80}" fill="${bgFill}"/>` +
     (pattern ? `<g opacity="0.34">${pattern}</g>` : '') +
-    garment +
     neck +
+    garment +
     figure;
 
   let content = inner;

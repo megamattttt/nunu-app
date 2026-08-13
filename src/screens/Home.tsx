@@ -7,6 +7,8 @@ import { isInstant, DIFFS } from '../data/quests';
 import AvatarFrame from '../components/AvatarFrame';
 import Logo from '../components/Logo';
 import WeekStrip from '../components/WeekStrip';
+import DayCheckin, { MoodFace } from '../components/DayCheckin';
+import { dayBg, dayKey, filled, lastDays, moodLabel, type DayCheckin as Checkin, type Scale } from '../data/checkin';
 import { RankBadge } from '../components/RankIcon';
 import { Kicker, Tap } from '../components/ui';
 import type { Nav } from '../App';
@@ -39,6 +41,13 @@ export default function Home({ nav }: { nav: Nav }) {
   });
 
   const comboLive = s.combo.n > 1 && s.combo.last && Date.now() - s.combo.last < COMBO_WINDOW;
+
+  /* Point du jour : une seule saisie par journée, reprise par les calendriers. */
+  const [checkinOpen, setCheckinOpen] = React.useState(false);
+  const checkins: Record<string, Checkin> = (s as any).checkins || {};
+  const today9 = lastDays(9);
+  const mine = checkins[dayKey()];
+  const noted = filled(mine);
 
   /** Ambiance claire du HUD : elle suit l'heure de la journée. */
   const hour = new Date().getHours();
@@ -228,6 +237,70 @@ export default function Home({ nav }: { nav: Nav }) {
           </Tap>
         ) : null}
 
+        {/* Point du jour : humeur, motivation, pensées — lié aux rétrospectives */}
+        <div style={{ ...rise(1) }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Kicker>MON POINT DU JOUR</Kicker>
+            {noted ? (
+              <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.teal }}>NOTÉ</span>
+            ) : null}
+          </div>
+
+          <Tap
+            onTap={() => setCheckinOpen(true)} haptic="soft"
+            style={{
+              display: 'block', marginTop: 12, background: C.night, border: `1px solid ${noted && mine.mood ? dayBg(mine.mood as Scale, true) : C.line}`,
+              borderRadius: 24, padding: '16px 18px', position: 'relative', overflow: 'hidden'
+            }}
+          >
+            <span style={{ position: 'absolute', right: -60, top: -80, width: 190, height: 190, borderRadius: '50%', background: noted && mine.mood ? dayBg(mine.mood as Scale, true) : C.iris, opacity: .35, animation: 'nuHalo 10s ease-in-out infinite' }} />
+
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }}>
+              <MoodFace v={(noted ? mine.mood : 0) as Scale} size={38} />
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', font: `800 17px ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>
+                  {noted ? moodLabel(mine.mood) : 'Comment va aujourd’hui ?'}
+                </span>
+                <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 4, textWrap: 'pretty' }}>
+                  {noted
+                    ? [
+                        mine.motivation ? 'motivation ' + mine.motivation + '/5' : null,
+                        mine.energie ? 'énergie ' + mine.energie + '/5' : null,
+                        mine.ideas.length ? mine.ideas.length + ' idée' + (mine.ideas.length > 1 ? 's' : '') : null,
+                        mine.note ? 'note écrite' : null
+                      ].filter(Boolean).join(' · ') || 'À compléter'
+                    : 'Humeur, motivation, énergie, pensées et idées du jour.'}
+                </span>
+              </span>
+              <span
+                style={{
+                  flex: 'none', font: `700 10px ${F.mono}`, letterSpacing: '.08em',
+                  color: noted ? 'rgba(255,255,255,.6)' : C.ink, background: noted ? 'rgba(255,255,255,.08)' : C.lime,
+                  padding: '12px 15px', borderRadius: 99, minHeight: 44, display: 'flex', alignItems: 'center'
+                }}
+              >
+                {noted ? 'MODIFIER' : 'NOTER'}
+              </span>
+            </div>
+
+            {/* Neuf derniers jours — même code couleur que les calendriers */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 5, marginTop: 15 }}>
+              {today9.map((k) => (
+                <span
+                  key={k}
+                  style={{
+                    flex: 1, height: 22, borderRadius: 7, background: dayBg((checkins[k]?.mood || 0) as Scale, true),
+                    border: k === dayKey() ? '1px solid rgba(255,255,255,.45)' : '1px solid transparent'
+                  }}
+                />
+              ))}
+            </div>
+            <span style={{ position: 'relative', display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.35)', marginTop: 8 }}>
+              9 DERNIERS JOURS
+            </span>
+          </Tap>
+        </div>
+
         {/* Combo en cours — remonté de l'écran Quêtes */}
         {comboLive ? (
           <Tap
@@ -310,6 +383,8 @@ export default function Home({ nav }: { nav: Nav }) {
           </Tap>
         )}
       </div>
+
+      {checkinOpen ? <DayCheckin onClose={() => setCheckinOpen(false)} /> : null}
     </div>
   );
 }
