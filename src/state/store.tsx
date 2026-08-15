@@ -2,7 +2,8 @@ import React, { createContext, useContext, useEffect, useMemo, useReducer, useRe
 import type { GameState, ShareData, JournalEntry } from './types';
 import { initialState } from './initial';
 import { adapter } from './persistence';
-import { BOARDS, MAJOR, OBJ, skillById } from '../data/skills';
+import { OBJ, skillById } from '../data/skills';
+import { MAX_ACTIVE_QUESTS, questById, catalogOf } from '../data/catalog';
 import { rankOf, type Rank } from '../data/ranks';
 import type { Rarity, Difficulty } from '../data/quests';
 import { DIFF_LIST } from '../data/quests';
@@ -39,7 +40,10 @@ type Action =
   | { t: 'JOURNAL_SAVE'; entry: JournalEntry }
   | { t: 'JOURNAL_DEL'; id: string }
   | { t: 'CHECKIN_SAVE'; entry: DayCheckin }
-  | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null }
+  | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null; qid?: string }
+  | { t: 'ADD_ACTIVE_QUEST'; skill: string; id: string }
+  | { t: 'REMOVE_ACTIVE_QUEST'; skill: string; id: string }
+  | { t: 'SWAP_ACTIVE_QUEST'; skill: string; out: string; in: string }
   | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number; diff?: Difficulty; link?: string; due?: number | null; timed?: boolean; imp?: Importance }
   | { t: 'EDIT_QUEST'; id: string; patch: Partial<{ name: string; due: number | null; timed: boolean; imp: Importance; px: number }> }
   | { t: 'PACK_ADD'; items: string[] }
@@ -124,21 +128,17 @@ function reducer(s: Store, a: Action): Store {
 
     case 'START_SKILL': {
       const sk = skillById(a.skill);
-      const first = (BOARDS[a.skill] || [])[0];
-      const quest = {
-        id: uid(), skill: a.skill,
-        name: 'Première session : ' + (first ? first[0].toLowerCase() : sk.soft),
-        px: 15, when: 0, rarity: 'commune' as Rarity,
-        desc: 'Un premier palier atteignable en une seule session. Un tap suffit pour le valider.',
-        done: false
-      };
+      // Les trois premières quêtes faciles du catalogue deviennent les quêtes en cours.
+      const firsts = catalogOf(a.skill).filter((c) => c.diff === 'facile').slice(0, 3);
       return {
         ...s,
         startSkill: a.skill,
-        customQuests: [quest, ...s.customQuests],
+        activeQuests: { ...(s.activeQuests || {}), [a.skill]: firsts.map((c) => c.id) },
         banner: { ...s.banner, pins: [a.skill, 'perso'] },
         flow: 3,
-        toast: 'Premier palier ajouté sur ' + sk.name.toLowerCase()
+        toast: firsts.length
+          ? firsts.length + ' quêtes ajoutées sur ' + sk.name.toLowerCase()
+          : 'Compétence ' + sk.name.toLowerCase() + ' ouverte'
       };
     }
 
@@ -165,9 +165,42 @@ function reducer(s: Store, a: Action): Store {
         toast: 'Point du jour enregistré'
       };
 
+    case 'ADD_ACTIVE_QUEST': {
+      const cur = (s.activeQuests || {})[a.skill] || [];
+      if (cur.includes(a.id)) return s;
+      if (cur.length >= MAX_ACTIVE_QUESTS) {
+        return { ...s, toast: `Déjà ${MAX_ACTIVE_QUESTS} quêtes en cours — remplaces-en une` };
+      }
+      return {
+        ...s,
+        activeQuests: { ...(s.activeQuests || {}), [a.skill]: [...cur, a.id] },
+        toast: 'Ajoutée à tes quêtes en cours'
+      };
+    }
+
+    case 'REMOVE_ACTIVE_QUEST': {
+      const cur = (s.activeQuests || {})[a.skill] || [];
+      return {
+        ...s,
+        activeQuests: { ...(s.activeQuests || {}), [a.skill]: cur.filter((id) => id !== a.id) },
+        toast: 'Retirée des quêtes en cours'
+      };
+    }
+
+    case 'SWAP_ACTIVE_QUEST': {
+      const cur = (s.activeQuests || {})[a.skill] || [];
+      const next = cur.map((id) => (id === a.out ? a.in : id));
+      return {
+        ...s,
+        activeQuests: { ...(s.activeQuests || {}), [a.skill]: next.includes(a.in) ? next : [...next, a.in] },
+        toast: 'Quête remplacée'
+      };
+    }
+
     case 'VALIDATE': {
-      const base = (BOARDS[a.skill] || []).length;
-      const isBase = a.ix < base;
+      // Une quête du catalogue porte un id ; les quêtes perso n'en ont pas.
+      const qid = a.qid;
+      const isBase = !!qid;
       const eng = decayed(s);
       const witnessBonus = a.witness ? 0.2 : 0;
       const mult = eng.onFire ? FIRE_MULT : 1;
@@ -179,7 +212,7 @@ function reducer(s: Store, a: Action): Store {
       const jId = uid();
 
       const prog = s.progress[a.skill] || { px: 0, done: 0 };
-      const major = isBase && (MAJOR[a.skill] || []).includes(a.ix);
+      const major = !!(qid && questById(qid)?.major);
 
       const before = rankOf(prog.px);
       const after = rankOf(prog.px + px);
@@ -218,6 +251,13 @@ function reducer(s: Store, a: Action): Store {
         combo: { n: chain, best: Math.max(s.combo.best, chain), last: Date.now() },
         history: pushHistory(s.history, { t: Date.now(), px, skill: a.skill, name: a.name, kind: 'quete' }),
         progress: { ...s.progress, [a.skill]: { px: prog.px + px, done: prog.done + (isBase ? 1 : 0) } },
+        // Le catalogue enregistre l'id validé et libère une place dans les quêtes en cours.
+        doneQuests: qid
+          ? { ...(s.doneQuests || {}), [a.skill]: [...((s.doneQuests || {})[a.skill] || []), qid] }
+          : (s.doneQuests || {}),
+        activeQuests: qid
+          ? { ...(s.activeQuests || {}), [a.skill]: ((s.activeQuests || {})[a.skill] || []).filter((id) => id !== qid) }
+          : (s.activeQuests || {}),
         customQuests: isBase ? s.customQuests : s.customQuests.map((q) => (q.name === a.name ? { ...q, done: true } : q)),
         px: s.px + px,
         coins: s.coins + coins,

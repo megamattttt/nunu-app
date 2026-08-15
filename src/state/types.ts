@@ -81,6 +81,16 @@ export type GameState = {
   };
 
   progress: Record<string, Progress>;
+
+  /**
+   * Quêtes en cours, par compétence : ids du catalogue, au maximum
+   * MAX_ACTIVE_QUESTS. Distinct du catalogue complet, qui est toujours visible.
+   */
+  activeQuests: Record<string, string[]>;
+
+  /** Quêtes validées, par compétence : ids du catalogue, du plus ancien au plus récent. */
+  doneQuests: Record<string, string[]>;
+
   customQuests: CustomQuest[];
   /** Packs de quêtes de l'espace perso : listes prêtes à ajouter en un clic. */
   packs: QuestPack[];

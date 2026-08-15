@@ -23,6 +23,9 @@ export const initialState: GameState = {
   },
 
   progress: Object.fromEntries(SKILLS.map((s) => [s.id, { px: 0, done: 0 }])),
+  // Quêtes en cours et validées, par compétence : le catalogue reste, lui, toujours entier.
+  activeQuests: Object.fromEntries(SKILLS.map((s) => [s.id, []])),
+  doneQuests: Object.fromEntries(SKILLS.map((s) => [s.id, []])),
   customQuests: [],
   packs: [],
   pioched: [],
