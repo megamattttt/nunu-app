@@ -74,16 +74,6 @@ export function surfaceAt(px: number, py: number): DioSurf {
   return 'wl';
 }
 
-/** Surface visée par un point : sol sous la ligne de jonction, sinon pan du fond ou latéral. */
-export function surfaceAt(px: number, py: number): DioSurf {
-  if (px < ROOM.cx) {
-    const x = clamp((px / ROOM.cx) * 100, 0, 100);
-    const bot = ROOM.lBot - (x / 100) * (ROOM.lBot - ROOM.fy);
-    return py > bot ? 'floor' : 'wl';
-  }
-  return py > ROOM.fy ? 'floor' : 'wb';
-}
-
 export const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
 /* --------------------------------------------------------------- Aimants --- */
