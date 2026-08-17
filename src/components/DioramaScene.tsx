@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { DIO_FLOORS, DIO_LIGHTS, DIO_SEASONS, DIO_WALLS, DIO_WEATHER, P, ROOM, type DioObj, type DioSurf, type Layer } from '../data/diorama';
 import { WB_SKEW, WL_SKEW, lightForHour, objById, placed, project, seasonNow, snap, surfaceAt, traces, unproject, type DioItem } from '../lib/dio';
 import { useGame } from '../state/store';
+import { dayKey, moodColor, type Scale } from '../data/checkin';
 
 const CSS = `
 @keyframes dioDust { 0%{transform:translate3d(0,0,0);opacity:0} 20%{opacity:.7} 100%{transform:translate3d(28px,-90px,0);opacity:0} }
@@ -69,6 +70,9 @@ export default function DioramaScene({ height = 240, editable, view, sel, onSel,
   const light = DIO_LIGHTS[auto ? lightForHour(new Date().getHours()) : (dio.light || 0)];
   const season = DIO_SEASONS[seasonNow()];
   const weather = DIO_WEATHER[(view ? 0 : s.dio.weather) || 0];
+
+  /* L'humeur du point du jour teinte la pièce, très légèrement. */
+  const todayMood = (view ? 0 : (s as any).checkins?.[dayKey()]?.mood || 0) as Scale;
 
   const list = useMemo(() => {
     if (!view) return placed(s);
@@ -232,7 +236,14 @@ export default function DioramaScene({ height = 240, editable, view, sel, onSel,
           <span style={{ position: 'absolute', inset: 0, background: light.grad, pointerEvents: 'none', zIndex: 900 }} />
           <span style={{ position: 'absolute', inset: 0, background: light.tint, pointerEvents: 'none', zIndex: 901, mixBlendMode: 'multiply' }} />
           <span style={{ position: 'absolute', inset: 0, background: weather.veil, pointerEvents: 'none', zIndex: 902 }} />
-
+          {/* Humeur du jour : un voile de la couleur du point du jour */}
+          {todayMood ? (
+            <span style={{
+              position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 902,
+              background: `radial-gradient(120% 90% at 50% 105%, ${moodColor(todayMood)}2E, transparent 72%)`,
+              mixBlendMode: 'soft-light'
+            }} />
+          ) : null}
           {/* Particules d'ambiance */}
           <span style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 903, overflow: 'hidden' }}>
             {Array.from({ length: 16 }).map((_, i) => {

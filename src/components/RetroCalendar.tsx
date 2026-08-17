@@ -232,6 +232,12 @@ export default function RetroCalendar({ skill, dark = true }: { skill: string; d
           {selEntry?.note ? (
             <span style={{ font: `400 11.5px/1.5 ${F.body}`, color: sub, textWrap: 'pretty' }}>{selEntry.note}</span>
           ) : null}
+          {selEntry?.photo ? (
+            <img src={selEntry.photo} alt="" style={{ display: 'block', width: '100%', height: 104, objectFit: 'cover', borderRadius: 11 }} />
+          ) : null}
+          {selEntry?.who?.length ? (
+            <span style={{ font: `500 11px ${F.body}`, color: sub }}>Vu {selEntry.who.join(', ')}</span>
+          ) : null}
           {selQuests.length ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {selQuests.slice(0, 4).map((h, i) => (

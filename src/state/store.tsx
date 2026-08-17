@@ -2,9 +2,9 @@ import React, { createContext, useContext, useEffect, useMemo, useReducer, useRe
 import type { GameState, ShareData, JournalEntry } from './types';
 import { initialState } from './initial';
 import { adapter } from './persistence';
-import { OBJ, skillById } from '../data/skills';
-import { MAX_ACTIVE_QUESTS, questById, catalogOf } from '../data/catalog';
+import { BOARDS, MAJOR, OBJ, skillById } from '../data/skills';
 import { rankOf, type Rank } from '../data/ranks';
+import { DIO_OBJ } from '../data/diorama';
 import type { Rarity, Difficulty } from '../data/quests';
 import { DIFF_LIST } from '../data/quests';
 import { IMPS, type Importance } from '../data/importance';
@@ -40,10 +40,7 @@ type Action =
   | { t: 'JOURNAL_SAVE'; entry: JournalEntry }
   | { t: 'JOURNAL_DEL'; id: string }
   | { t: 'CHECKIN_SAVE'; entry: DayCheckin }
-  | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null; qid?: string }
-  | { t: 'ADD_ACTIVE_QUEST'; skill: string; id: string }
-  | { t: 'REMOVE_ACTIVE_QUEST'; skill: string; id: string }
-  | { t: 'SWAP_ACTIVE_QUEST'; skill: string; out: string; in: string }
+  | { t: 'VALIDATE'; skill: string; ix: number; name: string; px: number; rarity?: Rarity; witness?: string | null }
   | { t: 'ADD_QUEST'; skill: string; name: string; px: number; desc?: string; rarity?: Rarity; when?: number; diff?: Difficulty; link?: string; due?: number | null; timed?: boolean; imp?: Importance }
   | { t: 'EDIT_QUEST'; id: string; patch: Partial<{ name: string; due: number | null; timed: boolean; imp: Importance; px: number }> }
   | { t: 'PACK_ADD'; items: string[] }
@@ -61,7 +58,11 @@ type Action =
   | { t: 'SET_AV'; patch: Record<string, string> }
   | { t: 'SET_PROFILE'; patch: Record<string, any> }
   | { t: 'DIO'; patch: Record<string, any> }
-  | { t: 'DIO_MOVE'; id: string; x: number; y: number }
+  | { t: 'DIO_PLACE'; id: string; s: 'floor' | 'wb' | 'wl'; x: number; y: number }
+  | { t: 'DIO_TWEAK'; id: string; patch: Record<string, any> }
+  | { t: 'DIO_ITEMS'; items: Record<string, any> }
+  | { t: 'DIO_PRESET_SAVE'; name: string } | { t: 'DIO_PRESET_LOAD'; ix: number } | { t: 'DIO_PRESET_DEL'; ix: number }
+  | { t: 'DIO_REACT'; who: string; name: string; icon: number }
   | { t: 'DIO_TAKE'; id: string } | { t: 'DIO_PUT'; id: string } | { t: 'DIO_RESET' }
   | { t: 'LIKE'; id: string }
   | { t: 'PUBLISH'; text: string; tag: string; tagC: string }
@@ -114,6 +115,13 @@ function reducer(s: Store, a: Action): Store {
       const next = { ...s, ...a.state, hydrated: true } as Store;
       // L'ancien moteur d'avatar stockait des index : on migre vers Big Ears.
       next.profile = { ...next.profile, av: ensureConfig(next.profile?.av) };
+      // Diorama : l'ancien format ne stockait que des positions au sol.
+      const dio: any = { ...initialState.dio, ...(next.dio || {}) };
+      if (dio.pos && !Object.keys(dio.items || {}).length) {
+        dio.items = Object.fromEntries(Object.entries(dio.pos as any).map(([id, p]: any) => [id, { s: 'floor', x: p.x, y: p.y }]));
+      }
+      delete dio.pos;
+      next.dio = dio;
       return { ...next, ...decayed(next) };
     }
 
@@ -128,17 +136,21 @@ function reducer(s: Store, a: Action): Store {
 
     case 'START_SKILL': {
       const sk = skillById(a.skill);
-      // Les trois premières quêtes faciles du catalogue deviennent les quêtes en cours.
-      const firsts = catalogOf(a.skill).filter((c) => c.diff === 'facile').slice(0, 3);
+      const first = (BOARDS[a.skill] || [])[0];
+      const quest = {
+        id: uid(), skill: a.skill,
+        name: 'Première session : ' + (first ? first[0].toLowerCase() : sk.soft),
+        px: 15, when: 0, rarity: 'commune' as Rarity,
+        desc: 'Un premier palier atteignable en une seule session. Un tap suffit pour le valider.',
+        done: false
+      };
       return {
         ...s,
         startSkill: a.skill,
-        activeQuests: { ...(s.activeQuests || {}), [a.skill]: firsts.map((c) => c.id) },
+        customQuests: [quest, ...s.customQuests],
         banner: { ...s.banner, pins: [a.skill, 'perso'] },
         flow: 3,
-        toast: firsts.length
-          ? firsts.length + ' quêtes ajoutées sur ' + sk.name.toLowerCase()
-          : 'Compétence ' + sk.name.toLowerCase() + ' ouverte'
+        toast: 'Premier palier ajouté sur ' + sk.name.toLowerCase()
       };
     }
 
@@ -165,42 +177,9 @@ function reducer(s: Store, a: Action): Store {
         toast: 'Point du jour enregistré'
       };
 
-    case 'ADD_ACTIVE_QUEST': {
-      const cur = (s.activeQuests || {})[a.skill] || [];
-      if (cur.includes(a.id)) return s;
-      if (cur.length >= MAX_ACTIVE_QUESTS) {
-        return { ...s, toast: `Déjà ${MAX_ACTIVE_QUESTS} quêtes en cours — remplaces-en une` };
-      }
-      return {
-        ...s,
-        activeQuests: { ...(s.activeQuests || {}), [a.skill]: [...cur, a.id] },
-        toast: 'Ajoutée à tes quêtes en cours'
-      };
-    }
-
-    case 'REMOVE_ACTIVE_QUEST': {
-      const cur = (s.activeQuests || {})[a.skill] || [];
-      return {
-        ...s,
-        activeQuests: { ...(s.activeQuests || {}), [a.skill]: cur.filter((id) => id !== a.id) },
-        toast: 'Retirée des quêtes en cours'
-      };
-    }
-
-    case 'SWAP_ACTIVE_QUEST': {
-      const cur = (s.activeQuests || {})[a.skill] || [];
-      const next = cur.map((id) => (id === a.out ? a.in : id));
-      return {
-        ...s,
-        activeQuests: { ...(s.activeQuests || {}), [a.skill]: next.includes(a.in) ? next : [...next, a.in] },
-        toast: 'Quête remplacée'
-      };
-    }
-
     case 'VALIDATE': {
-      // Une quête du catalogue porte un id ; les quêtes perso n'en ont pas.
-      const qid = a.qid;
-      const isBase = !!qid;
+      const base = (BOARDS[a.skill] || []).length;
+      const isBase = a.ix < base;
       const eng = decayed(s);
       const witnessBonus = a.witness ? 0.2 : 0;
       const mult = eng.onFire ? FIRE_MULT : 1;
@@ -212,7 +191,7 @@ function reducer(s: Store, a: Action): Store {
       const jId = uid();
 
       const prog = s.progress[a.skill] || { px: 0, done: 0 };
-      const major = !!(qid && questById(qid)?.major);
+      const major = isBase && (MAJOR[a.skill] || []).includes(a.ix);
 
       const before = rankOf(prog.px);
       const after = rankOf(prog.px + px);
@@ -251,13 +230,6 @@ function reducer(s: Store, a: Action): Store {
         combo: { n: chain, best: Math.max(s.combo.best, chain), last: Date.now() },
         history: pushHistory(s.history, { t: Date.now(), px, skill: a.skill, name: a.name, kind: 'quete' }),
         progress: { ...s.progress, [a.skill]: { px: prog.px + px, done: prog.done + (isBase ? 1 : 0) } },
-        // Le catalogue enregistre l'id validé et libère une place dans les quêtes en cours.
-        doneQuests: qid
-          ? { ...(s.doneQuests || {}), [a.skill]: [...((s.doneQuests || {})[a.skill] || []), qid] }
-          : (s.doneQuests || {}),
-        activeQuests: qid
-          ? { ...(s.activeQuests || {}), [a.skill]: ((s.activeQuests || {})[a.skill] || []).filter((id) => id !== qid) }
-          : (s.activeQuests || {}),
         customQuests: isBase ? s.customQuests : s.customQuests.map((q) => (q.name === a.name ? { ...q, done: true } : q)),
         px: s.px + px,
         coins: s.coins + coins,
@@ -399,10 +371,32 @@ function reducer(s: Store, a: Action): Store {
     case 'SET_PROFILE': return { ...s, profile: { ...s.profile, ...a.patch } };
 
     case 'DIO': return { ...s, dio: { ...s.dio, ...a.patch } };
-    case 'DIO_MOVE': return { ...s, dio: { ...s.dio, pos: { ...s.dio.pos, [a.id]: { x: a.x, y: a.y } } } };
+    case 'DIO_PLACE': {
+      const cur = s.dio.items[a.id] || {};
+      return { ...s, dio: { ...s.dio, items: { ...s.dio.items, [a.id]: { ...cur, s: a.s, x: a.x, y: a.y } } } };
+    }
+    case 'DIO_TWEAK': {
+      const o = DIO_OBJ.find((x) => x.id === a.id);
+      const cur = s.dio.items[a.id] || { s: o?.surf || 'floor', x: o?.x || 50, y: o?.y || 60 };
+      return { ...s, dio: { ...s.dio, items: { ...s.dio.items, [a.id]: { ...cur, ...a.patch } } } };
+    }
+    case 'DIO_ITEMS': return { ...s, dio: { ...s.dio, items: a.items } };
+    case 'DIO_PRESET_SAVE': {
+      const p = { name: a.name, wall: s.dio.wall, floor: s.dio.floor, light: s.dio.light, items: s.dio.items };
+      return { ...s, dio: { ...s.dio, presets: [...(s.dio.presets || []).filter((x) => x.name !== a.name), p].slice(-6) }, toast: 'Agencement « ' + a.name + ' » enregistré' };
+    }
+    case 'DIO_PRESET_LOAD': {
+      const p = (s.dio.presets || [])[a.ix];
+      if (!p) return s;
+      return { ...s, dio: { ...s.dio, wall: p.wall, floor: p.floor, light: p.light, items: p.items }, toast: 'Agencement « ' + p.name + ' » chargé' };
+    }
+    case 'DIO_PRESET_DEL':
+      return { ...s, dio: { ...s.dio, presets: (s.dio.presets || []).filter((_, i) => i !== a.ix) } };
+    case 'DIO_REACT':
+      return { ...s, coins: s.coins + 2, toast: 'Réaction laissée chez ' + a.name.split(' ')[0] };
     case 'DIO_TAKE': return { ...s, dio: { ...s.dio, out: { ...s.dio.out, [a.id]: true } }, toast: 'Objet rangé dans l’inventaire' };
     case 'DIO_PUT': { const out = { ...s.dio.out }; delete out[a.id]; return { ...s, dio: { ...s.dio, out }, toast: 'Objet reposé dans la scène' }; }
-    case 'DIO_RESET': return { ...s, dio: { ...s.dio, pos: {}, out: {} }, toast: 'Agencement d’origine rétabli' };
+    case 'DIO_RESET': return { ...s, dio: { ...s.dio, items: {}, out: {} }, toast: 'Agencement d’origine rétabli' };
 
     case 'LIKE':
       return { ...s, feed: s.feed.map((p) => (p.id === a.id ? { ...p, liked: !p.liked, likes: p.likes + (p.liked ? -1 : 1) } : p)) };

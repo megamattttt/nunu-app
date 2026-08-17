@@ -2,8 +2,9 @@ import type { GameState } from './types';
 import { randomConfig } from '../lib/dicebear';
 import { SKILLS } from '../data/skills';
 import { FEED0 } from '../data/social';
+import { DIO_VISITS0 } from '../data/dioSocial';
 
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 /** Un compte neuf : aucune progression pré-remplie, tout se gagne. */
 export const initialState: GameState = {
@@ -23,9 +24,6 @@ export const initialState: GameState = {
   },
 
   progress: Object.fromEntries(SKILLS.map((s) => [s.id, { px: 0, done: 0 }])),
-  // Quêtes en cours et validées, par compétence : le catalogue reste, lui, toujours entier.
-  activeQuests: Object.fromEntries(SKILLS.map((s) => [s.id, []])),
-  doneQuests: Object.fromEntries(SKILLS.map((s) => [s.id, []])),
   customQuests: [],
   packs: [],
   pioched: [],
@@ -48,7 +46,7 @@ export const initialState: GameState = {
 
   owned: {
     acc: [false, false, false],
-    atelier: [true, false, false, false, false, false],
+    atelier: [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
     cadre: [true, false, false, false]
   },
 
@@ -66,7 +64,10 @@ export const initialState: GameState = {
   duels: [],
   badges: [],
 
-  dio: { wall: 0, floor: 0, light: 0, pos: {}, out: {} },
+  dio: {
+    name: 'Atelier couture', wall: 0, floor: 0, light: 3, lightAuto: true, weather: 0,
+    items: {}, out: {}, presets: [], visits: DIO_VISITS0
+  },
 
   stats: { questsDone: 0, totalPx: 0, duelsWon: 0, postsSent: 0 },
   prefs: { sound: false, haptics: true, confetti: true },

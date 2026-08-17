@@ -43,7 +43,7 @@ export default function Validate({ nav }: { nav: Nav }) {
   };
 
   const finish = () => {
-    d({ t: 'VALIDATE', skill: q.skill, ix: q.ix, name: q.name, px: q.px, rarity: q.rarity || 'legendaire', witness, qid: q.qid });
+    d({ t: 'VALIDATE', skill: q.skill, ix: q.ix, name: q.name, px: q.px, rarity: q.rarity || 'legendaire', witness });
     nav.back();
   };
 

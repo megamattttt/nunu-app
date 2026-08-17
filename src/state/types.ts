@@ -2,6 +2,8 @@ import type { FeedPost } from '../data/social';
 import type { Rarity, Difficulty } from '../data/quests';
 import type { Importance } from '../data/importance';
 import type { NotifPrefs } from '../lib/notify';
+import type { DioItem } from '../lib/dio';
+import type { DioVisit } from '../data/dioSocial';
 
 export type Progress = { px: number; done: number };
 
@@ -81,16 +83,6 @@ export type GameState = {
   };
 
   progress: Record<string, Progress>;
-
-  /**
-   * Quêtes en cours, par compétence : ids du catalogue, au maximum
-   * MAX_ACTIVE_QUESTS. Distinct du catalogue complet, qui est toujours visible.
-   */
-  activeQuests: Record<string, string[]>;
-
-  /** Quêtes validées, par compétence : ids du catalogue, du plus ancien au plus récent. */
-  doneQuests: Record<string, string[]>;
-
   customQuests: CustomQuest[];
   /** Packs de quêtes de l'espace perso : listes prêtes à ajouter en un clic. */
   packs: QuestPack[];
@@ -132,7 +124,25 @@ export type GameState = {
   duels: Duel[];
   badges: string[];
 
-  dio: { wall: number; floor: number; light: number; pos: Record<string, { x: number; y: number }>; out: Record<string, boolean> };
+  dio: {
+    /** Nom donné à l'atelier — il s'affiche sur le profil. */
+    name: string;
+    wall: number; floor: number; light: number;
+    /** La lumière suit l'heure réelle. */
+    lightAuto: boolean;
+    /** Météo : 0 clair · 1 couvert · 2 pluie · 3 grand vent. */
+    weather: number;
+    /** Placements : rotation, échelle, calque et variante de couleur par objet. */
+    items: Record<string, DioItem>;
+    /** Objets rangés dans l'inventaire. */
+    out: Record<string, boolean>;
+    /** Agencements enregistrés. */
+    presets: { name: string; wall: number; floor: number; light: number; items: Record<string, DioItem> }[];
+    /** Réactions laissées par les visiteurs. */
+    visits: DioVisit[];
+    /** Ancien format (positions en pourcentage) — migré à l'hydratation. */
+    pos?: Record<string, { x: number; y: number }>;
+  };
 
   stats: { questsDone: number; totalPx: number; duelsWon: number; postsSent: number };
   prefs: { sound: boolean; haptics: boolean; confetti: boolean };

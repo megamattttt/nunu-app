@@ -8,6 +8,7 @@ import AvatarFrame from '../components/AvatarFrame';
 import Logo from '../components/Logo';
 import WeekStrip from '../components/WeekStrip';
 import DayCheckin, { MoodFace } from '../components/DayCheckin';
+import CheckinInsights from '../components/CheckinInsights';
 import { dayBg, dayKey, faceLabel, filled, lastDays, type DayCheckin as Checkin, type Scale } from '../data/checkin';
 import BorderGlow from '../components/BorderGlow';
 import { RankBadge } from '../components/RankIcon';
@@ -45,6 +46,7 @@ export default function Home({ nav }: { nav: Nav }) {
 
   /* Point du jour : une seule saisie par journée, reprise par les calendriers. */
   const [checkinOpen, setCheckinOpen] = React.useState(false);
+  const [trendsOpen, setTrendsOpen] = React.useState(false);
   const checkins: Record<string, Checkin> = (s as any).checkins || {};
   const today9 = lastDays(9);
   const mine = checkins[dayKey()];
@@ -243,9 +245,23 @@ export default function Home({ nav }: { nav: Nav }) {
         <div style={{ ...rise(1) }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Kicker>MON POINT DU JOUR</Kicker>
-            {noted ? (
-              <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.teal }}>NOTÉ</span>
-            ) : null}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {noted ? (
+                <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.teal }}>NOTÉ</span>
+              ) : (
+                /* Relance discrète : un point qui respire à partir du soir. */
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: hour >= 18 ? C.honey : 'rgba(255,255,255,.28)', animation: hour >= 18 ? 'nuHalo 3.2s ease-in-out infinite' : undefined }} />
+                  <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.35)' }}>PAS ENCORE</span>
+                </span>
+              )}
+              <Tap
+                onTap={() => setTrendsOpen(true)} haptic="soft"
+                style={{ minHeight: 28, display: 'flex', alignItems: 'center', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.azur }}
+              >
+                TENDANCES →
+              </Tap>
+            </span>
           </div>
 
           <BorderGlow
@@ -274,9 +290,11 @@ export default function Home({ nav }: { nav: Nav }) {
                         mine.motivation ? 'motivation ' + mine.motivation + '/5' : null,
                         mine.energie ? 'énergie ' + mine.energie + '/5' : null,
                         mine.ideas.length ? mine.ideas.length + ' idée' + (mine.ideas.length > 1 ? 's' : '') : null,
+                        mine.who?.length ? mine.who.length + ' personne' + (mine.who.length > 1 ? 's' : '') : null,
+                        mine.photo ? 'photo' : null,
                         mine.note ? 'note écrite' : null
                       ].filter(Boolean).join(' · ') || 'À compléter'
-                    : 'Humeur, motivation, énergie, pensées et idées du jour.'}
+                    : 'Quatre questions, une par écran. Une minute suffit.'}
                 </span>
               </span>
               <span
@@ -289,6 +307,13 @@ export default function Home({ nav }: { nav: Nav }) {
                 {noted ? 'MODIFIER' : 'NOTER'}
               </span>
             </div>
+
+            {/* La photo du jour, si elle existe */}
+            {noted && mine.photo ? (
+              <span style={{ position: 'relative', display: 'block', marginTop: 13, borderRadius: 16, overflow: 'hidden', border: `1px solid ${C.line}` }}>
+                <img src={mine.photo} alt="Photo du jour" style={{ display: 'block', width: '100%', height: 116, objectFit: 'cover' }} />
+              </span>
+            ) : null}
 
             {/* Neuf derniers jours — même code couleur que les calendriers */}
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 5, marginTop: 15 }}>
@@ -396,6 +421,7 @@ export default function Home({ nav }: { nav: Nav }) {
       </div>
 
       {checkinOpen ? <DayCheckin onClose={() => setCheckinOpen(false)} /> : null}
+      {trendsOpen ? <CheckinInsights onClose={() => setTrendsOpen(false)} /> : null}
     </div>
   );
 }
