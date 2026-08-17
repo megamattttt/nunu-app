@@ -40,7 +40,7 @@ export const QBANK: Record<string, [string, string[], number][]> = {
 
 export const SHOP = {
   acc: [['Coupe signature',120,'hair'],['Frange signature',180,'frontHair'],['Favoris signature',150,'sideburn']] as [string, number, string][],
-  atelier: [['Machine à coudre',300],['Mannequin de tailleur',420],['Mur de tissus',260],['Lampe d’architecte',180],['Étagère à bobines',220],['Tapis chiné',140]] as [string, number][],
+  atelier: [['Tapis chiné',140],['Grande table de travail',320],['Étagère murale',220],['Paravent de tissu',380],['Lampadaire de coin',200],['Fauteuil rapiécé',460],['Suspension papier',260],['Mur de coupons',300],['Étagère à bobines',240],['Portant de pièces finies',420],['Casseroles en cuivre',340],['Cocotte en fonte',280],['Monstera généreuse',360],['Établi de rempotage',400],['Lampe de studio',380]] as [string, number][],
   cadre: [['Cadre lime',200],['Cadre doré',240],['Cadre coutures',480],['Cadre corail',900]] as [string, number][]
 };
 

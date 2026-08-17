@@ -4,7 +4,7 @@ import { useGame } from '../state/store';
 import { SKILLS, skillById } from '../data/skills';
 import { QUOTES, CHALLENGES } from '../data/quests';
 import { globalLevel, globalPct, ownedObjects, questsDone, skillRank, pxOf, totalPx, weekStats } from '../state/selectors';
-import { DIO_OBJ } from '../data/diorama';
+import { placed } from '../lib/dio';
 import AvatarCut from '../components/avatar/AvatarCut';
 import AvatarFrame from '../components/AvatarFrame';
 import { RankIcon, RankBadge } from '../components/RankIcon';
@@ -216,8 +216,8 @@ export default function Profile({ nav }: { nav: Nav }) {
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10, padding: '13px 9px 5px' }}>
             <span>
               <span style={{ display: 'block', font: `500 9px ${F.mono}`, color: 'rgba(60,42,28,.55)', letterSpacing: '.16em' }}>DIORAMA · PAPIER DÉCOUPÉ</span>
-              <span style={{ display: 'block', font: `800 21px ${F.display}`, color: '#3A2A1C', letterSpacing: '-.02em', marginTop: 3 }}>ATELIER COUTURE</span>
-              <span style={{ display: 'block', font: `400 10.5px ${F.body}`, color: 'rgba(60,42,28,.55)', marginTop: 3 }}>{DIO_OBJ.length - Object.keys(s.dio.out).length} pièces posées</span>
+              <span style={{ display: 'block', font: `800 21px ${F.display}`, color: '#3A2A1C', letterSpacing: '-.02em', marginTop: 3 }}>{(s.dio.name || 'Atelier').toUpperCase()}</span>
+              <span style={{ display: 'block', font: `400 10.5px ${F.body}`, color: 'rgba(60,42,28,.55)', marginTop: 3 }}>{placed(s).length} pièces posées · {(s.dio.visits || []).length} réactions reçues</span>
             </span>
             <Tap onTap={() => nav.open('diorama')} style={{ font: `700 9.5px ${F.mono}`, color: '#F4E7D3', background: '#3A2A1C', padding: '12px 14px', borderRadius: 99, letterSpacing: '.08em', flex: 'none', minHeight: 44, display: 'flex', alignItems: 'center' }}>PERSONNALISER</Tap>
           </div>
