@@ -95,3 +95,21 @@ button { cursor: pointer; padding: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }
+
+/* ═══ Accessibilité ═══ */
+/* Anneau de focus visible au clavier (jamais au toucher). */
+.nu-tap:focus-visible, button:focus-visible, a:focus-visible,
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--lime); outline-offset: 2px;
+}
+/* Zone tactile : toute zone cliquable de moins de 44 px de haut est étendue
+   au-dessus et en dessous, sans changer la mise en page. */
+.nu-tap:not([style*="absolute"]):not([style*="fixed"]):not([style*="sticky"]) { position: relative; }
+.nu-tap::before, .nu-tap::after {
+  content: ""; position: absolute; left: 0; right: 0;
+  height: max(0px, calc((44px - 100%) / 2));
+}
+.nu-tap::before { bottom: 100%; }
+.nu-tap::after { top: 100%; }
+/* Les décors ne doivent jamais créer de défilement horizontal. */
+html, body { overflow-x: clip; }

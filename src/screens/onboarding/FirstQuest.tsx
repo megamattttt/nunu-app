@@ -30,8 +30,8 @@ export default function FirstQuest({ onDone }: { onDone: () => void }) {
       <Logo size={26} />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 420, width: '100%', margin: '0 auto' }}>
-        <div style={{ font: `500 9.5px ${F.mono}`, letterSpacing: '.22em', color: sk.c }}>DERNIÈRE ÉTAPE</div>
-        <div style={{ font: `800 34px/1.02 ${F.display}`, color: '#fff', letterSpacing: '-.032em', marginTop: 10 }}>
+        <div style={{ font: `500 11px ${F.mono}`, letterSpacing: '.22em', color: sk.c }}>DERNIÈRE ÉTAPE</div>
+        <div role="heading" aria-level={1} style={{ font: `800 34px/1.02 ${F.display}`, color: '#fff', letterSpacing: '-.032em', marginTop: 10 }}>
           VOICI TA<br />PREMIÈRE QUÊTE.
         </div>
         <div style={{ font: `400 13.5px/1.55 ${F.body}`, color: 'rgba(255,255,255,.6)', marginTop: 12, textWrap: 'pretty' }}>
@@ -41,7 +41,7 @@ export default function FirstQuest({ onDone }: { onDone: () => void }) {
         <div style={{ background: sk.c, borderRadius: 28, padding: '20px 22px 22px', marginTop: 24, color: sk.txt, position: 'relative', overflow: 'hidden', animation: 'nuPop .5s cubic-bezier(.2,1.2,.3,1)' }}>
           <span style={{ position: 'absolute', top: 0, bottom: 0, width: 80, background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent)', animation: 'nuShine 4s ease-in-out infinite' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
-            <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.12em', color: C.ink, background: rar.c, padding: '5px 9px', borderRadius: 8 }}>{rar.label}</span>
+            <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.12em', color: C.ink, background: rar.c, padding: '5px 9px', borderRadius: 8 }}>{rar.label}</span>
             <span style={{ font: `700 12px ${F.mono}`, background: 'rgba(11,11,12,.16)', padding: '5px 11px', borderRadius: 99 }}>+{q.px} PX</span>
           </div>
           <div style={{ font: `800 26px/1.06 ${F.display}`, letterSpacing: '-.024em', marginTop: 14, position: 'relative' }}>{q.name}</div>
@@ -73,7 +73,7 @@ export default function FirstQuest({ onDone }: { onDone: () => void }) {
       </Tap>
       <Tap
         onTap={onDone} sound={false}
-        style={{ textAlign: 'center', font: `700 10.5px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.4)', padding: 14, minHeight: 44 }}
+        style={{ textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)', padding: 14, minHeight: 44 }}
       >
         JE LA VALIDERAI PLUS TARD
       </Tap>

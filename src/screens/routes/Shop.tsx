@@ -35,11 +35,11 @@ export default function Shop({ nav }: { nav: Nav }) {
 
       <div style={{ display: 'flex', gap: 7, marginTop: 18 }}>
         {SHOP_CATS.map(([k, label]) => (
-          <Tap key={k} onTap={() => setCat(k as any)} haptic="soft" style={{ flex: 1, textAlign: 'center', font: `700 10px ${F.mono}`, letterSpacing: '.1em', padding: '13px 6px', borderRadius: 13, minHeight: 44, background: cat === k ? C.lime : 'rgba(255,255,255,.07)', color: cat === k ? C.ink : 'rgba(255,255,255,.6)' }}>{label}</Tap>
+          <Tap key={k} onTap={() => setCat(k as any)} haptic="soft" style={{ flex: 1, textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', padding: '13px 6px', borderRadius: 13, minHeight: 44, background: cat === k ? C.lime : 'rgba(255,255,255,.07)', color: cat === k ? C.ink : 'rgba(255,255,255,.6)' }}>{label}</Tap>
         ))}
       </div>
 
-      <div style={{ font: `400 12.5px/1.45 ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 16 }}>{SHOP_INTRO[cat]}</div>
+      <div style={{ font: `400 12.5px/1.45 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 16 }}>{SHOP_INTRO[cat]}</div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
         {items.map((it: any, ix: number) => {
@@ -53,15 +53,15 @@ export default function Shop({ nav }: { nav: Nav }) {
               </span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', font: `700 14px ${F.body}`, color: '#fff' }}>{name}</span>
-                <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 2 }}>{owned ? 'Déjà à toi' : price + ' pièces'}</span>
+                <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{owned ? 'Déjà à toi' : price + ' pièces'}</span>
               </span>
               <Tap
                 onTap={() => buy(ix, price, name)}
                 haptic={owned ? 'soft' : can ? 'success' : 'error'}
                 style={{
-                  font: `700 10.5px ${F.mono}`, letterSpacing: '.08em', padding: '12px 14px', borderRadius: 12, flex: 'none', minHeight: 44, display: 'flex', alignItems: 'center',
+                  font: `700 11px ${F.mono}`, letterSpacing: '.08em', padding: '12px 14px', borderRadius: 12, flex: 'none', minHeight: 44, display: 'flex', alignItems: 'center',
                   background: owned ? 'rgba(255,255,255,.08)' : can ? C.lime : 'rgba(255,255,255,.06)',
-                  color: owned ? 'rgba(255,255,255,.45)' : can ? C.ink : 'rgba(255,255,255,.3)'
+                  color: owned ? 'rgba(255,255,255,.55)' : can ? C.ink : 'rgba(255,255,255,.55)'
                 }}
               >
                 {owned ? 'OBTENU' : 'ACHETER'}

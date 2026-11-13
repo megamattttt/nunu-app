@@ -57,10 +57,10 @@ export default function DuelQuiz({ nav }: { nav: Nav }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6 }}>
         <span style={{ width: 44, height: 44, borderRadius: 14, overflow: 'hidden', flex: 'none' }}><AvatarCut who={q.who || 'lea'} crop="face" /></span>
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.45)' }}>DUEL · {skillById(skill).name}</span>
+          <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.55)' }}>DUEL · {skillById(skill).name}</span>
           <span style={{ display: 'block', font: `800 20px ${F.display}`, color: '#fff', letterSpacing: '-.01em', marginTop: 2 }}>{q.name || 'Léa Fontaine'}</span>
         </span>
-        <Tap onTap={nav.back} style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.5)', padding: '12px', minHeight: 44, display: 'flex', alignItems: 'center' }}>QUITTER</Tap>
+        <Tap onTap={nav.back} style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', padding: '12px', minHeight: 44, display: 'flex', alignItems: 'center' }}>QUITTER</Tap>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 20 }}>
@@ -74,7 +74,7 @@ export default function DuelQuiz({ nav }: { nav: Nav }) {
       {!over && cur ? (
         <>
           <div style={{ background: C.paper, borderRadius: 26, padding: '22px 20px', marginTop: 18 }}>
-            <div style={{ font: `500 9.5px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(11,11,12,.5)' }}>QUESTION {ix + 1}/{questions.length}</div>
+            <div style={{ font: `500 11px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(11,11,12,.62)' }}>QUESTION {ix + 1}/{questions.length}</div>
             <div style={{ font: `800 23px/1.2 ${F.display}`, color: C.ink, letterSpacing: '-.02em', marginTop: 10, textWrap: 'pretty' }}>{cur[0]}</div>
           </div>
 
