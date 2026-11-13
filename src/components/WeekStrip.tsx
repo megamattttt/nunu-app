@@ -9,7 +9,7 @@ import type { Day } from '../state/selectors';
 export default function WeekStrip({ days, c = C.lime, dark = false, h = 46 }: { days: Day[]; c?: string; dark?: boolean; h?: number }) {
   const max = Math.max(30, ...days.map((d) => d.px));
   const dim = dark ? 'rgba(10,10,12,.16)' : 'rgba(255,255,255,.09)';
-  const txt = dark ? 'rgba(10,10,12,.45)' : 'rgba(255,255,255,.42)';
+  const txt = dark ? 'rgba(10,10,12,.62)' : 'rgba(255,255,255,.55)';
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: `repeat(${days.length},1fr)`, gap: 6, alignItems: 'end' }}>
@@ -28,7 +28,7 @@ export default function WeekStrip({ days, c = C.lime, dark = false, h = 46 }: { 
             </span>
             <span
               style={{
-                font: `${d.today ? 700 : 500} 9px ${F.mono}`, letterSpacing: '.06em',
+                font: `${d.today ? 700 : 500} 11px ${F.mono}`, letterSpacing: '.06em',
                 color: d.today ? (dark ? C.ink : '#fff') : txt
               }}
             >

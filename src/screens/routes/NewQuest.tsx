@@ -52,7 +52,7 @@ export default function NewQuest({ nav }: { nav: Nav }) {
   };
 
   const field: React.CSSProperties = { background: C.night, borderRadius: 20, padding: '14px 16px' };
-  const label: React.CSSProperties = { font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.14em' };
+  const label: React.CSSProperties = { font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em' };
 
   return (
     <div style={{ padding: '10px 22px 30px' }}>
@@ -82,10 +82,10 @@ export default function NewQuest({ nav }: { nav: Nav }) {
               <span style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 7, flexWrap: 'wrap' }}>
                 <DiffBadge diff={hint.diff} size="sm" />
                 <span style={{ font: `700 11px ${F.mono}`, color: C.lime }}>+{hint.px} PX</span>
-                <span style={{ font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.5)' }}>{hint.why}</span>
+                <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>{hint.why}</span>
               </span>
             </span>
-            <span style={{ font: `700 9.5px ${F.mono}`, letterSpacing: '.1em', color: applied ? C.lime : 'rgba(255,255,255,.6)', flex: 'none' }}>
+            <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: applied ? C.lime : 'rgba(255,255,255,.6)', flex: 'none' }}>
               {applied ? 'APPLIQUÉ' : 'APPLIQUER'}
             </span>
           </Tap>
@@ -97,7 +97,7 @@ export default function NewQuest({ nav }: { nav: Nav }) {
             {SKILLS.map((k) => (
               <Tap
                 key={k.id} onTap={() => setSkill(k.id)} haptic="soft"
-                style={{ font: `700 11px ${F.body}`, padding: '10px 13px', borderRadius: 12, minHeight: 40, display: 'flex', alignItems: 'center', background: skill === k.id ? k.c : 'rgba(255,255,255,.07)', color: skill === k.id ? k.txt : 'rgba(255,255,255,.7)' }}
+                style={{ font: `700 12px ${F.body}`, padding: '10px 13px', borderRadius: 12, minHeight: 40, display: 'flex', alignItems: 'center', background: skill === k.id ? k.c : 'rgba(255,255,255,.07)', color: skill === k.id ? k.txt : 'rgba(255,255,255,.7)' }}
               >
                 {k.name}
               </Tap>
@@ -129,7 +129,7 @@ export default function NewQuest({ nav }: { nav: Nav }) {
             })}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 12, flexWrap: 'wrap' }}>
-            <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.45)' }}>Récompense</span>
+            <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>Récompense</span>
             {PX_BY_DIFF[diff].map((v) => (
               <Tap
                 key={v} onTap={() => { setPx(v); setTouched(true); }} haptic="soft"
@@ -145,7 +145,7 @@ export default function NewQuest({ nav }: { nav: Nav }) {
           <div style={label}>MOMENT DE LA JOURNÉE</div>
           <div style={{ display: 'flex', gap: 7, marginTop: 11 }}>
             {NQ_WHEN.map((lbl, i) => (
-              <Tap key={lbl} onTap={() => setWhen(i)} haptic="soft" style={{ flex: 1, textAlign: 'center', font: `700 11.5px ${F.body}`, padding: '12px 6px', borderRadius: 12, minHeight: 44, background: when === i ? C.sand : 'rgba(255,255,255,.07)', color: when === i ? C.ink : 'rgba(255,255,255,.7)' }}>{lbl}</Tap>
+              <Tap key={lbl} onTap={() => setWhen(i)} haptic="soft" style={{ flex: 1, textAlign: 'center', font: `700 12px ${F.body}`, padding: '12px 6px', borderRadius: 12, minHeight: 44, background: when === i ? C.sand : 'rgba(255,255,255,.07)', color: when === i ? C.ink : 'rgba(255,255,255,.7)' }}>{lbl}</Tap>
             ))}
           </div>
         </div>
@@ -157,14 +157,14 @@ export default function NewQuest({ nav }: { nav: Nav }) {
             inputMode="url" autoCapitalize="off" autoCorrect="off"
             style={{ width: '100%', color: '#fff', font: `500 15px ${F.body}`, padding: '8px 0 0' }}
           />
-          <div style={{ font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.4)', marginTop: 8 }}>
+          <div style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 8 }}>
             Il reste attaché à la quête : un bouton « Voir le tuto » apparaît sur sa carte.
           </div>
         </div>
 
         <Tap
           onTap={create} haptic="success"
-          style={{ background: name.trim() ? C.lime : 'rgba(255,255,255,.1)', color: name.trim() ? C.ink : 'rgba(255,255,255,.4)', borderRadius: 20, padding: '18px', textAlign: 'center', font: `800 17px ${F.display}`, letterSpacing: '-.01em', minHeight: 58 }}
+          style={{ background: name.trim() ? C.lime : 'rgba(255,255,255,.1)', color: name.trim() ? C.ink : 'rgba(255,255,255,.55)', borderRadius: 20, padding: '18px', textAlign: 'center', font: `800 17px ${F.display}`, letterSpacing: '-.01em', minHeight: 58 }}
         >
           AJOUTER AU PLATEAU
         </Tap>

@@ -45,7 +45,7 @@ const SLIDES: Slide[] = [
           <span key={n} style={{ display: 'block', background: 'rgba(255,255,255,.5)', borderRadius: 16, padding: '12px 14px' }}>
             <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 9 }}>
               <span style={{ font: `700 11px ${F.mono}`, color: C.ink, letterSpacing: '.1em' }}>{n}</span>
-              <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(11,11,12,.55)' }}>{r}</span>
+              <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(11,11,12,.62)' }}>{r}</span>
             </span>
             {bar(p, col)}
           </span>
@@ -62,8 +62,8 @@ const SLIDES: Slide[] = [
       <span style={{ display: 'flex', flexDirection: 'column', gap: 14, width: '100%' }}>
         <span style={{ display: 'block', background: 'rgba(11,11,12,.28)', borderRadius: 18, padding: '14px 16px' }}>
           <span style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-            <span style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.6)', letterSpacing: '.16em' }}>ÉNERGIE</span>
-            <span style={{ font: `700 10px ${F.mono}`, color: '#fff' }}>100 %</span>
+            <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.6)', letterSpacing: '.16em' }}>ÉNERGIE</span>
+            <span style={{ font: `700 11px ${F.mono}`, color: '#fff' }}>100 %</span>
           </span>
           {bar(100, C.honey, 'rgba(255,255,255,.2)')}
         </span>
@@ -80,7 +80,7 @@ const SLIDES: Slide[] = [
       <span style={{ display: 'flex', alignItems: 'flex-end', gap: 9, width: '100%' }}>
         {[1, 2, 3, 5, 10].map((n, i) => (
           <span key={n} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.75)' }}>×{n}</span>
+            <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.75)' }}>×{n}</span>
             <span style={{ width: '100%', height: 22 + i * 20, borderRadius: 12, background: i > 1 ? C.lime : 'rgba(255,255,255,.28)' }} />
           </span>
         ))}
@@ -95,7 +95,7 @@ const SLIDES: Slide[] = [
     art: (
       <span style={{ display: 'block', width: '100%', background: C.ink, borderRadius: 22, padding: '22px 20px' }}>
         <Logo size={26} />
-        <span style={{ display: 'block', font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.5)', letterSpacing: '.18em', marginTop: 18 }}>NOUVEAU RANG</span>
+        <span style={{ display: 'block', font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.18em', marginTop: 18 }}>NOUVEAU RANG</span>
         <span style={{ display: 'block', font: `800 30px/1 ${F.display}`, color: '#fff', letterSpacing: '-.03em', marginTop: 7 }}>ARGENT II</span>
         <span style={{ display: 'block', font: `700 11px ${F.mono}`, color: C.lime, marginTop: 12 }}>@toi · COUTURE</span>
       </span>
@@ -141,7 +141,7 @@ export default function Guide({ onDone, onQuit }: { onDone: () => void; onQuit?:
           ))}
         </span>
         {onQuit ? (
-          <Tap onTap={onQuit} style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.5)', letterSpacing: '.1em', minHeight: 44, display: 'flex', alignItems: 'center' }}>FERMER</Tap>
+          <Tap onTap={onQuit} style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.1em', minHeight: 44, display: 'flex', alignItems: 'center' }}>FERMER</Tap>
         ) : null}
       </div>
 
@@ -156,8 +156,8 @@ export default function Guide({ onDone, onQuit }: { onDone: () => void; onQuit?:
           {sl.art}
         </div>
 
-        <div style={{ font: `500 9.5px ${F.mono}`, letterSpacing: '.22em', color: sl.accent, marginTop: 26 }}>{sl.kicker}</div>
-        <div style={{ font: `800 34px/1.02 ${F.display}`, color: '#fff', letterSpacing: '-.032em', marginTop: 10, whiteSpace: 'pre-line' }}>{sl.title}</div>
+        <div style={{ font: `500 11px ${F.mono}`, letterSpacing: '.22em', color: sl.accent, marginTop: 26 }}>{sl.kicker}</div>
+        <div role="heading" aria-level={1} style={{ font: `800 34px/1.02 ${F.display}`, color: '#fff', letterSpacing: '-.032em', marginTop: 10, whiteSpace: 'pre-line' }}>{sl.title}</div>
         <div style={{ font: `400 13.5px/1.55 ${F.body}`, color: 'rgba(255,255,255,.6)', marginTop: 14, maxWidth: 380, textWrap: 'pretty' }}>{sl.text}</div>
       </div>
 
@@ -173,7 +173,7 @@ export default function Guide({ onDone, onQuit }: { onDone: () => void; onQuit?:
           style={{ flex: 1, background: last ? C.lime : '#fff', color: C.ink, borderRadius: 20, minHeight: 56, padding: '0 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
           <span style={{ font: `800 16px ${F.display}`, letterSpacing: '-.01em' }}>{last ? 'J’AI COMPRIS' : 'SUIVANT'}</span>
-          <span style={{ font: `700 10px ${F.mono}`, opacity: .5 }}>{i + 1}/{SLIDES.length}</span>
+          <span style={{ font: `700 11px ${F.mono}`, opacity: .5 }}>{i + 1}/{SLIDES.length}</span>
         </Tap>
       </div>
     </div>

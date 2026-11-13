@@ -58,10 +58,10 @@ export default function Validate({ nav }: { nav: Nav }) {
 
       <div style={{ background: sk.c, borderRadius: 24, padding: '18px 20px', marginTop: 18, color: sk.txt }}>
         <Kicker dark={sk.txt !== '#FFFFFF'}>QUÊTE EN COURS</Kicker>
-        <div style={{ font: `800 26px/1.05 ${F.display}`, letterSpacing: '-.02em', marginTop: 8 }}>{q.name}</div>
+        <div role="heading" aria-level={1} style={{ font: `800 26px/1.05 ${F.display}`, letterSpacing: '-.02em', marginTop: 8 }}>{q.name}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14 }}>
           <Bar pct={(done.filter(Boolean).length / steps.length) * 100} c={sk.txt === '#FFFFFF' ? '#fff' : C.ink} h={8} track="rgba(11,11,12,.16)" />
-          <span style={{ font: `700 10px ${F.mono}`, opacity: .7 }}>{done.filter(Boolean).length}/{steps.length}</span>
+          <span style={{ font: `700 11px ${F.mono}`, opacity: .7 }}>{done.filter(Boolean).length}/{steps.length}</span>
         </div>
       </div>
 
@@ -75,8 +75,8 @@ export default function Validate({ nav }: { nav: Nav }) {
             <span style={{ width: 26, height: 26, borderRadius: 9, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', background: done[i] ? C.lime : 'transparent', border: done[i] ? 'none' : '2px solid rgba(255,255,255,.2)', animation: done[i] ? 'nuTick .3s ease' : undefined }}>
               {done[i] ? <Check size={14} w={3.6} /> : null}
             </span>
-            <span style={{ flex: 1, font: `${done[i] ? 400 : 700} 13.5px ${F.body}`, color: done[i] ? 'rgba(255,255,255,.5)' : '#fff', textDecoration: done[i] ? 'line-through' : 'none' }}>{label}</span>
-            <span style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.3)' }}>{i + 1}</span>
+            <span style={{ flex: 1, font: `${done[i] ? 400 : 700} 13.5px ${F.body}`, color: done[i] ? 'rgba(255,255,255,.55)' : '#fff', textDecoration: done[i] ? 'line-through' : 'none' }}>{label}</span>
+            <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)' }}>{i + 1}</span>
           </Tap>
         ))}
       </div>
@@ -87,7 +87,7 @@ export default function Validate({ nav }: { nav: Nav }) {
         <Tap onTap={() => setRunning((r) => !r)} style={{ font: `700 11px ${F.mono}`, letterSpacing: '.08em', color: running ? C.ink : '#fff', background: running ? C.lime : 'rgba(255,255,255,.1)', padding: '12px 16px', borderRadius: 99, minHeight: 44, display: 'flex', alignItems: 'center' }}>
           {running ? 'PAUSE' : 'LANCER'}
         </Tap>
-        {chrono ? <Tap onTap={() => { setChrono(0); setRunning(false); }} style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.5)', padding: '12px', minHeight: 44, display: 'flex', alignItems: 'center' }}>RAZ</Tap> : null}
+        {chrono ? <Tap onTap={() => { setChrono(0); setRunning(false); }} style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', padding: '12px', minHeight: 44, display: 'flex', alignItems: 'center' }}>RAZ</Tap> : null}
       </div>
 
       {/* Preuve */}
@@ -100,7 +100,7 @@ export default function Validate({ nav }: { nav: Nav }) {
         {proof ? (
           <div style={{ marginTop: 12, position: 'relative' }}>
             <img src={proof} alt="Preuve" style={{ width: '100%', maxHeight: 240, objectFit: 'cover', borderRadius: 16, display: 'block' }} />
-            <Tap onTap={() => setProof(null)} style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(11,11,12,.7)', color: '#fff', font: `700 10px ${F.mono}`, padding: '9px 11px', borderRadius: 99 }}>RETIRER</Tap>
+            <Tap onTap={() => setProof(null)} style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(11,11,12,.7)', color: '#fff', font: `700 11px ${F.mono}`, padding: '9px 11px', borderRadius: 99 }}>RETIRER</Tap>
           </div>
         ) : (
           <Tap onTap={() => fileRef.current?.click()} style={{ marginTop: 12, border: '1px dashed rgba(255,255,255,.22)', borderRadius: 16, padding: '22px', textAlign: 'center', font: `400 12.5px ${F.body}`, color: 'rgba(255,255,255,.55)', minHeight: 66 }}>
@@ -123,7 +123,7 @@ export default function Validate({ nav }: { nav: Nav }) {
               {[1, 2, 3, 4, 5].map((n) => (
                 <Tap
                   key={n} onTap={() => setEv((e) => ({ ...e, [k]: n }))} haptic="soft"
-                  style={{ flex: 1, textAlign: 'center', minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, font: `700 13px ${F.mono}`, background: ev[k] >= n ? C.lime : 'rgba(255,255,255,.07)', color: ev[k] >= n ? C.ink : 'rgba(255,255,255,.5)' }}
+                  style={{ flex: 1, textAlign: 'center', minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, font: `700 13px ${F.mono}`, background: ev[k] >= n ? C.lime : 'rgba(255,255,255,.07)', color: ev[k] >= n ? C.ink : 'rgba(255,255,255,.55)' }}
                 >
                   {n}
                 </Tap>
@@ -137,9 +137,9 @@ export default function Validate({ nav }: { nav: Nav }) {
       <div style={{ background: C.night, borderRadius: 20, padding: '15px 16px', marginTop: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
           <Kicker>CONFIRMATION PAR UN TÉMOIN</Kicker>
-          <span style={{ font: `700 10px ${F.mono}`, color: C.lime }}>+20 %</span>
+          <span style={{ font: `700 11px ${F.mono}`, color: C.lime }}>+20 %</span>
         </div>
-        <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 6 }}>
+        <div style={{ font: `400 12px/1.45 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 6 }}>
           Un ami confirme que c’est fait. Le bonus s’ajoute à tes PX.
         </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 12, overflowX: 'auto', paddingBottom: 4 }}>
@@ -149,7 +149,7 @@ export default function Validate({ nav }: { nav: Nav }) {
               style={{ flex: 'none', width: 74, textAlign: 'center', padding: '10px 6px', borderRadius: 16, background: witness === who ? C.lime : 'rgba(255,255,255,.06)' }}
             >
               <span style={{ width: 42, height: 42, borderRadius: '50%', overflow: 'hidden', display: 'block', margin: '0 auto' }}><AvatarCut who={who} crop="face" /></span>
-              <span style={{ display: 'block', font: `700 10px ${F.body}`, color: witness === who ? C.ink : 'rgba(255,255,255,.7)', marginTop: 7 }}>{name.split(' ')[0]}</span>
+              <span style={{ display: 'block', font: `700 12px ${F.body}`, color: witness === who ? C.ink : 'rgba(255,255,255,.7)', marginTop: 7 }}>{name.split(' ')[0]}</span>
             </Tap>
           ))}
         </div>
@@ -161,7 +161,7 @@ export default function Validate({ nav }: { nav: Nav }) {
         style={{
           marginTop: 16, borderRadius: 22, padding: '18px 20px', minHeight: 62,
           background: ready ? C.lime : 'rgba(255,255,255,.09)',
-          color: ready ? C.ink : 'rgba(255,255,255,.4)',
+          color: ready ? C.ink : 'rgba(255,255,255,.55)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12
         }}
       >

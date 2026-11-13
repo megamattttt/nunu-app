@@ -150,6 +150,11 @@ export default function SkillWheel({
             <div
               key={idx}
               onClick={() => { if (!isSel) { lastSel.current = idx; settle(idx); } }}
+              role="button"
+              tabIndex={0}
+              aria-pressed={isSel}
+              className="nu-tap"
+              onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !isSel) { e.preventDefault(); lastSel.current = idx; settle(idx); } }}
               style={{
                 position: 'absolute', left: '50%', top: 26, width: 190, marginLeft: -95,
                 transformOrigin: `50% ${PIVOT}px`,
@@ -197,7 +202,7 @@ export default function SkillWheel({
                   <span style={{ display: 'block', height: 6, borderRadius: 99, background: 'rgba(11,11,12,.18)', overflow: 'hidden' }}>
                     <span style={{ display: 'block', height: '100%', width: (item.solo ? 100 : r.pct) + '%', borderRadius: 99, background: item.txt === '#FFFFFF' ? '#fff' : C.ink, opacity: item.solo ? .35 : 1 }} />
                   </span>
-                  <span style={{ display: 'block', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: item.txt, opacity: .62, marginTop: 7, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span style={{ display: 'block', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: item.txt, opacity: .62, marginTop: 7, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {item.solo ? persoName.toUpperCase() : r.short}
                   </span>
                 </span>
@@ -236,7 +241,7 @@ export default function SkillWheel({
 
       {/* Fiche de la compétence sélectionnée */}
       <div style={{ textAlign: 'center', padding: '0 22px', marginTop: -14 }}>
-        <div key={sel.id} style={{ font: `800 44px/1 ${F.display}`, color: folderColor(sel), letterSpacing: '-.04em', animation: 'nuRise .35s cubic-bezier(.2,1,.3,1)' }}>
+        <div role="heading" aria-level={1} key={sel.id} style={{ font: `800 44px/1 ${F.display}`, color: folderColor(sel), letterSpacing: '-.04em', animation: 'nuRise .35s cubic-bezier(.2,1,.3,1)' }}>
           {sel.solo ? persoName.toUpperCase() : sel.name}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginTop: 10, font: `500 12px ${F.body}`, color: 'rgba(255,255,255,.62)' }}>
@@ -249,7 +254,7 @@ export default function SkillWheel({
             </span>
           )}
         </div>
-        <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.42)', marginTop: 10, maxWidth: 300, marginLeft: 'auto', marginRight: 'auto', textWrap: 'pretty' }}>
+        <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 10, maxWidth: 300, marginLeft: 'auto', marginRight: 'auto', textWrap: 'pretty' }}>
           Fais tourner la molette : la roue boucle sans fin.
         </div>
       </div>

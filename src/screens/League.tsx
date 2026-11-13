@@ -22,20 +22,20 @@ export default function League({ nav }: { nav: Nav }) {
         <span style={{ position: 'absolute', left: -40, top: 120, width: 150, height: 150, borderRadius: '50%', background: 'rgba(168,216,255,.5)' }} />
         <span style={{ position: 'absolute', right: -30, top: 40, width: 110, height: 110, borderRadius: '50%', background: 'rgba(255,201,60,.45)' }} />
 
-        <div style={{ font: `800 42px/1 ${F.display}`, color: C.ink, letterSpacing: '-.03em', position: 'relative' }}>LIGUE</div>
+        <div role="heading" aria-level={1} style={{ font: `800 42px/1 ${F.display}`, color: C.ink, letterSpacing: '-.03em', position: 'relative' }}>LIGUE</div>
 
         <div style={{ position: 'relative', background: C.ink, borderRadius: 26, padding: '16px 18px', marginTop: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span>
-              <span style={{ display: 'block', font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.5)', letterSpacing: '.14em' }}>TON PALIER</span>
+              <span style={{ display: 'block', font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em' }}>TON PALIER</span>
               <span style={{ display: 'block', font: `800 26px ${F.display}`, color: '#fff', letterSpacing: '-.02em', marginTop: 4 }}>{pal[0]}</span>
             </span>
             <span style={{ font: `700 11px ${F.mono}`, color: C.ink, background: pal[1], padding: '8px 13px', borderRadius: 99, letterSpacing: '.08em' }}>DIV {DIVW[s.div]}</span>
           </div>
           <div style={{ display: 'flex', marginTop: 14 }}><Bar pct={s.lp} c={pal[1]} h={12} track="rgba(255,255,255,.12)" /></div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 9 }}>
-            <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>{s.lp} / 100 LP</span>
-            <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.4)', letterSpacing: '.1em' }}>S4 · J-9</span>
+            <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>{s.lp} / 100 LP</span>
+            <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.1em' }}>S4 · J-9</span>
           </div>
         </div>
 
@@ -44,8 +44,8 @@ export default function League({ nav }: { nav: Nav }) {
             <Tap
               key={k} onTap={() => setTab(k)} haptic="soft"
               style={{
-                flex: 1, textAlign: 'center', font: `700 10px ${F.mono}`, letterSpacing: '.1em', padding: '12px 6px', borderRadius: 13, minHeight: 44,
-                background: tab === k ? C.ink : 'rgba(11,11,12,.07)', color: tab === k ? C.paper : 'rgba(11,11,12,.55)'
+                flex: 1, textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', padding: '12px 6px', borderRadius: 13, minHeight: 44,
+                background: tab === k ? C.ink : 'rgba(11,11,12,.07)', color: tab === k ? C.paper : 'rgba(11,11,12,.62)'
               }}
             >
               {label}
@@ -67,7 +67,7 @@ export default function League({ nav }: { nav: Nav }) {
         </div>
         <div style={{ font: `800 27px ${F.display}`, color: C.ink, letterSpacing: '-.02em', marginTop: 16 }}>{top[1]}</div>
         <div style={{ display: 'inline-flex', gap: 7, marginTop: 10 }}>
-          <span style={{ font: `700 11.5px ${F.body}`, color: C.ink, background: C.lime, padding: '8px 16px', borderRadius: 99 }}>{top[4]}%</span>
+          <span style={{ font: `700 12px ${F.body}`, color: C.ink, background: C.lime, padding: '8px 16px', borderRadius: 99 }}>{top[4]}%</span>
           <span style={{ font: `700 11px ${F.mono}`, color: C.ink, background: 'rgba(255,255,255,.8)', padding: '8px 14px', borderRadius: 99 }}>{top[3].toLocaleString('fr-FR')} PTS</span>
         </div>
       </div>
@@ -86,18 +86,18 @@ export default function League({ nav }: { nav: Nav }) {
               </span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', font: `700 14px ${F.body}`, color: me ? '#fff' : C.ink }}>{r[1]}</span>
-                <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: me ? 'rgba(255,255,255,.5)' : 'rgba(11,11,12,.5)', marginTop: 1 }}>{r[2]} · {r[3].toLocaleString('fr-FR')} pts</span>
+                <span style={{ display: 'block', font: `400 12px ${F.body}`, color: me ? 'rgba(255,255,255,.55)' : 'rgba(11,11,12,.62)', marginTop: 1 }}>{r[2]} · {r[3].toLocaleString('fr-FR')} pts</span>
               </span>
-              <span style={{ font: `800 15px ${F.display}`, color: me ? C.lime : 'rgba(11,11,12,.35)', flex: 'none' }}>{i + 1}</span>
+              <span style={{ font: `800 15px ${F.display}`, color: me ? C.lime : 'rgba(11,11,12,.62)', flex: 'none' }}>{i + 1}</span>
             </Tap>
           );
         })}
 
         <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
           <Tap onTap={() => d({ t: 'LP', delta: 30 })} haptic="success" style={{ flex: 1, textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.08em', color: C.paper, background: C.ink, padding: '15px', borderRadius: 16, minHeight: 48 }}>+30 LP</Tap>
-          <Tap onTap={() => d({ t: 'LP', delta: -20 })} style={{ flex: 1, textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.08em', color: 'rgba(11,11,12,.6)', background: 'rgba(255,255,255,.7)', padding: '15px', borderRadius: 16, minHeight: 48 }}>−20 LP</Tap>
+          <Tap onTap={() => d({ t: 'LP', delta: -20 })} style={{ flex: 1, textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.08em', color: 'rgba(11,11,12,.62)', background: 'rgba(255,255,255,.7)', padding: '15px', borderRadius: 16, minHeight: 48 }}>−20 LP</Tap>
         </div>
-        <div style={{ font: `400 11px/1.5 ${F.body}`, color: 'rgba(11,11,12,.45)', textAlign: 'center' }}>
+        <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(11,11,12,.62)', textAlign: 'center' }}>
           Les LP montent avec les quêtes validées et les duels gagnés. Ces deux boutons simulent une journée de résultats.
         </div>
       </div>

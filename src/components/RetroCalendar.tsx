@@ -41,7 +41,7 @@ function Cell({ day, mood, face, quests, dark, sel, onTap }: {
         style={{
           position: noted ? 'absolute' : 'relative', top: noted ? 1 : undefined, left: noted ? 3 : undefined,
           font: `700 ${noted ? 8 : 11}px ${F.mono}`,
-          color: noted ? tx : dark ? 'rgba(255,255,255,.4)' : 'rgba(11,11,12,.4)',
+          color: noted ? tx : dark ? 'rgba(255,255,255,.55)' : 'rgba(11,11,12,.62)',
           textShadow: noted ? (dark ? '0 1px 2px rgba(0,0,0,.65)' : '0 1px 2px rgba(255,255,255,.7)') : 'none'
         }}
       >
@@ -59,10 +59,10 @@ function Cell({ day, mood, face, quests, dark, sel, onTap }: {
 function Stat({ label, value, sub, col, dark }: { label: string; value: string; sub?: string; col: string; dark: boolean }) {
   return (
     <div style={{ background: dark ? 'rgba(255,255,255,.05)' : 'rgba(11,11,12,.04)', borderRadius: 14, padding: '11px 12px' }}>
-      <span style={{ display: 'block', font: `500 7.5px ${F.mono}`, letterSpacing: '.16em', color: dark ? 'rgba(255,255,255,.42)' : 'rgba(11,11,12,.45)' }}>{label}</span>
+      <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: dark ? 'rgba(255,255,255,.55)' : 'rgba(11,11,12,.62)' }}>{label}</span>
       <span style={{ display: 'block', font: `800 19px/1 ${F.display}`, color: col, letterSpacing: '-.025em', marginTop: 6 }}>{value}</span>
       {sub ? (
-        <span style={{ display: 'block', font: `500 10px ${F.body}`, color: dark ? 'rgba(255,255,255,.4)' : 'rgba(11,11,12,.45)', marginTop: 4 }}>{sub}</span>
+        <span style={{ display: 'block', font: `500 12px ${F.body}`, color: dark ? 'rgba(255,255,255,.55)' : 'rgba(11,11,12,.62)', marginTop: 4 }}>{sub}</span>
       ) : null}
     </div>
   );
@@ -148,7 +148,7 @@ export default function RetroCalendar({ skill, dark = true }: { skill: string; d
               key={k} onTap={() => { setPeriod(k); setOffset(0); setSel(null); }} haptic="soft"
               style={{
                 minHeight: 32, padding: '0 11px', borderRadius: 9, display: 'flex', alignItems: 'center',
-                font: `700 9px ${F.mono}`, letterSpacing: '.1em',
+                font: `700 11px ${F.mono}`, letterSpacing: '.1em',
                 background: period === k ? (dark ? C.lime : C.ink) : soft,
                 color: period === k ? (dark ? C.ink : C.paper) : sub
               }}
@@ -175,7 +175,7 @@ export default function RetroCalendar({ skill, dark = true }: { skill: string; d
       <div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 5, marginBottom: 6 }}>
           {WEEKDAYS.map((w, i) => (
-            <span key={i} style={{ textAlign: 'center', font: `500 8.5px ${F.mono}`, letterSpacing: '.1em', color: sub }}>{w}</span>
+            <span key={i} style={{ textAlign: 'center', font: `500 11px ${F.mono}`, letterSpacing: '.1em', color: sub }}>{w}</span>
           ))}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 5 }}>
@@ -194,7 +194,7 @@ export default function RetroCalendar({ skill, dark = true }: { skill: string; d
 
       {/* Légende du code couleur */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap' }}>
-        <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.14em', color: sub }}>HUMEUR</span>
+        <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.14em', color: sub }}>HUMEUR</span>
         <span style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           {([1, 2, 3, 4, 5] as Scale[]).map((v) => (
             <span
@@ -210,7 +210,7 @@ export default function RetroCalendar({ skill, dark = true }: { skill: string; d
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 5, marginLeft: 4 }}>
           <span style={{ width: 4, height: 4, borderRadius: '50%', background: C.lime }} />
-          <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.14em', color: sub }}>QUÊTE VALIDÉE</span>
+          <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.14em', color: sub }}>QUÊTE VALIDÉE</span>
         </span>
       </div>
 
@@ -223,25 +223,25 @@ export default function RetroCalendar({ skill, dark = true }: { skill: string; d
               <span style={{ display: 'block', font: `700 12.5px ${F.body}`, color: tx }}>
                 {new Date(sel + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' })}
               </span>
-              <span style={{ display: 'block', font: `500 10.5px ${F.body}`, color: sub, marginTop: 2 }}>
+              <span style={{ display: 'block', font: `500 12px ${F.body}`, color: sub, marginTop: 2 }}>
                 {selEntry?.mood || selEntry?.face ? faceLabel(selEntry) : 'Humeur non notée'} · {selQuests.length} validation{selQuests.length > 1 ? 's' : ''}
               </span>
             </span>
             {byDay[sel]?.px ? <span style={{ font: `700 11px ${F.mono}`, color: dark ? C.lime : C.ink, flex: 'none' }}>+{byDay[sel].px} PX</span> : null}
           </div>
           {selEntry?.note ? (
-            <span style={{ font: `400 11.5px/1.5 ${F.body}`, color: sub, textWrap: 'pretty' }}>{selEntry.note}</span>
+            <span style={{ font: `400 12px/1.5 ${F.body}`, color: sub, textWrap: 'pretty' }}>{selEntry.note}</span>
           ) : null}
           {selEntry?.photo ? (
             <img src={selEntry.photo} alt="" style={{ display: 'block', width: '100%', height: 104, objectFit: 'cover', borderRadius: 11 }} />
           ) : null}
           {selEntry?.who?.length ? (
-            <span style={{ font: `500 11px ${F.body}`, color: sub }}>Vu {selEntry.who.join(', ')}</span>
+            <span style={{ font: `500 12px ${F.body}`, color: sub }}>Vu {selEntry.who.join(', ')}</span>
           ) : null}
           {selQuests.length ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {selQuests.slice(0, 4).map((h, i) => (
-                <span key={i} style={{ display: 'flex', gap: 7, font: `500 11.5px ${F.body}`, color: tx }}>
+                <span key={i} style={{ display: 'flex', gap: 7, font: `500 12px ${F.body}`, color: tx }}>
                   <span style={{ color: sub }}>·</span>{h.name}
                 </span>
               ))}
@@ -250,7 +250,7 @@ export default function RetroCalendar({ skill, dark = true }: { skill: string; d
           {selEntry?.tags?.length ? (
             <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
               {selEntry.tags.map((t) => (
-                <span key={t} style={{ font: `700 9px ${F.mono}`, color: sub, border: `1px solid ${line}`, borderRadius: 99, padding: '3px 8px' }}>{t}</span>
+                <span key={t} style={{ font: `700 11px ${F.mono}`, color: sub, border: `1px solid ${line}`, borderRadius: 99, padding: '3px 8px' }}>{t}</span>
               ))}
             </div>
           ) : null}

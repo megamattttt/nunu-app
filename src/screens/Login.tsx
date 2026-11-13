@@ -30,7 +30,7 @@ export default function Login() {
     background: 'rgba(11,11,12,.05)', border: '1px solid rgba(11,11,12,.09)',
     borderRadius: 18, padding: '12px 16px', display: 'block'
   };
-  const label: React.CSSProperties = { font: `500 9px ${F.mono}`, color: 'rgba(11,11,12,.45)', letterSpacing: '.16em' };
+  const label: React.CSSProperties = { font: `500 11px ${F.mono}`, color: 'rgba(11,11,12,.62)', letterSpacing: '.16em' };
   const input: React.CSSProperties = { width: '100%', color: C.ink, font: `700 17px ${F.body}`, padding: '4px 0 0' };
 
   return (
@@ -44,7 +44,7 @@ export default function Login() {
 
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Logo size={30} word wordSize={21} />
-          <span style={{ font: `500 9.5px ${F.mono}`, color: 'rgba(255,255,255,.6)', letterSpacing: '.2em' }}>PROGRESSE POUR DE VRAI</span>
+          <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.6)', letterSpacing: '.2em' }}>PROGRESSE POUR DE VRAI</span>
         </div>
 
         {/* Bulles d'avatars */}
@@ -74,7 +74,7 @@ export default function Login() {
           </span>
         </div>
 
-        <div style={{ position: 'relative', font: `800 40px/.98 ${F.display}`, color: '#fff', letterSpacing: '-.035em', marginTop: 14, textWrap: 'balance' }}>
+        <div role="heading" aria-level={1} style={{ position: 'relative', font: `800 40px/.98 ${F.display}`, color: '#fff', letterSpacing: '-.035em', marginTop: 14, textWrap: 'balance' }}>
           ON COMMENCE<br />PAR TON NOM.
         </div>
       </div>
@@ -87,7 +87,7 @@ export default function Login() {
           boxShadow: '0 -30px 60px -30px rgba(0,0,0,.6)', flex: 'none'
         }}
       >
-        <div style={{ font: `400 13px/1.45 ${F.body}`, color: 'rgba(11,11,12,.6)', textWrap: 'pretty' }}>
+        <div style={{ font: `400 13px/1.45 ${F.body}`, color: 'rgba(11,11,12,.62)', textWrap: 'pretty' }}>
           Deux informations suffisent. Pas de mot de passe, pas de compte : tout reste sur cet appareil.
         </div>
 
@@ -99,7 +99,7 @@ export default function Login() {
           <label style={field}>
             <span style={label}>NOM D’UTILISATEUR</span>
             <span style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
-              <span style={{ font: `700 17px ${F.body}`, color: 'rgba(11,11,12,.3)' }}>@</span>
+              <span style={{ font: `700 17px ${F.body}`, color: 'rgba(11,11,12,.62)' }}>@</span>
               <input value={tag} onChange={(e) => setTag(clean(e.target.value))} autoCapitalize="none" autoCorrect="off" placeholder="camille" style={input} />
             </span>
           </label>
@@ -108,7 +108,7 @@ export default function Login() {
             onTap={submit} haptic="success"
             style={{
               background: ready ? C.ink : 'rgba(11,11,12,.09)',
-              color: ready ? C.lime : 'rgba(11,11,12,.3)',
+              color: ready ? C.lime : 'rgba(11,11,12,.62)',
               borderRadius: 20, padding: '0 22px', width: '100%', minHeight: 58,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 5
             }}
@@ -116,7 +116,7 @@ export default function Login() {
             <span style={{ font: `800 17px ${F.display}`, letterSpacing: '-.01em' }}>COMMENCER</span>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={ready ? C.lime : 'rgba(11,11,12,.3)'} strokeWidth="2.8"><path d="M5 12h13M12 5l7 7-7 7" /></svg>
           </Tap>
-          <div style={{ font: `400 11px/1.45 ${F.body}`, color: 'rgba(11,11,12,.45)', textAlign: 'center', padding: '4px 10px 0' }}>
+          <div style={{ font: `400 12px/1.45 ${F.body}`, color: 'rgba(11,11,12,.62)', textAlign: 'center', padding: '4px 10px 0' }}>
             Ton nom d’utilisateur devient ton gamertag, affiché sur ton profil et tes cartes de palier.
           </div>
         </form>
