@@ -22,7 +22,7 @@ const Btn = ({ on, children, onTap, wide }: any) => (
   <Tap onTap={onTap} haptic="soft" style={{
     flex: wide ? 1 : 'none', minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
     padding: '11px 13px', borderRadius: 13, textAlign: 'center',
-    font: `700 10.5px ${F.mono}`, letterSpacing: '.07em',
+    font: `700 11px ${F.mono}`, letterSpacing: '.07em',
     background: on ? C.lime : 'rgba(255,255,255,.07)', color: on ? C.ink : 'rgba(255,255,255,.7)'
   }}>{children}</Tap>
 );
@@ -64,8 +64,8 @@ export default function Diorama({ nav }: { nav: Nav }) {
         title="ATELIER" sub={s.dio.name + ' · ' + onScene.length + ' pièces posées'} onBack={nav.back}
         right={
           <div style={{ display: 'flex', gap: 7 }}>
-            <Tap onTap={undo} style={{ width: 44, height: 44, borderRadius: 13, display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,.07)', font: `700 15px ${F.body}`, color: past.length ? '#fff' : 'rgba(255,255,255,.25)' }}>↺</Tap>
-            <Tap onTap={redo} style={{ width: 44, height: 44, borderRadius: 13, display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,.07)', font: `700 15px ${F.body}`, color: future.length ? '#fff' : 'rgba(255,255,255,.25)' }}>↻</Tap>
+            <Tap onTap={undo} style={{ width: 44, height: 44, borderRadius: 13, display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,.07)', font: `700 15px ${F.body}`, color: past.length ? '#fff' : 'rgba(255,255,255,.55)' }}>↺</Tap>
+            <Tap onTap={redo} style={{ width: 44, height: 44, borderRadius: 13, display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,.07)', font: `700 15px ${F.body}`, color: future.length ? '#fff' : 'rgba(255,255,255,.55)' }}>↻</Tap>
           </div>
         }
       />
@@ -78,7 +78,7 @@ export default function Diorama({ nav }: { nav: Nav }) {
           onMove={(id, sf, x, y) => d({ t: 'DIO_PLACE', id, s: sf, x, y })}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 6px 3px' }}>
-          <span style={{ font: `400 10.5px ${F.body}`, color: 'rgba(60,42,28,.6)' }}>
+          <span style={{ font: `400 12px ${F.body}`, color: 'rgba(60,42,28,.6)' }}>
             {sel ? 'Glisse pour déplacer · les objets s’aimantent aux murs et aux meubles' : 'Touche un objet pour le régler · fais défiler pour voir toute la pièce'}
           </span>
         </div>
@@ -91,31 +91,31 @@ export default function Diorama({ nav }: { nav: Nav }) {
             <span>
               <Kicker>{obj.sk === 'atelier' ? 'MOBILIER' : skillById(obj.sk).name}</Kicker>
               <span style={{ display: 'block', font: `800 20px ${F.display}`, color: '#fff', marginTop: 5, letterSpacing: '-.01em' }}>{obj.name}</span>
-              <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 4 }}>{unlockLabel(obj)}</span>
+              <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 4 }}>{unlockLabel(obj)}</span>
             </span>
-            <span style={{ font: `700 9px ${F.mono}`, color: C.ink, background: DIO_RARE[obj.rare][1], padding: '6px 8px', borderRadius: 7, flex: 'none' }}>{DIO_RARE[obj.rare][0].toUpperCase()}</span>
+            <span style={{ font: `700 11px ${F.mono}`, color: C.ink, background: DIO_RARE[obj.rare][1], padding: '6px 8px', borderRadius: 7, flex: 'none' }}>{DIO_RARE[obj.rare][0].toUpperCase()}</span>
           </div>
 
           <div style={{ display: 'grid', gap: 8, marginTop: 13 }}>
             <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
-              <span style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.4)', letterSpacing: '.14em', width: 62, flex: 'none' }}>TOURNER</span>
+              <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em', width: 62, flex: 'none' }}>TOURNER</span>
               <Btn wide onTap={() => tweak({ r: Math.max(-24, (it.r || 0) - 4) })}>−4°</Btn>
               <Btn wide onTap={() => tweak({ r: 0 })}>{(it.r || 0)}°</Btn>
               <Btn wide onTap={() => tweak({ r: Math.min(24, (it.r || 0) + 4) })}>+4°</Btn>
             </div>
             <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
-              <span style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.4)', letterSpacing: '.14em', width: 62, flex: 'none' }}>TAILLE</span>
+              <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em', width: 62, flex: 'none' }}>TAILLE</span>
               <Btn wide onTap={() => tweak({ sc: Math.max(0.7, +((it.sc || 1) - 0.1).toFixed(2)) })}>−</Btn>
               <Btn wide onTap={() => tweak({ sc: 1 })}>{Math.round((it.sc || 1) * 100)} %</Btn>
               <Btn wide onTap={() => tweak({ sc: Math.min(1.4, +((it.sc || 1) + 0.1).toFixed(2)) })}>+</Btn>
             </div>
             <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
-              <span style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.4)', letterSpacing: '.14em', width: 62, flex: 'none' }}>CALQUE</span>
+              <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em', width: 62, flex: 'none' }}>CALQUE</span>
               <Btn wide onTap={() => tweak({ z: (it.z || 0) - 1 })}>ARRIÈRE</Btn>
               <Btn wide onTap={() => tweak({ z: (it.z || 0) + 1 })}>AVANT</Btn>
             </div>
             <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
-              <span style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.4)', letterSpacing: '.14em', width: 62, flex: 'none' }}>COULEUR</span>
+              <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em', width: 62, flex: 'none' }}>COULEUR</span>
               <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
                 {obj.tint.map((t, i) => (
                   <Tap key={t} onTap={() => tweak({ cw: i })} haptic="soft" style={{ width: 44, height: 44, borderRadius: 13, display: 'grid', placeItems: 'center', background: (it.cw || 0) === i ? 'rgba(255,255,255,.14)' : 'transparent' }}>
@@ -128,7 +128,7 @@ export default function Diorama({ nav }: { nav: Nav }) {
 
           <div style={{ display: 'flex', gap: 8, marginTop: 13 }}>
             <Btn wide onTap={() => { snap(); d({ t: 'DIO_TAKE', id: obj.id }); setSel(null); }}>RANGER</Btn>
-            <Tap onTap={() => setSel(null)} style={{ flex: 1, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', font: `700 10.5px ${F.mono}`, letterSpacing: '.07em', background: C.lime, color: C.ink, borderRadius: 13 }}>TERMINÉ</Tap>
+            <Tap onTap={() => setSel(null)} style={{ flex: 1, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.07em', background: C.lime, color: C.ink, borderRadius: 13 }}>TERMINÉ</Tap>
           </div>
         </Card>
       ) : null}
@@ -138,8 +138,8 @@ export default function Diorama({ nav }: { nav: Nav }) {
         {TABS.map((t, i) => (
           <Tap key={t} onTap={() => setTab(i)} haptic="soft" style={{
             flex: 1, minHeight: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 11,
-            font: `700 9.5px ${F.mono}`, letterSpacing: '.06em',
-            background: tab === i ? C.steel : 'transparent', color: tab === i ? '#fff' : 'rgba(255,255,255,.45)'
+            font: `700 11px ${F.mono}`, letterSpacing: '.06em',
+            background: tab === i ? C.steel : 'transparent', color: tab === i ? '#fff' : 'rgba(255,255,255,.55)'
           }}>{t}</Tap>
         ))}
       </div>
@@ -154,12 +154,12 @@ export default function Diorama({ nav }: { nav: Nav }) {
                 {inv.map((o) => (
                   <Tap key={o.id} onTap={() => { snap(); d({ t: 'DIO_PUT', id: o.id }); setSel(o.id); }} style={{ background: 'rgba(255,255,255,.06)', borderRadius: 16, padding: 9, display: 'grid', justifyItems: 'center', gap: 5 }}>
                     <DioThumb o={o} tint={o.tint[items[o.id]?.cw || 0]} size={52} />
-                    <span style={{ font: `600 10px ${F.body}`, color: 'rgba(255,255,255,.75)', textAlign: 'center', lineHeight: 1.25 }}>{o.name}</span>
+                    <span style={{ font: `600 12px ${F.body}`, color: 'rgba(255,255,255,.75)', textAlign: 'center', lineHeight: 1.25 }}>{o.name}</span>
                   </Tap>
                 ))}
               </div>
             ) : (
-              <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 8 }}>
+              <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 8 }}>
                 Tout ce que tu possèdes est dans la pièce. Range un objet pour le retrouver ici.
               </div>
             )}
@@ -176,9 +176,9 @@ export default function Diorama({ nav }: { nav: Nav }) {
                   <div key={id} style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'rgba(255,255,255,.05)', borderRadius: 15, padding: '12px 14px' }}>
                     <span style={{ flex: 1 }}>
                       <span style={{ display: 'block', font: `700 13px ${F.body}`, color: '#fff' }}>{set.name}</span>
-                      <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 2 }}>{got} / {all.length} pièces{full ? ' · série complète' : ''}</span>
+                      <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{got} / {all.length} pièces{full ? ' · série complète' : ''}</span>
                     </span>
-                    <span style={{ font: `700 10px ${F.mono}`, color: full ? C.ink : 'rgba(255,255,255,.6)', background: full ? C.honey : 'rgba(255,255,255,.07)', padding: '7px 9px', borderRadius: 8 }}>+{set.bonus}</span>
+                    <span style={{ font: `700 11px ${F.mono}`, color: full ? C.ink : 'rgba(255,255,255,.6)', background: full ? C.honey : 'rgba(255,255,255,.07)', padding: '7px 9px', borderRadius: 8 }}>+{set.bonus}</span>
                   </div>
                 );
               })}
@@ -193,10 +193,10 @@ export default function Diorama({ nav }: { nav: Nav }) {
                   <span style={{ opacity: .3, filter: 'grayscale(1)', flex: 'none' }}><DioThumb o={o} size={40} /></span>
                   <span style={{ flex: 1 }}>
                     <span style={{ display: 'block', font: `700 12.5px ${F.body}`, color: 'rgba(255,255,255,.8)' }}>{o.name}</span>
-                    <span style={{ display: 'block', font: `400 10.5px ${F.body}`, color: 'rgba(255,255,255,.4)', marginTop: 2 }}>{unlockLabel(o)}</span>
+                    <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{unlockLabel(o)}</span>
                   </span>
                   {o.src === 'shop' ? (
-                    <Tap onTap={() => nav.open('shop')} style={{ font: `700 9.5px ${F.mono}`, letterSpacing: '.06em', background: 'rgba(255,255,255,.08)', color: '#fff', padding: '12px 11px', borderRadius: 11, minHeight: 44, display: 'flex', alignItems: 'center', flex: 'none' }}>BOUTIQUE</Tap>
+                    <Tap onTap={() => nav.open('shop')} style={{ font: `700 11px ${F.mono}`, letterSpacing: '.06em', background: 'rgba(255,255,255,.08)', color: '#fff', padding: '12px 11px', borderRadius: 11, minHeight: 44, display: 'flex', alignItems: 'center', flex: 'none' }}>BOUTIQUE</Tap>
                   ) : null}
                 </div>
               ))}
@@ -214,7 +214,7 @@ export default function Diorama({ nav }: { nav: Nav }) {
               {DIO_WALLS.map((w, i) => (
                 <Tap key={w[0]} onTap={() => d({ t: 'DIO', patch: { wall: i } })} haptic="soft" style={{ borderRadius: 14, overflow: 'hidden', padding: 4, background: s.dio.wall === i ? C.lime : 'rgba(255,255,255,.06)' }}>
                   <span style={{ display: 'block', height: 40, borderRadius: 10, background: w[1], backgroundImage: w[2] }} />
-                  <span style={{ display: 'block', font: `600 9.5px ${F.body}`, color: s.dio.wall === i ? C.ink : 'rgba(255,255,255,.6)', textAlign: 'center', padding: '5px 2px 2px' }}>{w[0]}</span>
+                  <span style={{ display: 'block', font: `600 12px ${F.body}`, color: s.dio.wall === i ? C.ink : 'rgba(255,255,255,.6)', textAlign: 'center', padding: '5px 2px 2px' }}>{w[0]}</span>
                 </Tap>
               ))}
             </div>
@@ -225,7 +225,7 @@ export default function Diorama({ nav }: { nav: Nav }) {
               {DIO_FLOORS.map((f, i) => (
                 <Tap key={f[0]} onTap={() => d({ t: 'DIO', patch: { floor: i } })} haptic="soft" style={{ borderRadius: 14, overflow: 'hidden', padding: 4, background: s.dio.floor === i ? C.lime : 'rgba(255,255,255,.06)' }}>
                   <span style={{ display: 'block', height: 40, borderRadius: 10, background: f[1], backgroundImage: `repeating-linear-gradient(78deg, ${f[2]} 0 1.5px, transparent 1.5px 12px)` }} />
-                  <span style={{ display: 'block', font: `600 9.5px ${F.body}`, color: s.dio.floor === i ? C.ink : 'rgba(255,255,255,.6)', textAlign: 'center', padding: '5px 2px 2px' }}>{f[0]}</span>
+                  <span style={{ display: 'block', font: `600 12px ${F.body}`, color: s.dio.floor === i ? C.ink : 'rgba(255,255,255,.6)', textAlign: 'center', padding: '5px 2px 2px' }}>{f[0]}</span>
                 </Tap>
               ))}
             </div>
@@ -244,7 +244,7 @@ export default function Diorama({ nav }: { nav: Nav }) {
             ) : (
               <Tap onTap={() => { setDraft(s.dio.name); setNaming(true); }} style={{ marginTop: 10, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,.06)', borderRadius: 15, padding: '12px 15px' }}>
                 <span style={{ font: `700 14px ${F.body}`, color: '#fff' }}>{s.dio.name}</span>
-                <span style={{ font: `700 9.5px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.08em' }}>MODIFIER</span>
+                <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.08em' }}>MODIFIER</span>
               </Tap>
             )}
           </div>
@@ -256,16 +256,16 @@ export default function Diorama({ nav }: { nav: Nav }) {
                 <div key={p.name} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <Tap onTap={() => { snap(); d({ t: 'DIO_PRESET_LOAD', ix: i }); }} style={{ flex: 1, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,.06)', borderRadius: 15, padding: '12px 15px' }}>
                     <span style={{ font: `700 13px ${F.body}`, color: '#fff' }}>{p.name}</span>
-                    <span style={{ font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.4)' }}>{Object.keys(p.items).length} pièces</span>
+                    <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>{Object.keys(p.items).length} pièces</span>
                   </Tap>
-                  <Tap onTap={() => d({ t: 'DIO_PRESET_DEL', ix: i })} style={{ width: 44, height: 44, borderRadius: 13, display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,.05)', font: `700 14px ${F.body}`, color: 'rgba(255,255,255,.4)' }}>×</Tap>
+                  <Tap onTap={() => d({ t: 'DIO_PRESET_DEL', ix: i })} style={{ width: 44, height: 44, borderRadius: 13, display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,.05)', font: `700 14px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>×</Tap>
                 </div>
               ))}
               <Btn wide onTap={() => d({ t: 'DIO_PRESET_SAVE', name: 'Agencement ' + ((s.dio.presets || []).length + 1) })}>ENREGISTRER L’AGENCEMENT ACTUEL</Btn>
             </div>
           </div>
 
-          <Tap onTap={() => { snap(); d({ t: 'DIO_RESET' }); }} style={{ textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.42)', padding: 14, minHeight: 44 }}>
+          <Tap onTap={() => { snap(); d({ t: 'DIO_RESET' }); }} style={{ textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)', padding: 14, minHeight: 44 }}>
             REMETTRE L’AGENCEMENT D’ORIGINE
           </Tap>
         </div>
@@ -278,7 +278,7 @@ export default function Diorama({ nav }: { nav: Nav }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
               <span>
                 <span style={{ display: 'block', font: `700 14px ${F.body}`, color: '#fff' }}>Lumière liée à l’heure</span>
-                <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 3 }}>
+                <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 3 }}>
                   Il est {new Date().getHours()} h : {DIO_LIGHTS[lightForHour(new Date().getHours())].name.toLowerCase()}
                 </span>
               </span>
@@ -307,14 +307,14 @@ export default function Diorama({ nav }: { nav: Nav }) {
           <Card>
             <Kicker>SAISON EN COURS</Kicker>
             <div style={{ font: `800 21px ${F.display}`, color: '#fff', marginTop: 6 }}>{DIO_SEASONS[seasonNow()].name}</div>
-            <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 5 }}>
+            <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 5 }}>
               La saison change ce qu’on voit par la fenêtre et ce qui flotte dans la lumière. Elle suit le calendrier, tu n’as rien à régler.
             </div>
           </Card>
 
           <Card>
             <Kicker>TRACES D’ACTIVITÉ</Kicker>
-            <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 6 }}>
+            <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 6 }}>
               Après une validation, la pièce garde une trace pendant quelques jours : un tissu resté sur la table, des chaussures encore boueuses, de la farine sur le plan.
             </div>
           </Card>
@@ -331,7 +331,7 @@ export default function Diorama({ nav }: { nav: Nav }) {
                 <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: 'rgba(255,255,255,.05)', borderRadius: 15, padding: '12px 14px' }}>
                   <span style={{ width: 34, height: 34, borderRadius: 11, flex: 'none', display: 'grid', placeItems: 'center', background: DIO_REACTS[v.react][2], font: `700 16px ${F.body}`, color: C.ink }}>{DIO_REACTS[v.react][1]}</span>
                   <span style={{ flex: 1 }}>
-                    <span style={{ display: 'block', font: `700 12.5px ${F.body}`, color: '#fff' }}>{v.name} <span style={{ color: 'rgba(255,255,255,.35)', fontWeight: 400 }}>· {v.when}</span></span>
+                    <span style={{ display: 'block', font: `700 12.5px ${F.body}`, color: '#fff' }}>{v.name} <span style={{ color: 'rgba(255,255,255,.55)', fontWeight: 400 }}>· {v.when}</span></span>
                     {v.word ? <span style={{ display: 'block', font: `400 12px/1.45 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 3 }}>{v.word}</span> : null}
                   </span>
                 </div>
@@ -350,9 +350,9 @@ export default function Diorama({ nav }: { nav: Nav }) {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 6px 4px' }}>
                     <span>
                       <span style={{ display: 'block', font: `700 13.5px ${F.body}`, color: '#fff' }}>{f.name}</span>
-                      <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 2 }}>{f.title} · {Object.keys(f.items).length} pièces</span>
+                      <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{f.title} · {Object.keys(f.items).length} pièces</span>
                     </span>
-                    <Tap onTap={() => setVisit(visit === i ? null : i)} style={{ font: `700 9.5px ${F.mono}`, letterSpacing: '.07em', background: 'rgba(255,255,255,.08)', color: '#fff', padding: '12px 12px', borderRadius: 11, minHeight: 44, display: 'flex', alignItems: 'center', flex: 'none' }}>
+                    <Tap onTap={() => setVisit(visit === i ? null : i)} style={{ font: `700 11px ${F.mono}`, letterSpacing: '.07em', background: 'rgba(255,255,255,.08)', color: '#fff', padding: '12px 12px', borderRadius: 11, minHeight: 44, display: 'flex', alignItems: 'center', flex: 'none' }}>
                       {visit === i ? 'RÉDUIRE' : 'AGRANDIR'}
                     </Tap>
                   </div>

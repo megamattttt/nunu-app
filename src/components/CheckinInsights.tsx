@@ -58,8 +58,8 @@ function Curve({ pts }: { pts: Point[] }) {
         ))}
       </svg>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-        <span style={{ font: `500 8.5px ${F.mono}`, color: 'rgba(255,255,255,.3)' }}>{shortDate(pts[0].day)}</span>
-        <span style={{ font: `500 8.5px ${F.mono}`, color: 'rgba(255,255,255,.3)' }}>{shortDate(pts[pts.length - 1].day)}</span>
+        <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)' }}>{shortDate(pts[0].day)}</span>
+        <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)' }}>{shortDate(pts[pts.length - 1].day)}</span>
       </div>
     </div>
   );
@@ -69,7 +69,7 @@ function Card({ kicker, right, children }: { kicker: string; right?: React.React
   return (
     <div style={{ background: C.night, border: `1px solid ${C.line}`, borderRadius: 22, padding: '15px 16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, minHeight: 22 }}>
-        <span style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(255,255,255,.4)' }}>{kicker}</span>
+        <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(255,255,255,.55)' }}>{kicker}</span>
         {right}
       </div>
       <div style={{ marginTop: 13 }}>{children}</div>
@@ -122,7 +122,7 @@ export default function CheckinInsights({ onClose }: { onClose: () => void }) {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(255,255,255,.38)' }}>MES TENDANCES</span>
+            <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(255,255,255,.55)' }}>MES TENDANCES</span>
             <span style={{ display: 'block', font: `800 21px/1.1 ${F.display}`, color: '#fff', letterSpacing: '-.03em', marginTop: 5 }}>
               {total ? `${total} jour${total > 1 ? 's' : ''} noté${total > 1 ? 's' : ''}` : 'Rien de noté encore'}
             </span>
@@ -147,7 +147,7 @@ export default function CheckinInsights({ onClose }: { onClose: () => void }) {
                     style={{
                       minHeight: 30, padding: '0 10px', borderRadius: 9, display: 'flex', alignItems: 'center',
                       background: span === n ? 'rgba(255,255,255,.9)' : 'rgba(255,255,255,.05)',
-                      font: `700 9px ${F.mono}`, color: span === n ? C.ink : 'rgba(255,255,255,.45)'
+                      font: `700 11px ${F.mono}`, color: span === n ? C.ink : 'rgba(255,255,255,.55)'
                     }}
                   >
                     {n} J
@@ -163,16 +163,16 @@ export default function CheckinInsights({ onClose }: { onClose: () => void }) {
                   {([['HUMEUR', C.honey], ['ÉNERGIE', C.teal]] as const).map(([label, col]) => (
                     <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ width: 14, height: 2, borderRadius: 99, background: col }} />
-                      <span style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.42)' }}>{label}</span>
+                      <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.55)' }}>{label}</span>
                     </span>
                   ))}
-                  <span style={{ marginLeft: 'auto', font: `700 10px ${F.mono}`, color: avg ? moodColor(Math.round(avg) as Scale) : 'rgba(255,255,255,.4)' }}>
+                  <span style={{ marginLeft: 'auto', font: `700 11px ${F.mono}`, color: avg ? moodColor(Math.round(avg) as Scale) : 'rgba(255,255,255,.55)' }}>
                     {avg ? `moy. ${avg.toFixed(1).replace('.', ',')}/5` : '—'}
                   </span>
                 </div>
               </>
             ) : (
-              <span style={{ display: 'block', font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.42)' }}>
+              <span style={{ display: 'block', font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)' }}>
                 Il faut deux jours notés pour dessiner une courbe.
               </span>
             )}
@@ -186,7 +186,7 @@ export default function CheckinInsights({ onClose }: { onClose: () => void }) {
                 <Tap onTap={() => setWeek((v) => v - 1)} aria-label="Semaine précédente" style={{ width: 30, height: 30, borderRadius: 9, background: 'rgba(255,255,255,.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" strokeWidth="2.6" strokeLinecap="round"><path d="M14 6l-6 6 6 6" /></svg>
                 </Tap>
-                <span style={{ font: `700 9.5px ${F.mono}`, color: 'rgba(255,255,255,.55)', minWidth: 74, textAlign: 'center' }}>{review.title}</span>
+                <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', minWidth: 74, textAlign: 'center' }}>{review.title}</span>
                 <Tap
                   onTap={() => setWeek((v) => Math.min(0, v + 1))} aria-label="Semaine suivante"
                   style={{ width: 30, height: 30, borderRadius: 9, background: 'rgba(255,255,255,.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: week >= 0 ? .3 : 1 }}
@@ -199,7 +199,7 @@ export default function CheckinInsights({ onClose }: { onClose: () => void }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {review.lines.map((l, i) => (
                 <span key={i} style={{ display: 'flex', gap: 9, font: `400 12.5px/1.55 ${F.body}`, color: i === 0 ? '#fff' : 'rgba(255,255,255,.68)', textWrap: 'pretty' }}>
-                  <span style={{ color: 'rgba(255,255,255,.25)', flex: 'none' }}>—</span>{l}
+                  <span style={{ color: 'rgba(255,255,255,.55)', flex: 'none' }}>—</span>{l}
                 </span>
               ))}
             </div>
@@ -224,18 +224,18 @@ export default function CheckinInsights({ onClose }: { onClose: () => void }) {
                           {up ? <span style={{ display: 'block', width: `${w}%`, height: 6, borderRadius: 99, background: C.lime, opacity: .85 }} /> : null}
                         </span>
                       </span>
-                      <span style={{ width: 58, flex: 'none', textAlign: 'right', font: `700 10px ${F.mono}`, color: t.delta > 0 ? C.lime : t.delta < 0 ? C.coral : 'rgba(255,255,255,.4)' }}>
+                      <span style={{ width: 58, flex: 'none', textAlign: 'right', font: `700 11px ${F.mono}`, color: t.delta > 0 ? C.lime : t.delta < 0 ? C.coral : 'rgba(255,255,255,.55)' }}>
                         {t.delta > 0 ? '+' : ''}{t.delta.toFixed(1).replace('.', ',')} · {t.n}
                       </span>
                     </div>
                   );
                 })}
-                <span style={{ font: `400 11px/1.5 ${F.body}`, color: 'rgba(255,255,255,.38)', marginTop: 3, textWrap: 'pretty' }}>
+                <span style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 3, textWrap: 'pretty' }}>
                   Écart à ton humeur habituelle, et nombre de jours concernés.
                 </span>
               </div>
             ) : (
-              <span style={{ display: 'block', font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.42)' }}>
+              <span style={{ display: 'block', font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)' }}>
                 Pose des mots-clés sur quelques jours : leur effet apparaîtra ici.
               </span>
             )}
@@ -257,13 +257,13 @@ export default function CheckinInsights({ onClose }: { onClose: () => void }) {
                   <div key={i} style={{ background: 'rgba(255,255,255,.04)', borderRadius: 13, padding: '11px 12px' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <MoodFace v={(book[h.day]?.mood || 0) as Scale} face={book[h.day]?.face} size={16} color="rgba(255,255,255,.25)" />
-                      <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.45)' }}>{shortDate(h.day).toUpperCase()}</span>
-                      <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.28)' }}>{h.field.toUpperCase()}</span>
+                      <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)' }}>{shortDate(h.day).toUpperCase()}</span>
+                      <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)' }}>{h.field.toUpperCase()}</span>
                     </span>
                     <span style={{ display: 'block', font: `400 12.5px/1.5 ${F.body}`, color: 'rgba(255,255,255,.78)', marginTop: 6, textWrap: 'pretty' }}>{h.text}</span>
                   </div>
                 )) : (
-                  <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.4)' }}>Rien trouvé.</span>
+                  <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>Rien trouvé.</span>
                 )}
               </div>
             ) : null}
@@ -278,13 +278,13 @@ export default function CheckinInsights({ onClose }: { onClose: () => void }) {
                     <span style={{ width: 5, height: 5, borderRadius: '50%', background: C.honey, flex: 'none' }} />
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: 'block', font: `500 12.5px/1.4 ${F.body}`, color: 'rgba(255,255,255,.82)', textWrap: 'pretty' }}>{it.text}</span>
-                      <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.08em', color: 'rgba(255,255,255,.3)', marginTop: 3 }}>{shortDate(it.day).toUpperCase()}</span>
+                      <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.08em', color: 'rgba(255,255,255,.55)', marginTop: 3 }}>{shortDate(it.day).toUpperCase()}</span>
                     </span>
                     <Tap
                       onTap={() => toQuest(it.text)} aria-label="Transformer en quête"
                       style={{ flex: 'none', minHeight: 34, padding: '0 11px', borderRadius: 99, background: 'rgba(185,222,100,.14)', border: `1px solid ${C.lime}55`, display: 'flex', alignItems: 'center' }}
                     >
-                      <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: C.lime }}>→ QUÊTE</span>
+                      <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.lime }}>→ QUÊTE</span>
                     </Tap>
                   </div>
                 ))}
@@ -297,7 +297,7 @@ export default function CheckinInsights({ onClose }: { onClose: () => void }) {
             {MOODS.map((m) => (
               <span key={m.v} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                 <span style={{ width: 14, height: 14, borderRadius: 5, background: dayBg(m.v, true) }} />
-                <span style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.35)' }}>{m.label.toUpperCase()}</span>
+                <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)' }}>{m.label.toUpperCase()}</span>
               </span>
             ))}
           </div>

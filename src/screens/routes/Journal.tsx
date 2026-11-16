@@ -89,7 +89,7 @@ export default function Journal({ nav }: { nav: Nav }) {
             key={id} onTap={() => setFilter(id)} haptic="soft"
             style={{
               flex: 'none', minHeight: 40, padding: '0 15px', display: 'flex', alignItems: 'center', borderRadius: 12,
-              font: `700 10px ${F.mono}`, letterSpacing: '.1em',
+              font: `700 11px ${F.mono}`, letterSpacing: '.1em',
               background: filter === id ? C.lime : 'rgba(255,255,255,.07)',
               color: filter === id ? C.ink : 'rgba(255,255,255,.6)'
             }}

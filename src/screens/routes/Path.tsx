@@ -42,11 +42,11 @@ export default function Path({ nav }: { nav: Nav }) {
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, marginTop: 12 }}>
             <span>
               <span style={{ display: 'block', font: `800 40px/1 ${F.display}`, color: '#fff', letterSpacing: '-.04em' }}>{doneCount}</span>
-              <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.45)', marginTop: 6 }}>QUÊTES FAITES</span>
+              <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.55)', marginTop: 6 }}>QUÊTES FAITES</span>
             </span>
             <span>
               <span style={{ display: 'block', font: `800 40px/1 ${F.display}`, color: sk.c, letterSpacing: '-.04em' }}>{rows.length - doneCount}</span>
-              <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.45)', marginTop: 6 }}>EN ATTENTE</span>
+              <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.55)', marginTop: 6 }}>EN ATTENTE</span>
             </span>
             <span style={{ flex: 1, textAlign: 'right' }}>
               <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.6)', background: 'rgba(255,255,255,.07)', padding: '8px 12px', borderRadius: 99 }}>{pxOf(s, skill)} PX</span>
@@ -71,16 +71,16 @@ export default function Path({ nav }: { nav: Nav }) {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 16 }}>
           <Bar pct={r.pct} c={sk.txt === '#FFFFFF' ? '#fff' : C.ink} h={10} track="rgba(11,11,12,.16)" />
-          <span style={{ font: `700 10px ${F.mono}`, opacity: .7, flex: 'none' }}>
+          <span style={{ font: `700 11px ${F.mono}`, opacity: .7, flex: 'none' }}>
             {isFinite(r.pxNeed) ? `${r.pxIn}/${r.pxNeed}` : 'MAX'}
           </span>
         </div>
-        <div style={{ font: `400 11.5px ${F.body}`, opacity: .7, marginTop: 8 }}>
+        <div style={{ font: `400 12px ${F.body}`, opacity: .7, marginTop: 8 }}>
           {next ? `Encore ${r.pxNeed - r.pxIn} PX avant ${next.label}.` : 'Sommet de l’échelle atteint.'}
         </div>
         <div style={{ display: 'flex', gap: 9, marginTop: 14, background: 'rgba(11,11,12,.12)', borderRadius: 14, padding: '11px 12px' }}>
           <span style={{ width: 3, borderRadius: 99, background: sk.txt, opacity: .5, flex: 'none' }} />
-          <span style={{ font: `400 11.5px/1.45 ${F.body}`, opacity: .8, textWrap: 'pretty' }}>{TIER_TIPS[r.tier]}</span>
+          <span style={{ font: `400 12px/1.45 ${F.body}`, opacity: .8, textWrap: 'pretty' }}>{TIER_TIPS[r.tier]}</span>
         </div>
       </section>
       )}
@@ -108,12 +108,12 @@ export default function Path({ nav }: { nav: Nav }) {
                   }}
                 >
                   {done ? <Check /> : now ? <svg width="15" height="15" viewBox="0 0 24 24" fill={C.ink}><path d="M7 4l13 8-13 8z" /></svg>
-                    : <span style={{ font: `700 12px ${F.mono}`, color: 'rgba(255,255,255,.45)' }}>{i + 1}</span>}
+                    : <span style={{ font: `700 12px ${F.mono}`, color: 'rgba(255,255,255,.55)' }}>{i + 1}</span>}
                 </span>
                 <span style={{ flex: 1, background: now ? 'rgba(255,255,255,.07)' : 'transparent', border: now ? '1px solid rgba(255,255,255,.14)' : 'none', borderRadius: 18, padding: now ? '13px 15px' : '10px 0' }}>
                   <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
                     <span style={{ font: `${now ? 800 : 700} ${now ? 16 : 14}px ${now ? F.display : F.body}`, color: done ? 'rgba(255,255,255,.55)' : '#fff', textDecoration: done ? 'line-through' : 'none' }}>{row.name}</span>
-                    <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(255,255,255,.35)' : C.lime, whiteSpace: 'nowrap' }}>+{row.px}</span>
+                    <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(255,255,255,.55)' : C.lime, whiteSpace: 'nowrap' }}>+{row.px}</span>
                   </span>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 7 }}>
                     {solo ? null : <DiffBadge diff={row.diff} size="sm" />}
@@ -123,10 +123,10 @@ export default function Path({ nav }: { nav: Nav }) {
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,.1)', borderRadius: 7, padding: '4px 8px' }}
                       >
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinejoin="round"><path d="M4 6h16v12H4z" /><path d="M10 9.5l5 2.5-5 2.5z" fill="#fff" /></svg>
-                        <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: '#fff' }}>TUTO</span>
+                        <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: '#fff' }}>TUTO</span>
                       </Tap>
                     ) : null}
-                    <span style={{ font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.45)' }}>
+                    <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>
                       {done ? 'Validé' : now ? (isInstant(row.rarity) ? 'Un tap suffit' : 'Preuve requise') : 'À venir'}
                     </span>
                   </span>

@@ -22,7 +22,7 @@ const CARD = { background: C.night, border: `1px solid ${C.line}`, borderRadius:
 
 function Pill({ c, txt, children }: { c: string; txt: string; children: React.ReactNode }) {
   return (
-    <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: txt, background: c, padding: '4px 8px', borderRadius: 7, whiteSpace: 'nowrap' }}>
+    <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: txt, background: c, padding: '4px 8px', borderRadius: 7, whiteSpace: 'nowrap' }}>
       {children}
     </span>
   );
@@ -40,14 +40,14 @@ function PackCard({ pack, open, onOpen, onAddAll, onAddOne, onEdit, onDelete }: 
           <PackIcon id={pack.icon} size={30} />
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: 'block', font: `700 13px ${F.body}`, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pack.name}</span>
-            <span style={{ display: 'block', font: `400 10.5px ${F.body}`, color: 'rgba(255,255,255,.42)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {pack.items.length} tâches · {pack.items.slice(0, 2).join(', ')}…
             </span>
           </span>
         </Tap>
         <Tap
           onTap={onAddAll} haptic="success" aria-label={'Ajouter ' + pack.name}
-          style={{ flex: 'none', minHeight: 38, padding: '0 13px', borderRadius: 12, background: C.lime, color: C.ink, display: 'flex', alignItems: 'center', font: `700 9.5px ${F.mono}`, letterSpacing: '.08em' }}
+          style={{ flex: 'none', minHeight: 38, padding: '0 13px', borderRadius: 12, background: C.lime, color: C.ink, display: 'flex', alignItems: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.08em' }}
         >
           TOUT
         </Tap>
@@ -67,12 +67,12 @@ function PackCard({ pack, open, onOpen, onAddAll, onAddOne, onEdit, onDelete }: 
             </Tap>
           ))}
           {onEdit ? (
-            <Tap onTap={onEdit} haptic="soft" style={{ marginTop: 2, minHeight: 36, display: 'flex', alignItems: 'center', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.lime }}>
+            <Tap onTap={onEdit} haptic="soft" style={{ marginTop: 2, minHeight: 36, display: 'flex', alignItems: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.lime }}>
               MODIFIER CE PACK
             </Tap>
           ) : null}
           {onDelete ? (
-            <Tap onTap={onDelete} style={{ minHeight: 36, display: 'flex', alignItems: 'center', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.coral }}>
+            <Tap onTap={onDelete} style={{ minHeight: 36, display: 'flex', alignItems: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.coral }}>
               SUPPRIMER CE PACK
             </Tap>
           ) : null}
@@ -192,7 +192,7 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
             style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', color: '#fff', font: `500 16px ${F.body}`, minHeight: 34 }}
           />
           {raw ? (
-            <button type="submit" style={{ font: `700 10px ${F.mono}`, letterSpacing: '.08em', color: C.ink, background: C.lime, padding: '0 14px', borderRadius: 12, minHeight: 38, flex: 'none' }}>
+            <button type="submit" style={{ font: `700 11px ${F.mono}`, letterSpacing: '.08em', color: C.ink, background: C.lime, padding: '0 14px', borderRadius: 12, minHeight: 38, flex: 'none' }}>
               AJOUTER
             </button>
           ) : null}
@@ -215,7 +215,7 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
             <Pill c="rgba(255,255,255,.08)" txt="rgba(255,255,255,.62)">+{IMPS[imp].px} PX</Pill>
           </div>
         ) : (
-          <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 9, textWrap: 'pretty' }}>
+          <div style={{ font: `400 12px/1.45 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 9, textWrap: 'pretty' }}>
             Écris comme tu parles : <b style={{ fontWeight: 700, color: 'rgba(255,255,255,.7)' }}>demain 9h</b>, <b style={{ fontWeight: 700, color: 'rgba(255,255,255,.7)' }}>vendredi</b>, <b style={{ fontWeight: 700, color: 'rgba(255,255,255,.7)' }}>dans 3 jours</b>, <b style={{ fontWeight: 700, color: 'rgba(255,255,255,.7)' }}>urgent</b>. La date et l’importance se remplissent toutes seules.
           </div>
         )}
@@ -232,11 +232,11 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
           </span>
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: 'block', font: `700 13px ${F.body}`, color: '#fff' }}>Activer les rappels</span>
-            <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 2 }}>
+            <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>
               {perm === 'denied' ? 'Bloqué par le navigateur — à réautoriser dans ses réglages' : 'À l’heure, 10 min avant, et le résumé du matin'}
             </span>
           </span>
-          <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.honey, flex: 'none' }}>{perm === 'denied' ? 'BLOQUÉ' : 'AUTORISER'}</span>
+          <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.honey, flex: 'none' }}>{perm === 'denied' ? 'BLOQUÉ' : 'AUTORISER'}</span>
         </Tap>
       ) : (
         <Tap
@@ -244,10 +244,10 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
           style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(92,191,174,.1)', border: `1px solid ${C.teal}44`, borderRadius: 16, padding: '11px 14px', minHeight: 46 }}
         >
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.teal, flex: 'none', ...LIVE }} />
-          <span style={{ flex: 1, font: `500 11.5px ${F.body}`, color: 'rgba(255,255,255,.7)' }}>
+          <span style={{ flex: 1, font: `500 12px ${F.body}`, color: 'rgba(255,255,255,.7)' }}>
             Rappels actifs sur {dated} quête{dated > 1 ? 's' : ''} datée{dated > 1 ? 's' : ''}
           </span>
-          <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.45)', flex: 'none' }}>RÉGLER</span>
+          <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)', flex: 'none' }}>RÉGLER</span>
         </Tap>
       )}
 
@@ -255,18 +255,18 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
         <Kicker>À FAIRE · {open.length}</Kicker>
         {late ? (
-          <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: '#fff', background: C.coral, padding: '5px 9px', borderRadius: 8 }}>
+          <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: '#fff', background: C.coral, padding: '5px 9px', borderRadius: 8 }}>
             {late} EN RETARD
           </span>
         ) : (
-          <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.4)' }}>TRI AUTOMATIQUE</span>
+          <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)' }}>TRI AUTOMATIQUE</span>
         )}
       </div>
 
       {!open.length ? (
         <div style={{ ...CARD, padding: '26px 20px', textAlign: 'center' }}>
           <div style={{ font: `800 17px ${F.display}`, color: '#fff', letterSpacing: '-.01em' }}>Rien en attente</div>
-          <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 6, textWrap: 'pretty' }}>
+          <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 6, textWrap: 'pretty' }}>
             Sors une tâche de ta tête : tape-la ci-dessus, elle se range toute seule.
           </div>
         </div>
@@ -274,7 +274,7 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
 
       {groups.map((g) => (
         <div key={g.label} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.16em', color: g.label === 'EN RETARD' ? C.coral : 'rgba(255,255,255,.4)', marginTop: 4 }}>
+          <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: g.label === 'EN RETARD' ? C.coral : 'rgba(255,255,255,.55)', marginTop: 4 }}>
             {g.label}
           </span>
           {g.rows.map((q) => {
@@ -300,11 +300,11 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
                 <Tap onTap={() => validate(q, i)} style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: 'block', font: `700 14px ${F.body}`, color: '#fff', textWrap: 'pretty' }}>{q.name}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5, flexWrap: 'wrap' }}>
-                    <span style={{ font: `500 11px ${F.body}`, color: overdue ? C.coral : 'rgba(255,255,255,.5)' }}>
+                    <span style={{ font: `500 12px ${F.body}`, color: overdue ? C.coral : 'rgba(255,255,255,.55)' }}>
                       {dueLabel(q.due ?? null, q.timed !== false)}
                     </span>
-                    <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: ip.c }}>{ip.label}</span>
-                    <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.4)' }}>+{s.onFire ? q.px * 2 : q.px}</span>
+                    <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: ip.c }}>{ip.label}</span>
+                    <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.55)' }}>+{s.onFire ? q.px * 2 : q.px}</span>
                   </span>
                 </Tap>
                 <Tap
@@ -331,7 +331,7 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
         <Kicker>PACKS DE QUÊTES</Kicker>
         <Tap
           onTap={() => setNewPack(newPack ? null : { name: '', items: '', icon: DEFAULT_PACK_ICON })} haptic="soft"
-          style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.lime, minHeight: 32, display: 'flex', alignItems: 'center' }}
+          style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.lime, minHeight: 32, display: 'flex', alignItems: 'center' }}
         >
           {newPack ? 'ANNULER' : '+ CRÉER'}
         </Tap>
@@ -351,7 +351,7 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
           </div>
 
           {/* Choix de l'icône : la vignette du pack dans la liste */}
-          <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)', marginTop: 13 }}>
+          <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)', marginTop: 13 }}>
             ICÔNE · {packIconLabel(newPack.icon).toUpperCase()}
           </span>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6, marginTop: 9 }}>
@@ -413,14 +413,14 @@ export default function PersoBoard({ onSettings }: { onSettings: () => void }) {
             <span style={{ width: 20, height: 20, borderRadius: 7, background: C.teal, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
               <Check size={11} w={3.4} />
             </span>
-            <span style={{ flex: 1, font: `500 9.5px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.45)' }}>TERMINÉ · {done.length}</span>
-            <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.35)' }}>{doneOpen ? 'MASQUER' : 'AFFICHER'}</span>
+            <span style={{ flex: 1, font: `500 11px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.55)' }}>TERMINÉ · {done.length}</span>
+            <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)' }}>{doneOpen ? 'MASQUER' : 'AFFICHER'}</span>
           </Tap>
           {doneOpen ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {done.map((q) => (
                 <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'rgba(255,255,255,.04)', borderRadius: 14, padding: '11px 13px' }}>
-                  <span style={{ flex: 1, font: `400 13px ${F.body}`, color: 'rgba(255,255,255,.42)', textDecoration: 'line-through' }}>{q.name}</span>
+                  <span style={{ flex: 1, font: `400 13px ${F.body}`, color: 'rgba(255,255,255,.55)', textDecoration: 'line-through' }}>{q.name}</span>
                   <Tap onTap={() => d({ t: 'DEL_QUEST', id: q.id })} aria-label="Supprimer" style={{ width: 28, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
                   </Tap>

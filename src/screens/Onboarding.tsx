@@ -19,10 +19,10 @@ export default function Onboarding() {
   return (
     <div style={{ minHeight: '100dvh', background: C.ink, display: 'flex', flexDirection: 'column', padding: 'calc(var(--safe-top) + 22px) 22px calc(var(--safe-bottom) + 22px)' }}>
       <Logo size={38} />
-      <div style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.24em', marginTop: 24 }}>
+      <div style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.24em', marginTop: 24 }}>
         BIENVENUE {s.profile.firstName.toUpperCase()}
       </div>
-      <div style={{ font: `800 36px/1.02 ${F.display}`, color: '#fff', letterSpacing: '-.03em', marginTop: 10 }}>
+      <div role="heading" aria-level={1} style={{ font: `800 36px/1.02 ${F.display}`, color: '#fff', letterSpacing: '-.03em', marginTop: 10 }}>
         PAR QUOI<br />TU COMMENCES ?
       </div>
       <div style={{ font: `400 13px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 12, maxWidth: 320, textWrap: 'pretty' }}>
@@ -47,7 +47,7 @@ export default function Onboarding() {
               <span style={{ font: `800 22px ${F.display}`, color: on ? k.txt : '#fff', letterSpacing: '-.02em' }}>{k.short}</span>
               <span>
                 <span style={{ display: 'block', font: `700 13px ${F.body}`, color: on ? k.txt : '#fff' }}>{k.name}</span>
-                <span style={{ display: 'block', font: `400 11px ${F.body}`, color: on ? k.txt : 'rgba(255,255,255,.45)', opacity: on ? .7 : 1, marginTop: 3 }}>{k.soft}</span>
+                <span style={{ display: 'block', font: `400 12px ${F.body}`, color: on ? k.txt : 'rgba(255,255,255,.55)', opacity: on ? .7 : 1, marginTop: 3 }}>{k.soft}</span>
               </span>
             </Tap>
           );
@@ -58,9 +58,9 @@ export default function Onboarding() {
 
       {first ? (
         <div style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 20, padding: '14px 16px', marginBottom: 10 }}>
-          <div style={{ font: `500 9px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.45)' }}>TON PREMIER PALIER</div>
+          <div style={{ font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>TON PREMIER PALIER</div>
           <div style={{ font: `700 14px ${F.body}`, color: '#fff', marginTop: 6 }}>Première session : {first[0].toLowerCase()}</div>
-          <div style={{ font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 4 }}>Commune · +15 PX · validation en un tap</div>
+          <div style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 4 }}>Commune · +15 PX · validation en un tap</div>
         </div>
       ) : null}
 
@@ -69,7 +69,7 @@ export default function Onboarding() {
         haptic="success"
         style={{
           background: pick ? C.lime : 'rgba(255,255,255,.08)',
-          color: pick ? C.ink : 'rgba(255,255,255,.35)',
+          color: pick ? C.ink : 'rgba(255,255,255,.55)',
           borderRadius: 20, padding: '18px 22px', minHeight: 56,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between'
         }}

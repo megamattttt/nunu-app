@@ -47,21 +47,21 @@ export default function Profile({ nav }: { nav: Nav }) {
           />
           <span style={{ flex: 1, minWidth: 0, alignSelf: 'center' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ font: `800 26px/1 ${F.display}`, color: C.ink, letterSpacing: '-.025em', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>@{s.profile.gamertag}</span>
+              <span role="heading" aria-level={1} style={{ font: `800 26px/1 ${F.display}`, color: C.ink, letterSpacing: '-.025em', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>@{s.profile.gamertag}</span>
               <Tap
                 onTap={() => setEdit(true)} aria-label="Modifier le profil"
-                style={{ width: 34, height: 34, borderRadius: 99, flex: 'none', background: 'rgba(11,11,12,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ width: 44, height: 44, borderRadius: 99, flex: 'none', background: 'rgba(11,11,12,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.2" strokeLinejoin="round"><path d="M4 20h4L20 8l-4-4L4 16z" /></svg>
               </Tap>
             </span>
             <span style={{ display: 'block', font: `400 12.5px ${F.body}`, color: 'rgba(11,11,12,.62)', marginTop: 6 }}>{s.profile.firstName} · {s.profile.atelier}</span>
             <span style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 6, marginTop: 9 }}>
-              <span style={{ font: `700 10px ${F.mono}`, color: C.paper, background: C.ink, padding: '5px 10px', borderRadius: 99, letterSpacing: '.1em' }}>NIVEAU {globalLevel(s)}</span>
+              <span style={{ font: `700 11px ${F.mono}`, color: C.paper, background: C.ink, padding: '5px 10px', borderRadius: 99, letterSpacing: '.1em' }}>NIVEAU {globalLevel(s)}</span>
               {s.onFire ? (
-                <span style={{ font: `700 10px ${F.mono}`, color: '#fff', background: C.coral, padding: '5px 10px', borderRadius: 99, letterSpacing: '.06em' }}>EN FEU · PX ×2</span>
+                <span style={{ font: `700 11px ${F.mono}`, color: '#fff', background: C.coral, padding: '5px 10px', borderRadius: 99, letterSpacing: '.06em' }}>EN FEU · PX ×2</span>
               ) : (
-                <span style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sig, padding: '5px 10px', borderRadius: 99, letterSpacing: '.06em' }}>ÉNERGIE {s.energy}%</span>
+                <span style={{ font: `700 11px ${F.mono}`, color: C.ink, background: sig, padding: '5px 10px', borderRadius: 99, letterSpacing: '.06em' }}>ÉNERGIE {s.energy}%</span>
               )}
             </span>
             <span style={{ display: 'block', marginTop: 11 }}>
@@ -72,7 +72,7 @@ export default function Profile({ nav }: { nav: Nav }) {
         <div style={{ display: 'flex', gap: 8, marginTop: 20, position: 'relative' }}>
           {[['PX TOTAL', totalPx(s).toLocaleString('fr-FR')], ['QUÊTES', String(questsDone(s))], ['PIÈCES', String(s.coins)]].map(([k, v]) => (
             <div key={k} style={{ flex: 1, background: 'rgba(255,255,255,.62)', borderRadius: 16, padding: '10px 12px' }}>
-              <div style={{ font: `500 9px ${F.mono}`, color: 'rgba(11,11,12,.55)', letterSpacing: '.12em' }}>{k}</div>
+              <div style={{ font: `500 11px ${F.mono}`, color: 'rgba(11,11,12,.62)', letterSpacing: '.12em' }}>{k}</div>
               <div style={{ font: `800 19px ${F.display}`, color: C.ink, marginTop: 2 }}>{v}</div>
             </div>
           ))}
@@ -101,14 +101,14 @@ export default function Profile({ nav }: { nav: Nav }) {
                   }}
                 >
                   {globalPct(s) >= 24 ? (
-                    <span style={{ font: `700 10.5px ${F.mono}`, color: C.lime, letterSpacing: '.04em' }}>{globalPct(s)}%</span>
+                    <span style={{ font: `700 11px ${F.mono}`, color: C.lime, letterSpacing: '.04em' }}>{globalPct(s)}%</span>
                   ) : null}
                 </span>
                 {globalPct(s) < 24 ? (
-                  <span style={{ position: 'absolute', right: 11, top: 0, bottom: 0, display: 'flex', alignItems: 'center', font: `700 10.5px ${F.mono}`, color: 'rgba(11,11,12,.5)' }}>{globalPct(s)}%</span>
+                  <span style={{ position: 'absolute', right: 11, top: 0, bottom: 0, display: 'flex', alignItems: 'center', font: `700 11px ${F.mono}`, color: 'rgba(11,11,12,.62)' }}>{globalPct(s)}%</span>
                 ) : null}
               </span>
-              <span style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, font: `500 9.5px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(11,11,12,.45)' }}>
+              <span style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, font: `500 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(11,11,12,.62)' }}>
                 <span>{totalPx(s).toLocaleString('fr-FR')} PX CUMULÉS</span>
                 <span>NIVEAU {globalLevel(s) + 1}</span>
               </span>
@@ -127,10 +127,10 @@ export default function Profile({ nav }: { nav: Nav }) {
           </div>
           <div style={{ marginTop: 14 }}><WeekStrip days={w.days} h={40} /></div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 13, gap: 10 }}>
-            <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.5)' }}>
+            <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>
               {w.n} validations · {w.active}/7 jours actifs
             </span>
-            <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.azur }}>BILAN COMPLET →</span>
+            <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.azur }}>BILAN COMPLET →</span>
           </div>
         </Tap>
 
@@ -144,12 +144,12 @@ export default function Profile({ nav }: { nav: Nav }) {
           </span>
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: 'block', font: `800 18px ${F.display}`, color: '#fff', letterSpacing: '-.01em' }}>DÉFIS</span>
-            <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 3 }}>
+            <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 3 }}>
               {s.duels.filter((x) => x.status === 'en cours').length} en cours · {s.invitsOpen.length} invitations
             </span>
           </span>
           {s.invitsOpen.length ? (
-            <span style={{ minWidth: 22, height: 22, borderRadius: 99, background: C.coral, color: '#fff', font: `700 10px ${F.mono}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none', padding: '0 6px' }}>
+            <span style={{ minWidth: 22, height: 22, borderRadius: 99, background: C.coral, color: '#fff', font: `700 11px ${F.mono}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none', padding: '0 6px' }}>
               {s.invitsOpen.length}
             </span>
           ) : null}
@@ -174,9 +174,9 @@ export default function Profile({ nav }: { nav: Nav }) {
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
                         <span style={{ font: `700 12.5px ${F.body}`, color: 'rgba(255,255,255,.82)' }}>{(s.profile as any).persoName || 'Perso'}</span>
-                        <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.45)' }}>{pxOf(s, sk.id)} PX</span>
+                        <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.55)' }}>{pxOf(s, sk.id)} PX</span>
                       </span>
-                      <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 5 }}>
+                      <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 5 }}>
                         {done} faite{done > 1 ? 's' : ''} · {Math.max(0, n - done)} en attente
                       </span>
                     </span>
@@ -190,7 +190,7 @@ export default function Profile({ nav }: { nav: Nav }) {
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
                       <span style={{ font: `700 12.5px ${F.body}`, color: '#fff' }}>{r.label}</span>
-                      <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.45)' }}>{pxOf(s, sk.id)} PX</span>
+                      <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.55)' }}>{pxOf(s, sk.id)} PX</span>
                     </span>
                     <span style={{ display: 'block', height: 6, borderRadius: 99, background: 'rgba(255,255,255,.1)', marginTop: 6, overflow: 'hidden' }}>
                       <span style={{ display: 'block', height: '100%', width: r.pct + '%', background: sk.c, borderRadius: 99 }} />
@@ -204,7 +204,7 @@ export default function Profile({ nav }: { nav: Nav }) {
           <div style={{ display: 'flex', gap: 10, marginTop: 14, background: 'rgba(255,255,255,.05)', borderRadius: 16, padding: '12px 13px' }}>
             <span style={{ width: 3, borderRadius: 99, background: mainRank.c, flex: 'none' }} />
             <span>
-              <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)' }}>PASSER À L’ÉTAGE SUIVANT · {mainSk.name}</span>
+              <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>PASSER À L’ÉTAGE SUIVANT · {mainSk.name}</span>
               <span style={{ display: 'block', font: `400 12px/1.45 ${F.body}`, color: 'rgba(255,255,255,.72)', marginTop: 6, textWrap: 'pretty' }}>{TIER_TIPS[mainRank.tier]}</span>
             </span>
           </div>
@@ -215,11 +215,11 @@ export default function Profile({ nav }: { nav: Nav }) {
           <DioramaScene height={230} onPick={() => nav.open('diorama')} />
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10, padding: '13px 9px 5px' }}>
             <span>
-              <span style={{ display: 'block', font: `500 9px ${F.mono}`, color: 'rgba(60,42,28,.55)', letterSpacing: '.16em' }}>DIORAMA · PAPIER DÉCOUPÉ</span>
+              <span style={{ display: 'block', font: `500 11px ${F.mono}`, color: 'rgba(60,42,28,.55)', letterSpacing: '.16em' }}>DIORAMA · PAPIER DÉCOUPÉ</span>
               <span style={{ display: 'block', font: `800 21px ${F.display}`, color: '#3A2A1C', letterSpacing: '-.02em', marginTop: 3 }}>{(s.dio.name || 'Atelier').toUpperCase()}</span>
-              <span style={{ display: 'block', font: `400 10.5px ${F.body}`, color: 'rgba(60,42,28,.55)', marginTop: 3 }}>{placed(s).length} pièces posées · {(s.dio.visits || []).length} réactions reçues</span>
+              <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(60,42,28,.55)', marginTop: 3 }}>{placed(s).length} pièces posées · {(s.dio.visits || []).length} réactions reçues</span>
             </span>
-            <Tap onTap={() => nav.open('diorama')} style={{ font: `700 9.5px ${F.mono}`, color: '#F4E7D3', background: '#3A2A1C', padding: '12px 14px', borderRadius: 99, letterSpacing: '.08em', flex: 'none', minHeight: 44, display: 'flex', alignItems: 'center' }}>PERSONNALISER</Tap>
+            <Tap onTap={() => nav.open('diorama')} style={{ font: `700 11px ${F.mono}`, color: '#F4E7D3', background: '#3A2A1C', padding: '12px 14px', borderRadius: 99, letterSpacing: '.08em', flex: 'none', minHeight: 44, display: 'flex', alignItems: 'center' }}>PERSONNALISER</Tap>
           </div>
         </div>
 
@@ -228,14 +228,14 @@ export default function Profile({ nav }: { nav: Nav }) {
           <span style={{ position: 'absolute', right: -60, top: -80, width: 200, height: 200, borderRadius: '50%', background: sig, opacity: .18 }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', gap: 10 }}>
             <Kicker dark>BANNIÈRE DE COMPÉTENCES</Kicker>
-            <Tap onTap={() => nav.open('banner')} style={{ font: `700 9.5px ${F.mono}`, color: C.paper, background: C.ink, padding: '10px 12px', borderRadius: 99, letterSpacing: '.08em', flex: 'none', minHeight: 40, display: 'flex', alignItems: 'center' }}>PERSONNALISER</Tap>
+            <Tap onTap={() => nav.open('banner')} style={{ font: `700 11px ${F.mono}`, color: C.paper, background: C.ink, padding: '10px 12px', borderRadius: 99, letterSpacing: '.08em', flex: 'none', minHeight: 40, display: 'flex', alignItems: 'center' }}>PERSONNALISER</Tap>
           </div>
           <div style={{ font: `800 27px/1.05 ${F.display}`, color: C.ink, letterSpacing: '-.028em', marginTop: 12, position: 'relative' }}>{s.banner.title}</div>
           <div style={{ display: 'flex', gap: 11, marginTop: 13, position: 'relative' }}>
             <span style={{ width: 3, borderRadius: 99, background: C.ink, flex: 'none' }} />
             <span>
               <span style={{ display: 'block', font: `400 13px/1.45 ${F.body}`, color: 'rgba(11,11,12,.8)', textWrap: 'pretty' }}>{quote[0]}</span>
-              <span style={{ display: 'block', font: `500 9px ${F.mono}`, color: 'rgba(11,11,12,.42)', letterSpacing: '.12em', marginTop: 6 }}>CITATION DÉBLOQUÉE · {quote[1]}</span>
+              <span style={{ display: 'block', font: `500 11px ${F.mono}`, color: 'rgba(11,11,12,.62)', letterSpacing: '.12em', marginTop: 6 }}>CITATION DÉBLOQUÉE · {quote[1]}</span>
             </span>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginTop: 15, position: 'relative' }}>
@@ -244,9 +244,9 @@ export default function Profile({ nav }: { nav: Nav }) {
               return (
                 <span key={p} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff', borderRadius: 99, padding: '7px 12px' }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: sk.c }} />
-                  <span style={{ font: `700 11px ${F.body}`, color: C.ink }}>{sk.name}</span>
+                  <span style={{ font: `700 12px ${F.body}`, color: C.ink }}>{sk.name}</span>
                   <RankIcon rank={skillRank(s, p)} size={16} bg="#fff" pips={false} />
-                  <span style={{ font: `700 9px ${F.mono}`, color: 'rgba(11,11,12,.45)' }}>{skillRank(s, p).short}</span>
+                  <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(11,11,12,.62)' }}>{skillRank(s, p).short}</span>
                 </span>
               );
             })}
@@ -254,30 +254,30 @@ export default function Profile({ nav }: { nav: Nav }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: C.ink, borderRadius: 18, padding: '12px 14px', marginTop: 15, position: 'relative' }}>
             <span style={{ width: 34, height: 34, borderRadius: 12, background: C.honey, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}><Star size={17} /></span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.5)', letterSpacing: '.14em' }}>DÉFI ÉPINGLÉ</span>
+              <span style={{ display: 'block', font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em' }}>DÉFI ÉPINGLÉ</span>
               <span style={{ display: 'block', font: `700 14px ${F.body}`, color: '#fff', marginTop: 3 }}>{chall[0]}</span>
             </span>
-            <span style={{ font: `500 9.5px ${F.mono}`, color: 'rgba(255,255,255,.5)', flex: 'none', letterSpacing: '.08em' }}>{chall[1]}</span>
+            <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', flex: 'none', letterSpacing: '.08em' }}>{chall[1]}</span>
           </div>
-          <div style={{ font: `400 12.5px/1.45 ${F.body}`, color: 'rgba(11,11,12,.6)', marginTop: 14, position: 'relative', textWrap: 'pretty' }}>{s.banner.msg}</div>
+          <div style={{ font: `400 12.5px/1.45 ${F.body}`, color: 'rgba(11,11,12,.62)', marginTop: 14, position: 'relative', textWrap: 'pretty' }}>{s.banner.msg}</div>
         </section>
 
         {/* Dernières validations */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Kicker>DERNIÈRES VALIDATIONS</Kicker>
-          <Tap onTap={() => nav.open('journal')} style={{ font: `700 10px ${F.mono}`, color: C.lime, letterSpacing: '.1em', minHeight: 32, display: 'flex', alignItems: 'center' }}>
+          <Tap onTap={() => nav.open('journal')} style={{ font: `700 11px ${F.mono}`, color: C.lime, letterSpacing: '.1em', minHeight: 32, display: 'flex', alignItems: 'center' }}>
             OUVRIR LE JOURNAL
           </Tap>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
           {s.log.slice(0, 8).map((l, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 11, background: C.night, border: '1px solid rgba(255,255,255,.07)', borderRadius: 18, padding: '12px 14px' }}>
-              <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: (SKILLS.find((k) => k.name === l.tag)?.c) || C.sand, padding: '5px 8px', borderRadius: 7, flex: 'none' }}>{l.tag}</span>
+              <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: (SKILLS.find((k) => k.name === l.tag)?.c) || C.sand, padding: '5px 8px', borderRadius: 7, flex: 'none' }}>{l.tag}</span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', font: `700 13px ${F.body}`, color: '#fff' }}>{l.name}</span>
-                <span style={{ display: 'block', font: `400 10.5px ${F.body}`, color: 'rgba(255,255,255,.42)', marginTop: 2 }}>{l.when}</span>
+                <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{l.when}</span>
               </span>
-              <span style={{ font: `700 10.5px ${F.mono}`, color: C.lime, flex: 'none', whiteSpace: 'nowrap' }}>{l.val}</span>
+              <span style={{ font: `700 11px ${F.mono}`, color: C.lime, flex: 'none', whiteSpace: 'nowrap' }}>{l.val}</span>
             </div>
           ))}
         </div>
@@ -285,7 +285,7 @@ export default function Profile({ nav }: { nav: Nav }) {
         <Tap onTap={() => nav.open('avatar')} style={{ background: C.lime, borderRadius: 22, padding: '17px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 68 }}>
           <span>
             <span style={{ display: 'block', font: `800 18px ${F.display}`, color: C.ink, letterSpacing: '-.01em' }}>STUDIO AVATAR</span>
-            <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(11,11,12,.6)', marginTop: 3 }}>Coupe · couleur · accessoires</span>
+            <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(11,11,12,.62)', marginTop: 3 }}>Coupe · couleur · accessoires</span>
           </span>
           <span style={{ width: 34, height: 34, borderRadius: '50%', background: C.ink, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.lime} strokeWidth="2.6"><path d="M5 12h13M12 5l7 7-7 7" /></svg>
@@ -295,7 +295,7 @@ export default function Profile({ nav }: { nav: Nav }) {
         <Tap onTap={() => nav.open('shop')} style={{ background: C.night, border: '1px solid rgba(255,255,255,.1)', borderRadius: 22, padding: '17px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 68 }}>
           <span>
             <span style={{ display: 'block', font: `800 18px ${F.display}`, color: '#fff', letterSpacing: '-.01em' }}>BOUTIQUE</span>
-            <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 3 }}>{s.coins} pièces · {ownedObjects(s)} objets posés</span>
+            <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 3 }}>{s.coins} pièces · {ownedObjects(s)} objets posés</span>
           </span>
           <span style={{ width: 34, height: 34, borderRadius: '50%', background: C.honey, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.6"><path d="M5 12h13M12 5l7 7-7 7" /></svg>
@@ -309,8 +309,8 @@ export default function Profile({ nav }: { nav: Nav }) {
             aria-expanded={settings}
             style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '17px 16px', minHeight: 58 }}
           >
-            <span style={{ flex: 1, font: `500 9.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>RÉGLAGES</span>
-            <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.35)' }}>
+            <span style={{ flex: 1, font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>RÉGLAGES</span>
+            <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)' }}>
               {settings ? 'MASQUER' : 'AFFICHER'}
             </span>
             <svg
@@ -340,7 +340,7 @@ export default function Profile({ nav }: { nav: Nav }) {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                     <span style={{ minWidth: 0 }}>
                       <span style={{ display: 'block', font: `500 13.5px ${F.body}`, color: 'rgba(255,255,255,.85)' }}>Rappels</span>
-                      <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.42)', marginTop: 2 }}>
+                      <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>
                         {notifPerm === 'denied'
                           ? 'Bloqués par le navigateur'
                           : notifPerm === 'unsupported'
@@ -369,9 +369,9 @@ export default function Profile({ nav }: { nav: Nav }) {
                             <Tap
                               key={k} onTap={() => d({ t: 'NOTIF', patch: { [k]: !on } })} haptic="soft"
                               style={{
-                                font: `700 9px ${F.mono}`, letterSpacing: '.1em', padding: '9px 12px', borderRadius: 99, minHeight: 36,
+                                font: `700 11px ${F.mono}`, letterSpacing: '.1em', padding: '9px 12px', borderRadius: 99, minHeight: 36,
                                 display: 'flex', alignItems: 'center',
-                                color: on ? C.ink : 'rgba(255,255,255,.5)',
+                                color: on ? C.ink : 'rgba(255,255,255,.55)',
                                 background: on ? C.lime : 'transparent',
                                 border: `1px solid ${on ? C.lime : 'rgba(255,255,255,.16)'}`
                               }}
@@ -393,7 +393,7 @@ export default function Profile({ nav }: { nav: Nav }) {
                   <Tap key={label} onTap={act} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 0', borderTop: '1px solid rgba(255,255,255,.07)', minHeight: 56 }}>
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: 'block', font: `500 13.5px ${F.body}`, color: 'rgba(255,255,255,.85)' }}>{label}</span>
-                      <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.42)', marginTop: 2 }}>{sub}</span>
+                      <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>{sub}</span>
                     </span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" strokeWidth="2.6" style={{ flex: 'none' }}><path d="M9 5l7 7-7 7" /></svg>
                   </Tap>

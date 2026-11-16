@@ -78,7 +78,7 @@ export default function Discover({ nav }: { nav: Nav }) {
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-                <span style={{ font: `700 9.5px ${F.mono}`, letterSpacing: '.14em', color: sk.txt, background: sk.c, padding: '6px 10px', borderRadius: 8 }}>{sk.name}</span>
+                <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.14em', color: sk.txt, background: sk.c, padding: '6px 10px', borderRadius: 8 }}>{sk.name}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                   <DiffBadge diff={card.diff} size="sm" />
                   <span style={{ font: `700 12px ${F.mono}`, color: C.ink, background: 'rgba(11,11,12,.12)', padding: '6px 10px', borderRadius: 8 }}>+{card.px} PX</span>
@@ -86,7 +86,7 @@ export default function Discover({ nav }: { nav: Nav }) {
               </div>
 
               {card.rarity !== 'commune' ? (
-                <div style={{ marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 6, font: `700 9px ${F.mono}`, letterSpacing: '.16em', color: C.ink, background: 'rgba(11,11,12,.14)', padding: '6px 10px', borderRadius: 99 }}>
+                <div style={{ marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 6, font: `700 11px ${F.mono}`, letterSpacing: '.16em', color: C.ink, background: 'rgba(11,11,12,.14)', padding: '6px 10px', borderRadius: 99 }}>
                   ★ QUÊTE {rar.label}
                 </div>
               ) : null}
@@ -94,8 +94,8 @@ export default function Discover({ nav }: { nav: Nav }) {
               <div style={{ font: `400 13.5px/1.5 ${F.body}`, color: 'rgba(11,11,12,.66)', marginTop: 14, textWrap: 'pretty' }}>{card.desc}</div>
 
               <div style={{ display: 'flex', gap: 7, marginTop: 22, flexWrap: 'wrap' }}>
-                <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(11,11,12,.6)', background: 'rgba(11,11,12,.09)', padding: '6px 11px', borderRadius: 99, letterSpacing: '.08em' }}>4 ÉTAPES</span>
-                <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(11,11,12,.6)', background: 'rgba(11,11,12,.09)', padding: '6px 11px', borderRadius: 99, letterSpacing: '.08em' }}>PREUVE PHOTO</span>
+                <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(11,11,12,.62)', background: 'rgba(11,11,12,.09)', padding: '6px 11px', borderRadius: 99, letterSpacing: '.08em' }}>4 ÉTAPES</span>
+                <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(11,11,12,.62)', background: 'rgba(11,11,12,.09)', padding: '6px 11px', borderRadius: 99, letterSpacing: '.08em' }}>PREUVE PHOTO</span>
               </div>
 
               {intent ? (
@@ -103,7 +103,7 @@ export default function Discover({ nav }: { nav: Nav }) {
                   style={{
                     position: 'absolute', top: 20, [intent === 'add' ? 'left' : 'right']: 22,
                     font: `800 22px ${F.display}`, letterSpacing: '-.02em',
-                    color: intent === 'add' ? C.ink : 'rgba(11,11,12,.5)',
+                    color: intent === 'add' ? C.ink : 'rgba(11,11,12,.62)',
                     border: '3px solid ' + (intent === 'add' ? C.ink : 'rgba(11,11,12,.4)'),
                     padding: '4px 10px', borderRadius: 10, transform: `rotate(${intent === 'add' ? -12 : 12}deg)`
                   } as React.CSSProperties}
@@ -114,7 +114,7 @@ export default function Discover({ nav }: { nav: Nav }) {
             </div>
           </div>
 
-          <div style={{ font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.4)', textAlign: 'center', marginTop: 18 }}>
+          <div style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', textAlign: 'center', marginTop: 18 }}>
             Glisse à droite pour ajouter, à gauche pour passer.
           </div>
 

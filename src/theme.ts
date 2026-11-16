@@ -55,7 +55,7 @@ export const F = {
 
 /** Raccourcis typo (font shorthand) utilisés partout dans les écrans. */
 export const T = {
-  kicker: `500 9.5px ${F.mono}`,
+  kicker: `500 11px ${F.mono}`,
   mono: `700 11px ${F.mono}`,
   h1: `800 42px/1 ${F.display}`,
   h2: `800 28px/1 ${F.display}`,

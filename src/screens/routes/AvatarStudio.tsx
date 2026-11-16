@@ -95,7 +95,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px 0' }}>
           {hideBack ? null : <BackBtn onTap={() => nav?.back()} />}
           <span style={{ flex: 1 }} />
-          <Tap onTap={randomize} style={{ font: `700 10px ${F.mono}`, color: '#fff', background: 'rgba(255,255,255,.1)', padding: '13px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 44, display: 'flex', alignItems: 'center' }}>HASARD</Tap>
+          <Tap onTap={randomize} style={{ font: `700 11px ${F.mono}`, color: '#fff', background: 'rgba(255,255,255,.1)', padding: '13px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 44, display: 'flex', alignItems: 'center' }}>HASARD</Tap>
         </div>
 
         {/* Scène */}
@@ -123,7 +123,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
           </span>
           <span style={{ minWidth: 0, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
             <span style={{ font: `800 22px ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>@{s.profile.gamertag}</span>
-            <span style={{ font: `700 10px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: AV_SIG[s.profile.sig], padding: '6px 12px', borderRadius: 99 }}>
+            <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: AV_SIG[s.profile.sig], padding: '6px 12px', borderRadius: 99 }}>
               {AV_TITLES[s.profile.titleIx][0].toUpperCase()}
             </span>
           </span>
@@ -136,7 +136,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
           {AV_GROUPS.map((g, i) => (
             <Tap
               key={g} onTap={() => { setGroup(i); setCat(keysOfGroup(i)[0] || (i === 3 ? '__frame' : '')); }} haptic="soft"
-              style={{ flex: 'none', font: `700 9.5px ${F.mono}`, letterSpacing: '.08em', padding: '11px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: group === i ? C.lime : 'rgba(255,255,255,.07)', color: group === i ? C.ink : 'rgba(255,255,255,.6)' }}
+              style={{ flex: 'none', font: `700 11px ${F.mono}`, letterSpacing: '.08em', padding: '11px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: group === i ? C.lime : 'rgba(255,255,255,.07)', color: group === i ? C.ink : 'rgba(255,255,255,.6)' }}
             >
               {g}
             </Tap>
@@ -152,15 +152,15 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
         {isIdent ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 11, paddingBottom: 4 }}>
             <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 20, padding: '12px 16px' }}>
-              <div style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.14em' }}>GAMERTAG</div>
+              <div style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em' }}>GAMERTAG</div>
               <input value={s.profile.gamertag} onChange={(e) => d({ t: 'SET_PROFILE', patch: { gamertag: e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 16) } })} style={{ width: '100%', color: '#fff', font: `700 17px ${F.body}`, padding: '6px 0 0' }} />
             </div>
             <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 20, padding: '12px 16px' }}>
-              <div style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.14em' }}>NOM D’ATELIER</div>
+              <div style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em' }}>NOM D’ATELIER</div>
               <input value={s.profile.atelier} onChange={(e) => d({ t: 'SET_PROFILE', patch: { atelier: e.target.value } })} style={{ width: '100%', color: '#fff', font: `700 17px ${F.body}`, padding: '6px 0 0' }} />
             </div>
             <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 20, padding: '14px 16px' }}>
-              <div style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.14em' }}>TITRE GAGNÉ</div>
+              <div style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em' }}>TITRE GAGNÉ</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginTop: 11 }}>
                 {AV_TITLES.map(([label, skill, need], i) => {
                   const ok = levelOf(s, skill) >= need;
@@ -169,7 +169,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
                     <Tap
                       key={label}
                       onTap={() => ok ? d({ t: 'SET_PROFILE', patch: { titleIx: i } }) : d({ t: 'TOAST', msg: skillById(skill).name + ' niveau ' + need + ' requis' })}
-                      style={{ font: `700 11px ${F.body}`, padding: '10px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', opacity: ok ? 1 : .4, background: on ? C.lime : 'rgba(255,255,255,.07)', color: on ? C.ink : 'rgba(255,255,255,.7)' }}
+                      style={{ font: `700 12px ${F.body}`, padding: '10px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', opacity: ok ? 1 : .4, background: on ? C.lime : 'rgba(255,255,255,.07)', color: on ? C.ink : 'rgba(255,255,255,.7)' }}
                     >
                       {label}
                     </Tap>
@@ -178,7 +178,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
               </div>
             </div>
             <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 20, padding: '14px 16px' }}>
-              <div style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.14em' }}>COULEUR SIGNATURE</div>
+              <div style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em' }}>COULEUR SIGNATURE</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 12 }}>
                 {AV_SIG.map((c, i) => (
                   <Tap key={c} onTap={() => d({ t: 'SET_PROFILE', patch: { sig: i } })} haptic="soft" style={{ width: 44, height: 44, borderRadius: 14, background: c, border: s.profile.sig === i ? '3px solid #fff' : '3px solid transparent' }} />
@@ -186,8 +186,8 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
               </div>
             </div>
             <div style={{ background: 'rgba(255,255,255,.05)', borderRadius: 20, padding: '14px 16px' }}>
-              <div style={{ font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.14em' }}>GRAINE</div>
-              <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 6, textWrap: 'pretty' }}>
+              <div style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em' }}>GRAINE</div>
+              <div style={{ font: `400 12px/1.45 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 6, textWrap: 'pretty' }}>
                 Elle fixe les détails que tu ne choisis pas. En changer donne un nouveau visage de base.
               </div>
               <div style={{ display: 'flex', gap: 9, alignItems: 'center', marginTop: 11 }}>
@@ -197,7 +197,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
                 />
                 <Tap
                   onTap={() => d({ t: 'SET_AV', patch: { seed: Math.random().toString(36).slice(2, 10) } })} haptic="soft"
-                  style={{ flex: 'none', font: `700 9.5px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: C.lime, padding: '0 14px', borderRadius: 12, minHeight: 44, display: 'flex', alignItems: 'center' }}
+                  style={{ flex: 'none', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.ink, background: C.lime, padding: '0 14px', borderRadius: 12, minHeight: 44, display: 'flex', alignItems: 'center' }}
                 >
                   TIRER
                 </Tap>
@@ -208,17 +208,17 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
           <>
             <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
               {cats.map((k) => (
-                <Tap key={k} onTap={() => setCat(k)} haptic="soft" style={{ flex: 'none', font: `700 10.5px ${F.body}`, padding: '10px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: key === k || (isFrame && k === '__frame') ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.05)', color: key === k || (isFrame && k === '__frame') ? '#fff' : 'rgba(255,255,255,.55)' }}>
+                <Tap key={k} onTap={() => setCat(k)} haptic="soft" style={{ flex: 'none', font: `700 12px ${F.body}`, padding: '10px 12px', borderRadius: 11, minHeight: 40, display: 'flex', alignItems: 'center', background: key === k || (isFrame && k === '__frame') ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.05)', color: key === k || (isFrame && k === '__frame') ? '#fff' : 'rgba(255,255,255,.55)' }}>
                   {k === '__frame' ? 'Cadre' : labelOf(k)}
                 </Tap>
               ))}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 13 }}>
-              <span style={{ font: `500 9.5px ${F.mono}`, color: 'rgba(255,255,255,.5)', letterSpacing: '.14em' }}>
+              <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.14em' }}>
                 {(isFrame ? 'CADRE' : labelOf(key).toUpperCase())}
               </span>
-              <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.3)' }}>{items.length} VARIANTES</span>
+              <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)' }}>{items.length} VARIANTES</span>
             </div>
 
             {/* Variantes en bandeau : on fait défiler du pouce, l'aperçu ne bouge plus. */}
@@ -254,24 +254,24 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
                   >
                     {isColor ? (
                       value === 'transparent'
-                        ? <span style={{ font: `700 8px ${F.mono}`, letterSpacing: '.06em', color: 'rgba(255,255,255,.5)' }}>SANS</span>
+                        ? <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.06em', color: 'rgba(255,255,255,.55)' }}>SANS</span>
                         : null
                     ) : isFrame ? (
                       <span style={{ width: 40, height: 40, borderRadius: 12, ...css(AV_FRAME[i].s), background: AV_FRAME[i].s ? undefined : 'rgba(255,255,255,.12)' }} />
                     ) : kind === 'toggle' ? (
-                      <span style={{ font: `700 10px ${F.mono}`, letterSpacing: '.08em', color: on ? '#fff' : 'rgba(255,255,255,.55)' }}>{value === '0' ? 'NON' : 'OUI'}</span>
+                      <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.08em', color: on ? '#fff' : 'rgba(255,255,255,.55)' }}>{value === '0' ? 'NON' : 'OUI'}</span>
                     ) : (
                       <>
                         <Swatch svg={thumbSvg(av, key, value, 88)} />
                         {key === 'pattern' ? (
-                          <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, background: 'rgba(11,11,12,.62)', font: `700 7px ${F.mono}`, letterSpacing: '.06em', color: '#fff', padding: '3px 2px' }}>
+                          <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, background: 'rgba(11,11,12,.62)', font: `700 11px ${F.mono}`, letterSpacing: '.06em', color: '#fff', padding: '3px 2px' }}>
                             {patternLabel(value).toUpperCase()}
                           </span>
                         ) : null}
                       </>
                     )}
                     {lock ? (
-                      <span style={{ position: 'absolute', inset: 0, background: 'rgba(11,11,12,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: `700 8px ${F.mono}`, color: '#fff', letterSpacing: '.04em', padding: 3 }}>
+                      <span style={{ position: 'absolute', inset: 0, background: 'rgba(11,11,12,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: `700 11px ${F.mono}`, color: '#fff', letterSpacing: '.04em', padding: 3 }}>
                         NIV {lock[1]}
                       </span>
                     ) : null}
@@ -308,7 +308,7 @@ export default function AvatarStudio({ nav, onDone, ctaLabel = 'ENREGISTRER', hi
         <div
           style={{
             pointerEvents: 'auto', maxWidth: 460, margin: '9px auto 0', textAlign: 'center',
-            font: `400 9px ${F.body}`, color: 'rgba(255,255,255,.34)', letterSpacing: '.02em'
+            font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.02em'
           }}
         >
           Avatars Big Ears par The Visual Team, licence CC BY 4.0

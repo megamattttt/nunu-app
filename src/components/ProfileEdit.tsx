@@ -23,7 +23,7 @@ export default function ProfileEdit({ onClose }: { onClose: () => void }) {
     background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.12)',
     borderRadius: 18, padding: '13px 16px', display: 'block'
   };
-  const label: React.CSSProperties = { font: `500 9px ${F.mono}`, color: 'rgba(255,255,255,.45)', letterSpacing: '.16em' };
+  const label: React.CSSProperties = { font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', letterSpacing: '.16em' };
   const input: React.CSSProperties = { width: '100%', color: '#fff', font: `700 17px ${F.body}`, padding: '5px 0 0' };
 
   return (
@@ -40,8 +40,8 @@ export default function ProfileEdit({ onClose }: { onClose: () => void }) {
         }}
       >
         <span style={{ display: 'block', width: 42, height: 4, borderRadius: 99, background: 'rgba(255,255,255,.2)', margin: '0 auto 18px' }} />
-        <div style={{ font: `800 26px ${F.display}`, color: '#fff', letterSpacing: '-.025em' }}>MODIFIER LE PROFIL</div>
-        <div style={{ font: `400 12.5px/1.45 ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 8, textWrap: 'pretty' }}>
+        <div role="heading" aria-level={2} style={{ font: `800 26px ${F.display}`, color: '#fff', letterSpacing: '-.025em' }}>MODIFIER LE PROFIL</div>
+        <div style={{ font: `400 12.5px/1.45 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 8, textWrap: 'pretty' }}>
           Le gamertag apparaît sur ton profil, tes cartes de palier et le mur.
         </div>
 
@@ -53,7 +53,7 @@ export default function ProfileEdit({ onClose }: { onClose: () => void }) {
           <label style={field}>
             <span style={label}>NOM D’UTILISATEUR</span>
             <span style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
-              <span style={{ font: `700 17px ${F.body}`, color: 'rgba(255,255,255,.35)' }}>@</span>
+              <span style={{ font: `700 17px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>@</span>
               <input value={tag} onChange={(e) => setTag(clean(e.target.value))} autoCapitalize="none" autoCorrect="off" style={input} />
             </span>
           </label>
@@ -64,7 +64,7 @@ export default function ProfileEdit({ onClose }: { onClose: () => void }) {
             </Tap>
             <Tap
               onTap={save} haptic="success"
-              style={{ flex: 1, minHeight: 56, borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', background: ready ? C.lime : 'rgba(255,255,255,.08)', color: ready ? C.ink : 'rgba(255,255,255,.35)', font: `800 16px ${F.display}`, letterSpacing: '-.01em' }}
+              style={{ flex: 1, minHeight: 56, borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', background: ready ? C.lime : 'rgba(255,255,255,.08)', color: ready ? C.ink : 'rgba(255,255,255,.55)', font: `800 16px ${F.display}`, letterSpacing: '-.01em' }}
             >
               ENREGISTRER
             </Tap>

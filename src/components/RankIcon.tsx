@@ -47,13 +47,17 @@ export function RankIcon({
 export function RankBadge({
   rank, skillName, size = 'lg', bg = 'rgba(11,11,12,.55)', onLight, onTap
 }: { rank: Rank; skillName?: string; size?: 'sm' | 'md' | 'lg'; bg?: string; onLight?: boolean; onTap?: () => void }) {
-  const S = size === 'lg' ? { ico: 46, pad: '12px 16px 12px 13px', label: 21, kicker: 8.5, r: 20 }
-    : size === 'md' ? { ico: 32, pad: '9px 13px 9px 10px', label: 15, kicker: 8, r: 16 }
-    : { ico: 22, pad: '6px 10px 6px 7px', label: 12, kicker: 7.5, r: 12 };
+  const S = size === 'lg' ? { ico: 46, pad: '12px 16px 12px 13px', label: 21, kicker: 11, r: 20 }
+    : size === 'md' ? { ico: 32, pad: '9px 13px 9px 10px', label: 15, kicker: 11, r: 16 }
+    : { ico: 22, pad: '6px 10px 6px 7px', label: 12, kicker: 11, r: 12 };
 
   return (
     <span
       onClick={onTap ? () => onTap() : undefined}
+      role={onTap ? 'button' : undefined}
+      tabIndex={onTap ? 0 : undefined}
+      className={onTap ? 'nu-tap' : undefined}
+      onKeyDown={onTap ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(); } } : undefined}
       style={{
         display: 'inline-flex', alignItems: 'center', gap: size === 'lg' ? 13 : 9, background: bg,
         border: `1px solid ${rank.c}55`, borderRadius: S.r, padding: S.pad, cursor: onTap ? 'pointer' : 'default',
@@ -63,7 +67,7 @@ export function RankBadge({
       <RankIcon rank={rank} size={S.ico} bg={C.ink} />
       <span style={{ minWidth: 0 }}>
         {skillName ? (
-          <span style={{ display: 'block', font: `500 ${S.kicker}px ${F.mono}`, letterSpacing: '.16em', color: onLight ? 'rgba(10,10,12,.45)' : 'rgba(255,255,255,.5)' }}>
+          <span style={{ display: 'block', font: `500 ${S.kicker}px ${F.mono}`, letterSpacing: '.16em', color: onLight ? 'rgba(10,10,12,.62)' : 'rgba(255,255,255,.55)' }}>
             {skillName}
           </span>
         ) : null}

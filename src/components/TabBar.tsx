@@ -80,11 +80,11 @@ export default function TabBar({ page, onGo, badge }: { page: Page; onGo: (p: Pa
                 {t.icon}
               </svg>
             </span>
-            <span style={{ font: `${on ? 700 : 500} 9.5px ${F.mono}`, letterSpacing: '.06em', color: on ? '#fff' : 'rgba(255,255,255,.45)' }}>
+            <span style={{ font: `${on ? 700 : 500} 11px ${F.mono}`, letterSpacing: '.06em', color: on ? '#fff' : 'rgba(255,255,255,.55)' }}>
               {t.label.toUpperCase()}
             </span>
             {badge?.[t.id] ? (
-              <span style={{ position: 'absolute', top: 4, right: '50%', marginRight: -20, minWidth: 16, height: 16, borderRadius: 99, background: C.coral, color: '#fff', font: `700 9px ${F.mono}`, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+              <span style={{ position: 'absolute', top: 4, right: '50%', marginRight: -20, minWidth: 16, height: 16, borderRadius: 99, background: C.coral, color: '#fff', font: `700 11px ${F.mono}`, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
                 {badge[t.id]}
               </span>
             ) : null}

@@ -79,7 +79,7 @@ export default function RankUpCard({ e, onClose }: { e: RewardEvent; onClose: ()
             }}
           />
 
-          <div style={{ position: 'relative', font: `500 9.5px ${F.mono}`, letterSpacing: '.24em', color: 'rgba(255,255,255,.5)' }}>
+          <div style={{ position: 'relative', font: `500 11px ${F.mono}`, letterSpacing: '.24em', color: 'rgba(255,255,255,.55)' }}>
             NOUVEAU RANG{sk ? ' · ' + sk.name : ''}
           </div>
 
@@ -127,14 +127,14 @@ export default function RankUpCard({ e, onClose }: { e: RewardEvent; onClose: ()
             <div style={{ position: 'relative', marginTop: 16, background: 'rgba(255,255,255,.06)', borderRadius: 16, padding: '11px 13px', display: 'flex', alignItems: 'center', gap: 11, textAlign: 'left' }}>
               <span style={{ width: 30, height: 30, borderRadius: 10, background: C.honey, flex: 'none' }} />
               <span>
-                <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.45)' }}>OBJET AJOUTÉ AU DIORAMA</span>
+                <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(255,255,255,.55)' }}>OBJET AJOUTÉ AU DIORAMA</span>
                 <span style={{ display: 'block', font: `700 13px ${F.body}`, color: '#fff', marginTop: 3 }}>{e.object}</span>
               </span>
             </div>
           ) : null}
 
           {next ? (
-            <div style={{ position: 'relative', font: `500 9px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.35)', marginTop: 16 }}>
+            <div style={{ position: 'relative', font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)', marginTop: 16 }}>
               PALIER SUIVANT · {next.name}
             </div>
           ) : null}

@@ -12,7 +12,7 @@ const STEPS = ['AVATAR', 'GUIDE', 'COMPÉTENCE', 'PREMIÈRE QUÊTE'];
 function Steps({ i }: { i: number }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 'calc(var(--safe-top) + 14px) 22px 0' }}>
-      <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(255,255,255,.4)', flex: 'none' }}>
+      <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(255,255,255,.55)', flex: 'none' }}>
         ÉTAPE {i + 1}/4 · {STEPS[i]}
       </span>
       <span style={{ flex: 1, display: 'flex', gap: 4 }}>
@@ -41,7 +41,7 @@ export default function FirstRun() {
     <div style={{ minHeight: '100dvh', background: C.ink, display: 'flex', flexDirection: 'column', ['--dock-space' as any]: 'calc(var(--safe-bottom) + 14px)', ['--dock-h' as any]: 'var(--safe-bottom)' }}>
       <Steps i={step} />
       <div style={{ padding: '18px 22px 0' }}>
-        <div style={{ font: `800 30px/1.04 ${F.display}`, color: '#fff', letterSpacing: '-.03em' }}>
+        <div role="heading" aria-level={1} style={{ font: `800 30px/1.04 ${F.display}`, color: '#fff', letterSpacing: '-.03em' }}>
           COMPOSE TON<br />PERSONNAGE.
         </div>
         <div style={{ font: `400 13px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 10, maxWidth: 340, textWrap: 'pretty' }}>

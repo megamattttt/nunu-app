@@ -30,9 +30,9 @@ export default function Week({ nav }: { nav: Nav }) {
 
   const Stat = ({ k, v, sub, c }: { k: string; v: string; sub?: string; c?: string }) => (
     <div style={{ flex: 1, minWidth: 0, background: C.slate, border: `1px solid ${C.line}`, borderRadius: 20, padding: '14px 15px' }}>
-      <div style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)' }}>{k}</div>
+      <div style={{ font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>{k}</div>
       <div style={{ font: `800 24px ${F.display}`, color: c || '#fff', letterSpacing: '-.02em', marginTop: 6 }}>{v}</div>
-      {sub ? <div style={{ font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 3 }}>{sub}</div> : null}
+      {sub ? <div style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 3 }}>{sub}</div> : null}
     </div>
   );
 
@@ -51,11 +51,11 @@ export default function Week({ nav }: { nav: Nav }) {
         <span style={{ position: 'absolute', right: -70, top: -90, width: 220, height: 220, borderRadius: '50%', background: C.azur, opacity: .12, animation: 'nuHalo 9s ease-in-out infinite' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', position: 'relative' }}>
           <Kicker>BILAN HEBDOMADAIRE</Kicker>
-          <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.4)' }}>NIVEAU {globalLevel(s)}</span>
+          <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.55)' }}>NIVEAU {globalLevel(s)}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginTop: 14, position: 'relative' }}>
           <span style={{ font: `800 52px/.86 ${F.display}`, color: C.lime, letterSpacing: '-.045em' }}>{w.px}</span>
-          <span style={{ font: `500 10px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.45)', paddingBottom: 7 }}>
+          <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)', paddingBottom: 7 }}>
             PX CETTE SEMAINE
           </span>
         </div>
@@ -68,10 +68,10 @@ export default function Week({ nav }: { nav: Nav }) {
               borderRadius: 99, padding: '5px 11px'
             }}
           >
-            <span style={{ font: `700 10px ${F.mono}`, color: w.delta >= 0 ? C.lime : C.coral }}>
+            <span style={{ font: `700 11px ${F.mono}`, color: w.delta >= 0 ? C.lime : C.coral }}>
               {w.delta >= 0 ? '+' : ''}{w.delta} %
             </span>
-            <span style={{ font: `400 10.5px ${F.body}`, color: 'rgba(255,255,255,.5)' }}>vs semaine dernière</span>
+            <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>vs semaine dernière</span>
           </div>
         ) : null}
 
@@ -115,7 +115,7 @@ export default function Week({ nav }: { nav: Nav }) {
             {topSk.short}
           </span>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)' }}>COMPÉTENCE LA PLUS ACTIVE</span>
+            <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>COMPÉTENCE LA PLUS ACTIVE</span>
             <span style={{ display: 'block', font: `800 17px ${F.display}`, color: '#fff', letterSpacing: '-.01em', marginTop: 4 }}>
               {topSk.name} · {w.top!.px} PX
             </span>
@@ -131,10 +131,10 @@ export default function Week({ nav }: { nav: Nav }) {
           return (
             <div key={day.t} style={{ background: C.night, border: `1px solid ${C.lineSoft}`, borderRadius: 20, padding: '14px 16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
-                <span style={{ font: `700 13px ${F.body}`, color: day.px ? '#fff' : 'rgba(255,255,255,.45)' }}>
+                <span style={{ font: `700 13px ${F.body}`, color: day.px ? '#fff' : 'rgba(255,255,255,.55)' }}>
                   {day.today ? 'Aujourd’hui' : D.format(new Date(day.t))}
                 </span>
-                <span style={{ font: `700 11px ${F.mono}`, color: day.px ? C.lime : 'rgba(255,255,255,.28)' }}>
+                <span style={{ font: `700 11px ${F.mono}`, color: day.px ? C.lime : 'rgba(255,255,255,.55)' }}>
                   {day.px ? '+' + day.px + ' PX' : '—'}
                 </span>
               </div>
@@ -144,7 +144,7 @@ export default function Week({ nav }: { nav: Nav }) {
                     <span
                       key={i}
                       style={{
-                        font: `500 10.5px ${F.body}`, color: 'rgba(255,255,255,.7)',
+                        font: `500 12px ${F.body}`, color: 'rgba(255,255,255,.7)',
                         background: 'rgba(255,255,255,.06)', borderRadius: 8, padding: '5px 9px',
                         maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
                       }}
@@ -153,7 +153,7 @@ export default function Week({ nav }: { nav: Nav }) {
                     </span>
                   ))}
                   {rows.length > 6 ? (
-                    <span style={{ font: `500 10.5px ${F.mono}`, color: 'rgba(255,255,255,.35)', padding: '5px 4px' }}>+{rows.length - 6}</span>
+                    <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', padding: '5px 4px' }}>+{rows.length - 6}</span>
                   ) : null}
                 </div>
               ) : null}

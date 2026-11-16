@@ -60,7 +60,7 @@ export default function JournalEditor({ entry, onClose }: { entry: JournalEntry;
     onClose();
   };
 
-  const label: React.CSSProperties = { display: 'block', font: `500 9px ${F.mono}`, color: 'rgba(11,11,12,.45)', letterSpacing: '.16em', marginBottom: 9 };
+  const label: React.CSSProperties = { display: 'block', font: `500 11px ${F.mono}`, color: 'rgba(11,11,12,.62)', letterSpacing: '.16em', marginBottom: 9 };
   const card: React.CSSProperties = { background: '#fff', borderRadius: 20, padding: '15px 16px' };
 
   return (
@@ -85,7 +85,7 @@ export default function JournalEditor({ entry, onClose }: { entry: JournalEntry;
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ width: 30, height: 30, borderRadius: 10, background: sk.c, color: sk.txt, font: `800 12px ${F.display}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>{sk.short}</span>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(11,11,12,.45)' }}>
+            <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(11,11,12,.62)' }}>
               {e.ix !== null ? 'PALIER ' + (e.ix + 1) : 'ENTRÉE LIBRE'} · {sk.name}
             </span>
             <span style={{ display: 'block', font: `800 22px/1.1 ${F.display}`, color: C.ink, letterSpacing: '-.02em', marginTop: 3 }}>
@@ -142,7 +142,7 @@ export default function JournalEditor({ entry, onClose }: { entry: JournalEntry;
               ref={file} type="file" accept="image/*" capture="environment" multiple hidden
               onChange={(ev) => addPhotos(ev.target.files)}
             />
-            <div style={{ font: `400 10.5px/1.4 ${F.body}`, color: 'rgba(11,11,12,.45)', marginTop: 10 }}>
+            <div style={{ font: `400 12px/1.4 ${F.body}`, color: 'rgba(11,11,12,.62)', marginTop: 10 }}>
               Les photos sont compressées et gardées sur cet appareil uniquement.
             </div>
           </div>
@@ -169,7 +169,7 @@ export default function JournalEditor({ entry, onClose }: { entry: JournalEntry;
                     style={{ flex: 1, minHeight: 62, borderRadius: 14, background: on ? col : 'rgba(11,11,12,.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'background .18s ease' }}
                   >
                     <span style={{ width: 12, height: 12, borderRadius: '50%', background: on ? C.ink : col, opacity: on ? 1 : .55 }} />
-                    <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.04em', color: on ? C.ink : 'rgba(11,11,12,.5)' }}>{name.toUpperCase()}</span>
+                    <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.04em', color: on ? C.ink : 'rgba(11,11,12,.62)' }}>{name.toUpperCase()}</span>
                   </Tap>
                 );
               })}
@@ -180,7 +180,7 @@ export default function JournalEditor({ entry, onClose }: { entry: JournalEntry;
           <div style={card}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
               <span style={label}>DIFFICULTÉ</span>
-              <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(11,11,12,.45)' }}>{e.diff < 0 ? '—' : `${e.diff + 1}/5`}</span>
+              <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(11,11,12,.62)' }}>{e.diff < 0 ? '—' : `${e.diff + 1}/5`}</span>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               {[0, 1, 2, 3, 4].map((i) => {
@@ -206,7 +206,7 @@ export default function JournalEditor({ entry, onClose }: { entry: JournalEntry;
                 return (
                   <Tap
                     key={m} onTap={() => set({ minutes: on ? 0 : m })} haptic="soft"
-                    style={{ minHeight: 44, padding: '0 15px', display: 'flex', alignItems: 'center', borderRadius: 12, background: on ? C.ink : 'rgba(11,11,12,.05)', font: `700 12px ${F.mono}`, color: on ? C.paper : 'rgba(11,11,12,.6)' }}
+                    style={{ minHeight: 44, padding: '0 15px', display: 'flex', alignItems: 'center', borderRadius: 12, background: on ? C.ink : 'rgba(11,11,12,.05)', font: `700 12px ${F.mono}`, color: on ? C.paper : 'rgba(11,11,12,.62)' }}
                   >
                     {m < 60 ? m + ' MIN' : m / 60 + ' H'}
                   </Tap>

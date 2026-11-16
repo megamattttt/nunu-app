@@ -56,7 +56,7 @@ export function ResumeOverlay() {
     >
       <span style={{ position: 'absolute', width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle,rgba(47,43,201,.5),transparent 68%)' }} />
       <Logo size={96} glow style={{ position: 'relative', animation: 'nuPop .5s cubic-bezier(.2,1.2,.3,1)' }} />
-      <span style={{ position: 'relative', font: `500 10px ${F.mono}`, letterSpacing: '.32em', color: 'rgba(255,255,255,.45)' }}>PROGRESSE POUR DE VRAI</span>
+      <span style={{ position: 'relative', font: `500 11px ${F.mono}`, letterSpacing: '.32em', color: 'rgba(255,255,255,.55)' }}>PROGRESSE POUR DE VRAI</span>
     </div>
   );
 }
@@ -100,8 +100,8 @@ export function RewardOverlay() {
       <div onClick={(ev) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 380, background: C.paper, borderRadius: 32, padding: '30px 26px 24px', textAlign: 'center', animation: 'nuPop .45s cubic-bezier(.2,1.2,.3,1)', position: 'relative', overflow: 'hidden' }}>
         <span style={{ position: 'absolute', left: '50%', top: -160, width: 340, height: 340, marginLeft: -170, borderRadius: '50%', background: accent, opacity: .22 }} />
         <div style={{ position: 'relative' }}>
-          <div style={{ font: `500 10px ${F.mono}`, letterSpacing: '.2em', color: 'rgba(11,11,12,.5)' }}>{e.title}</div>
-          {e.sub ? <div style={{ font: `800 27px/1.06 ${F.display}`, color: C.ink, letterSpacing: '-.02em', marginTop: 10 }}>{e.sub}</div> : null}
+          <div style={{ font: `500 11px ${F.mono}`, letterSpacing: '.2em', color: 'rgba(11,11,12,.62)' }}>{e.title}</div>
+          {e.sub ? <div role="heading" aria-level={2} style={{ font: `800 27px/1.06 ${F.display}`, color: C.ink, letterSpacing: '-.02em', marginTop: 10 }}>{e.sub}</div> : null}
 
           {e.px ? (
             <div style={{ font: `800 62px/1 ${F.display}`, color: C.ink, letterSpacing: '-.04em', marginTop: 18 }}>
@@ -129,7 +129,7 @@ export function RewardOverlay() {
             <div style={{ marginTop: 18, background: '#fff', borderRadius: 18, padding: '13px 15px', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
               <span style={{ width: 34, height: 34, borderRadius: 12, background: accent, flex: 'none' }} />
               <span>
-                <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(11,11,12,.5)' }}>OBJET AJOUTÉ AU DIORAMA</span>
+                <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.14em', color: 'rgba(11,11,12,.62)' }}>OBJET AJOUTÉ AU DIORAMA</span>
                 <span style={{ display: 'block', font: `700 14px ${F.body}`, color: C.ink, marginTop: 3 }}>{e.object}</span>
               </span>
             </div>

@@ -49,7 +49,7 @@ function ScaleRow({ value, color, onPick }: { value: Scale; color: string; onPic
               border: `1px solid ${on ? color : 'rgba(255,255,255,.07)'}`, transition: 'background .18s ease'
             }}
           >
-            <span style={{ font: `700 10px ${F.mono}`, color: on ? C.ink : 'rgba(255,255,255,.34)' }}>{v}</span>
+            <span style={{ font: `700 11px ${F.mono}`, color: on ? C.ink : 'rgba(255,255,255,.55)' }}>{v}</span>
           </Tap>
         );
       })}
@@ -61,8 +61,8 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
-        <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.4)' }}>{label}</span>
-        {hint ? <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(255,255,255,.32)' }}>{hint}</span> : null}
+        <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>{label}</span>
+        {hint ? <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(255,255,255,.55)' }}>{hint}</span> : null}
       </span>
       {children}
     </div>
@@ -192,7 +192,7 @@ export default function DayCheckin({ day = dayKey(), onClose }: { day?: string; 
         {/* En-tête calme : la date, le visage déjà choisi, l'avancée du rituel */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(255,255,255,.38)' }}>LE POINT DU JOUR</span>
+            <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(255,255,255,.55)' }}>LE POINT DU JOUR</span>
             <span style={{ display: 'block', font: `800 20px/1.1 ${F.display}`, color: '#fff', letterSpacing: '-.025em', marginTop: 5 }}>
               {dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1)}
             </span>
@@ -217,9 +217,9 @@ export default function DayCheckin({ day = dayKey(), onClose }: { day?: string; 
 
         {/* La question du temps en cours */}
         <div key={st.k} style={{ marginTop: 6, animation: 'nuRise .3s cubic-bezier(.2,1,.3,1) both' }}>
-          <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.2em', color: 'rgba(255,255,255,.32)' }}>{st.kicker}</span>
+          <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.2em', color: 'rgba(255,255,255,.55)' }}>{st.kicker}</span>
           <span style={{ display: 'block', font: `800 23px/1.15 ${F.display}`, color: '#fff', letterSpacing: '-.03em', marginTop: 7, textWrap: 'pretty' }}>{st.q}</span>
-          <span style={{ display: 'block', font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.42)', marginTop: 6, textWrap: 'pretty' }}>{st.sub}</span>
+          <span style={{ display: 'block', font: `400 12px/1.5 ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 6, textWrap: 'pretty' }}>{st.sub}</span>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 20 }}>
             {step === 0 ? (
@@ -238,7 +238,7 @@ export default function DayCheckin({ day = dayKey(), onClose }: { day?: string; 
                       }}
                     >
                       <MoodFace v={f.v} face={f.id} size={34} />
-                      <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.04em', color: on ? '#fff' : 'rgba(255,255,255,.4)' }}>{f.label}</span>
+                      <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.04em', color: on ? '#fff' : 'rgba(255,255,255,.55)' }}>{f.label}</span>
                     </Tap>
                   );
                 })}
@@ -292,7 +292,7 @@ export default function DayCheckin({ day = dayKey(), onClose }: { day?: string; 
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M4 8h3l1.5-2h7L17 8h3v11H4z" /><circle cx="12" cy="13.5" r="3.2" />
                       </svg>
-                      <span style={{ font: `700 10px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.5)' }}>AJOUTER UNE PHOTO</span>
+                      <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)' }}>AJOUTER UNE PHOTO</span>
                     </Tap>
                   )}
                 </Field>
@@ -330,7 +330,7 @@ export default function DayCheckin({ day = dayKey(), onClose }: { day?: string; 
                           onTap={() => toQuest(it)} aria-label="Transformer en quête"
                           style={{ flex: 'none', minHeight: 32, padding: '0 10px', borderRadius: 99, background: 'rgba(185,222,100,.14)', border: `1px solid ${C.lime}55`, display: 'flex', alignItems: 'center' }}
                         >
-                          <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: C.lime }}>→ QUÊTE</span>
+                          <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.lime }}>→ QUÊTE</span>
                         </Tap>
                         <Tap
                           onTap={() => set({ ideas: e.ideas.filter((_, j) => j !== i) })} aria-label="Retirer"
@@ -399,7 +399,7 @@ export default function DayCheckin({ day = dayKey(), onClose }: { day?: string; 
             <>
               <Tap
                 onTap={() => go(step + 1)}
-                style={{ flex: 'none', padding: '0 16px', minHeight: 52, borderRadius: 16, background: 'rgba(255,255,255,.05)', display: 'flex', alignItems: 'center', font: `700 10px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.5)' }}
+                style={{ flex: 'none', padding: '0 16px', minHeight: 52, borderRadius: 16, background: 'rgba(255,255,255,.05)', display: 'flex', alignItems: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)' }}
               >
                 PASSER
               </Tap>

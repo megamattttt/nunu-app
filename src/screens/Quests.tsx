@@ -69,7 +69,7 @@ function ComboBar({ n, last, best }: { n: number; last: number | null; best: num
         </span>
 
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: acc }}>
+          <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.18em', color: acc }}>
             {hot ? 'COMBO CHAUD' : 'COMBO EN COURS'}
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 6, flexWrap: 'wrap' }}>
@@ -78,17 +78,17 @@ function ComboBar({ n, last, best }: { n: number; last: number | null; best: num
                 +{bonus} % DE PX
               </span>
             ) : (
-              <span style={{ font: `700 11.5px ${F.body}`, color: '#fff' }}>Enchaîne pour déclencher le bonus</span>
+              <span style={{ font: `700 12px ${F.body}`, color: '#fff' }}>Enchaîne pour déclencher le bonus</span>
             )}
             {nextStep ? (
-              <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.45)' }}>×{nextStep} AU PROCHAIN PALIER</span>
+              <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)' }}>×{nextStep} AU PROCHAIN PALIER</span>
             ) : null}
           </span>
         </span>
 
         <span style={{ flex: 'none', textAlign: 'right' }}>
           <span style={{ display: 'block', font: `800 15px ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>{mins}</span>
-          <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.4)' }}>MIN</span>
+          <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>MIN</span>
         </span>
       </div>
 
@@ -97,7 +97,7 @@ function ComboBar({ n, last, best }: { n: number; last: number | null; best: num
       </span>
 
       {best > 1 ? (
-        <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.35)', marginTop: 10, position: 'relative' }}>
+        <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.55)', marginTop: 10, position: 'relative' }}>
           MEILLEURE CHAÎNE · ×{best}
         </span>
       ) : null}
@@ -183,12 +183,12 @@ function MainQuest({ row, skill, px, combo, total, flash, onTap, connector }: {
         <span style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: acc, animation: 'nuHalo 2.2s ease-in-out infinite' }} />
-            <span style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: acc }}>QUÊTE PRINCIPALE</span>
+            <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.18em', color: acc }}>QUÊTE PRINCIPALE</span>
           </span>
           {combo > 1 ? (
-            <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.08em', color: C.ink, background: C.coral, borderRadius: 99, padding: '3px 8px' }}>COMBO ×{combo}</span>
+            <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.08em', color: C.ink, background: C.coral, borderRadius: 99, padding: '3px 8px' }}>COMBO ×{combo}</span>
           ) : null}
-          <span style={{ marginLeft: 'auto', font: `500 8.5px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.4)' }}>PALIER {row.ix} / {total}</span>
+          <span style={{ marginLeft: 'auto', font: `500 11px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.55)' }}>PALIER {row.ix} / {total}</span>
         </span>
 
         <span style={{ position: 'relative', display: 'block', font: `800 24px/1.1 ${F.display}`, color: '#fff', letterSpacing: '-.03em', marginTop: 11, textWrap: 'pretty' }}>
@@ -197,18 +197,18 @@ function MainQuest({ row, skill, px, combo, total, flash, onTap, connector }: {
 
         <span style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 9, marginTop: 12, flexWrap: 'wrap' }}>
           <DiffBadge diff={row.diff} size="sm" />
-          <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.5)' }}>
+          <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>
             {isInstant(row.rarity) ? 'Un tap suffit' : 'Preuve à l’appui'}
           </span>
           {row.link ? (
-            <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)', border: '1px solid rgba(255,255,255,.18)', borderRadius: 7, padding: '4px 8px' }}>TUTO DISPO</span>
+            <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)', border: '1px solid rgba(255,255,255,.18)', borderRadius: 7, padding: '4px 8px' }}>TUTO DISPO</span>
           ) : null}
         </span>
 
         <span style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 15 }}>
           <span style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
             <span style={{ font: `800 30px/1 ${F.display}`, color: acc, letterSpacing: '-.04em' }}>+{count}</span>
-            <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.4)' }}>PX</span>
+            <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>PX</span>
           </span>
           <span style={{ font: `700 12px ${F.body}`, color: C.ink, background: acc, padding: '13px 22px', borderRadius: 99, minHeight: 46, display: 'flex', alignItems: 'center', flex: 'none' }}>VALIDER</span>
         </span>
@@ -282,7 +282,7 @@ export default function Quests({ nav }: { nav: Nav }) {
       <div style={{ padding: '16px 0 0' }}>
         <div style={{ padding: '0 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Kicker>MES COMPÉTENCES</Kicker>
-          <Tap onTap={() => nav.open('discover')} style={{ font: `700 10px ${F.mono}`, color: C.lime, letterSpacing: '.1em', minHeight: 32, display: 'flex', alignItems: 'center' }}>+ DÉCOUVRIR</Tap>
+          <Tap onTap={() => nav.open('discover')} style={{ font: `700 11px ${F.mono}`, color: C.lime, letterSpacing: '.1em', minHeight: 32, display: 'flex', alignItems: 'center' }}>+ DÉCOUVRIR</Tap>
         </div>
 
         <SkillWheel currentId={startId} value={skillId} onChange={setSkillId} />
@@ -293,7 +293,7 @@ export default function Quests({ nav }: { nav: Nav }) {
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,.05)', border: `1px solid ${sk.c}44`, borderRadius: 16, padding: '8px 12px 8px 14px' }}>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', background: sk.c, flex: 'none' }} />
                 <span style={{ minWidth: 0, textAlign: 'left' }}>
-                  <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)' }}>MON ESPACE</span>
+                  <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>MON ESPACE</span>
                   <input
                     value={persoName}
                     onChange={(e) => d({ t: 'SET_PROFILE', patch: { persoName: e.target.value.slice(0, 22) } })}
@@ -311,18 +311,18 @@ export default function Quests({ nav }: { nav: Nav }) {
           </div>
           <div style={{ display: 'inline-flex', gap: 8, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             {sk.id !== 'perso' ? (
-              <Tap onTap={() => nav.open('path', { skill: sk.id })} style={{ font: `700 10px ${F.mono}`, color: C.ink, background: sk.c, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 36, display: 'flex', alignItems: 'center' }}>
+              <Tap onTap={() => nav.open('path', { skill: sk.id })} style={{ font: `700 11px ${F.mono}`, color: C.ink, background: sk.c, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 36, display: 'flex', alignItems: 'center' }}>
                 VOIR LE CHEMIN
               </Tap>
             ) : (
-              <Tap onTap={() => nav.open('path', { skill: sk.id })} style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.7)', border: `1px solid ${sk.c}66`, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 36, display: 'flex', alignItems: 'center' }}>
+              <Tap onTap={() => nav.open('path', { skill: sk.id })} style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.7)', border: `1px solid ${sk.c}66`, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em', minHeight: 36, display: 'flex', alignItems: 'center' }}>
                 TOUT VOIR
               </Tap>
             )}
             {s.onFire ? (
-              <span style={{ font: `700 10px ${F.mono}`, color: '#fff', background: C.coral, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em' }}>EN FEU · PX ×2</span>
+              <span style={{ font: `700 11px ${F.mono}`, color: '#fff', background: C.coral, padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em' }}>EN FEU · PX ×2</span>
             ) : (
-              <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.6)', border: '1px solid rgba(255,255,255,.16)', padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em' }}>ÉNERGIE {s.energy}%</span>
+              <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.6)', border: '1px solid rgba(255,255,255,.16)', padding: '9px 14px', borderRadius: 99, letterSpacing: '.08em' }}>ÉNERGIE {s.energy}%</span>
             )}
           </div>
         </div>
@@ -333,9 +333,9 @@ export default function Quests({ nav }: { nav: Nav }) {
         <div style={{ display: 'flex', gap: 7 }}>
           {SUBS.map(([k, label]) => (
             <Tap
-              key={k} onTap={() => setSub(k)} haptic="soft"
+              key={k} onTap={() => setSub(k)} haptic="soft" aria-pressed={sub === k}
               style={{
-                flex: 1, textAlign: 'center', font: `700 9.5px ${F.mono}`, letterSpacing: '.08em', padding: '11px 6px', borderRadius: 13, minHeight: 40,
+                flex: 1, textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.08em', padding: '11px 6px', borderRadius: 13, minHeight: 40,
                 background: sub === k ? P.tabOn : P.tabOff, color: sub === k ? P.tabOnTx : P.tabOffTx
               }}
             >
@@ -357,7 +357,7 @@ export default function Quests({ nav }: { nav: Nav }) {
               <Tap onTap={() => { setHelp((h) => !h); if (!s.seen.questHelp) d({ t: 'SEEN', key: 'questHelp' }); }} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ width: 24, height: 24, borderRadius: 99, background: C.ink, color: C.paper, font: `800 13px ${F.display}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>?</span>
                 <span style={{ flex: 1, font: `700 13px ${F.body}`, color: C.ink }}>Valider une quête, ça veut dire quoi ?</span>
-                <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(11,11,12,.4)' }}>{help ? '−' : '+'}</span>
+                <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(11,11,12,.62)' }}>{help ? '−' : '+'}</span>
               </Tap>
               {help || !s.seen.questHelp ? (
                 <div style={{ font: `400 12px/1.5 ${F.body}`, color: 'rgba(11,11,12,.65)', marginTop: 10, textWrap: 'pretty' }}>
@@ -373,10 +373,10 @@ export default function Quests({ nav }: { nav: Nav }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 13, position: 'relative' }}>
                 <RankIcon rank={rank} size={44} bg={C.ink} />
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', font: `500 8.5px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(255,255,255,.45)' }}>RANG · {sk.name}</span>
+                  <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(255,255,255,.55)' }}>RANG · {sk.name}</span>
                   <span style={{ display: 'block', font: `800 22px/1 ${F.display}`, color: rank.c, letterSpacing: '-.025em', marginTop: 5 }}>{rank.label}</span>
                 </span>
-                <span style={{ font: `700 10.5px ${F.mono}`, color: 'rgba(255,255,255,.6)', flex: 'none' }}>
+                <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.6)', flex: 'none' }}>
                   {isFinite(rank.pxNeed) ? `${rank.pxIn}/${rank.pxNeed}` : 'MAX'}
                 </span>
               </div>
@@ -385,13 +385,13 @@ export default function Quests({ nav }: { nav: Nav }) {
                 <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: rank.pct + '%', borderRadius: 99, background: `linear-gradient(90deg,${rank.c}, #fff)`, transition: 'width .8s cubic-bezier(.2,1,.3,1)' }} />
                 <span style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(90deg, transparent 0 13px, rgba(11,11,12,.55) 13px 15px)' }} />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, font: `500 9px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.42)', marginTop: 10, position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, font: `500 11px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.55)', marginTop: 10, position: 'relative' }}>
                 <span>{lvl}/{nBase} PALIERS</span>
                 <span>{next ? 'SUIVANT · ' + next.label : 'RANG MAXIMAL'}</span>
               </div>
               <div style={{ display: 'flex', gap: 9, marginTop: 13, background: 'rgba(255,255,255,.05)', borderRadius: 14, padding: '11px 12px', position: 'relative' }}>
                 <span style={{ width: 3, borderRadius: 99, background: rank.c, flex: 'none' }} />
-                <span style={{ font: `400 11.5px/1.45 ${F.body}`, color: 'rgba(255,255,255,.7)', textWrap: 'pretty' }}>{TIER_TIPS[rank.tier]}</span>
+                <span style={{ font: `400 12px/1.45 ${F.body}`, color: 'rgba(255,255,255,.7)', textWrap: 'pretty' }}>{TIER_TIPS[rank.tier]}</span>
               </div>
             </div>
 
@@ -445,7 +445,7 @@ export default function Quests({ nav }: { nav: Nav }) {
                           {r.name}
                           {hit ? <span style={{ position: 'absolute', left: 0, right: 0, top: '52%', height: 2, background: C.ink, transformOrigin: 'left', animation: 'nuStrike .3s cubic-bezier(.2,1,.3,1) forwards' }} /> : null}
                         </span>
-                        <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(11,11,12,.4)' : C.ink, whiteSpace: 'nowrap' }}>+{s.onFire && isNow ? r.px * 2 : r.px}</span>
+                        <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(11,11,12,.62)' : C.ink, whiteSpace: 'nowrap' }}>+{s.onFire && isNow ? r.px * 2 : r.px}</span>
                       </span>
                       <span style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 6, flexWrap: 'wrap' }}>
                         <DiffBadge diff={r.diff} size="sm" />
@@ -456,10 +456,10 @@ export default function Quests({ nav }: { nav: Nav }) {
                             style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(11,11,12,.08)', borderRadius: 7, padding: '4px 8px' }}
                           >
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.2" strokeLinejoin="round"><path d="M4 6h16v12H4z" /><path d="M10 9.5l5 2.5-5 2.5z" fill={C.ink} /></svg>
-                            <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: C.ink }}>VOIR LE TUTO</span>
+                            <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.ink }}>VOIR LE TUTO</span>
                           </Tap>
                         ) : null}
-                        <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(11,11,12,.5)' }}>
+                        <span style={{ font: `400 12px ${F.body}`, color: 'rgba(11,11,12,.62)' }}>
                           {done ? 'Validé' : isNow ? (isInstant(r.rarity) ? 'Un tap suffit' : 'Preuve à l’appui') : 'Se débloque au palier ' + r.ix}
                         </span>
                         {done ? (() => {
@@ -477,7 +477,7 @@ export default function Quests({ nav }: { nav: Nav }) {
                               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={filled ? sk.txt : 'rgba(11,11,12,.5)'} strokeWidth="1.9" strokeLinejoin="round">
                                 <path d="M3 8.5h3.2L8 6h8l1.8 2.5H21V19H3z" /><circle cx="12" cy="13.2" r="3.4" />
                               </svg>
-                              {je?.photos.length ? <span style={{ font: `700 9px ${F.mono}`, color: filled ? sk.txt : 'rgba(11,11,12,.5)' }}>{je.photos.length}</span> : null}
+                              {je?.photos.length ? <span style={{ font: `700 11px ${F.mono}`, color: filled ? sk.txt : 'rgba(11,11,12,.62)' }}>{je.photos.length}</span> : null}
                             </Tap>
                           );
                         })() : null}
@@ -498,7 +498,7 @@ export default function Quests({ nav }: { nav: Nav }) {
                     style={{ display: 'flex', alignItems: 'center', gap: 6, minHeight: 32, padding: '0 10px', borderRadius: 9, background: 'rgba(10,10,12,.06)' }}
                   >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.4" strokeLinecap="round"><path d="M4 7h16M4 12h10M4 17h5" /></svg>
-                    <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.ink }}>TRIER</span>
+                    <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.ink }}>TRIER</span>
                   </Tap>
                 </div>
 
@@ -528,7 +528,7 @@ export default function Quests({ nav }: { nav: Nav }) {
                         <Tap onTap={() => act(r)} sound={!done} style={{ flex: 1, minWidth: 0 }}>
                           <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
                             <span style={{ font: `700 14px ${F.body}`, color: C.ink, textDecoration: done ? 'line-through' : 'none' }}>{r.name}</span>
-                            <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(10,10,12,.4)' : C.ink, whiteSpace: 'nowrap' }}>+{s.onFire && !done ? r.px * 2 : r.px}</span>
+                            <span style={{ font: `700 11px ${F.mono}`, color: done ? 'rgba(10,10,12,.62)' : C.ink, whiteSpace: 'nowrap' }}>+{s.onFire && !done ? r.px * 2 : r.px}</span>
                           </span>
                           <span style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 7, flexWrap: 'wrap' }}>
                             <DiffBadge diff={r.diff} size="sm" />
@@ -538,10 +538,10 @@ export default function Quests({ nav }: { nav: Nav }) {
                                 style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(10,10,12,.07)', borderRadius: 7, padding: '4px 8px' }}
                               >
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.2" strokeLinejoin="round"><path d="M4 6h16v12H4z" /><path d="M10 9.5l5 2.5-5 2.5z" fill={C.ink} /></svg>
-                                <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: C.ink }}>TUTO</span>
+                                <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.ink }}>TUTO</span>
                               </Tap>
                             ) : null}
-                            <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(10,10,12,.5)' }}>
+                            <span style={{ font: `400 12px ${F.body}`, color: 'rgba(10,10,12,.62)' }}>
                               {done ? 'Validé' : isInstant(r.rarity) ? 'Un tap suffit' : 'Preuve à l’appui'}
                             </span>
                             {hit ? <span style={{ font: `700 11px ${F.mono}`, color: sk.c }}>+{flash!.px}</span> : null}
@@ -567,7 +567,7 @@ export default function Quests({ nav }: { nav: Nav }) {
               </span>
               <span style={{ flex: 1 }}>
                 <span style={{ display: 'block', font: `700 13.5px ${F.body}`, color: '#fff' }}>Créer une quête perso</span>
-                <span style={{ display: 'block', font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 2 }}>Nom, effort, moment de la journée</span>
+                <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 2 }}>Nom, effort, moment de la journée</span>
               </span>
             </Tap>
           </>
@@ -585,7 +585,7 @@ export default function Quests({ nav }: { nav: Nav }) {
                   <Kicker dark={!isPerso}>JOURNAL · {(isPerso ? persoName : sk.name).toUpperCase()}</Kicker>
                   <span style={{ font: `700 11px ${F.mono}`, color: P.tx }}>{list.length} ENTRÉES</span>
                 </div>
-                <div style={{ font: `400 11.5px/1.45 ${F.body}`, color: P.sub, marginTop: 9, textWrap: 'pretty' }}>
+                <div style={{ font: `400 12px/1.45 ${F.body}`, color: P.sub, marginTop: 9, textWrap: 'pretty' }}>
                   Chaque palier validé ouvre une entrée à compléter : photos, note, ressenti, durée. {photos ? `${photos} photos enregistrées.` : 'Tout reste sur cet appareil.'}
                 </div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
@@ -598,7 +598,7 @@ export default function Quests({ nav }: { nav: Nav }) {
                   </Tap>
                   <Tap
                     onTap={() => nav.open('journal')}
-                    style={{ flex: 'none', minHeight: 46, padding: '0 16px', borderRadius: 14, background: P.soft, display: 'flex', alignItems: 'center', font: `700 10px ${F.mono}`, letterSpacing: '.1em', color: P.sub }}
+                    style={{ flex: 'none', minHeight: 46, padding: '0 16px', borderRadius: 14, background: P.soft, display: 'flex', alignItems: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: P.sub }}
                   >
                     TOUT VOIR
                   </Tap>
@@ -628,9 +628,9 @@ export default function Quests({ nav }: { nav: Nav }) {
                     <span style={{ width: 10, height: 10, borderRadius: '50%', background: got ? sk.c : P.soft, flex: 'none' }} />
                     <span style={{ flex: 1 }}>
                       <span style={{ display: 'block', font: `700 13.5px ${F.body}`, color: got ? P.tx : P.sub }}>{name}</span>
-                      <span style={{ display: 'block', font: `400 11px ${F.body}`, color: P.sub, marginTop: 2 }}>{req}</span>
+                      <span style={{ display: 'block', font: `400 12px ${F.body}`, color: P.sub, marginTop: 2 }}>{req}</span>
                     </span>
-                    <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: got ? C.ink : P.sub, background: got ? C.lime : P.soft, padding: '5px 9px', borderRadius: 8 }}>{got ? 'OBTENU' : 'À FAIRE'}</span>
+                    <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: got ? C.ink : P.sub, background: got ? C.lime : P.soft, padding: '5px 9px', borderRadius: 8 }}>{got ? 'OBTENU' : 'À FAIRE'}</span>
                   </div>
                 );
               })}
@@ -638,7 +638,7 @@ export default function Quests({ nav }: { nav: Nav }) {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 6 }}>
               <Kicker dark={!isPerso}>BADGES</Kicker>
-              <span style={{ font: `500 10px ${F.mono}`, color: P.sub }}>{s.badges.filter((b) => b.startsWith(sk.id)).length}/6</span>
+              <span style={{ font: `500 11px ${F.mono}`, color: P.sub }}>{s.badges.filter((b) => b.startsWith(sk.id)).length}/6</span>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
               {(BADGES[sk.id] || []).map(([label, glyph], i) => {
@@ -646,7 +646,7 @@ export default function Quests({ nav }: { nav: Nav }) {
                 return (
                   <div key={label} style={{ background: got ? BADGE_C[i] : P.soft, borderRadius: 16, padding: '14px 8px', textAlign: 'center' }}>
                     <span style={{ display: 'block', font: `800 22px ${F.display}`, color: got ? C.ink : P.sub }}>{glyph}</span>
-                    <span style={{ display: 'block', font: `500 9px ${F.mono}`, letterSpacing: '.06em', color: got ? 'rgba(11,11,12,.7)' : P.sub, marginTop: 6 }}>{label.toUpperCase()}</span>
+                    <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.06em', color: got ? 'rgba(11,11,12,.7)' : P.sub, marginTop: 6 }}>{label.toUpperCase()}</span>
                   </div>
                 );
               })}
@@ -668,7 +668,7 @@ export default function Quests({ nav }: { nav: Nav }) {
           }}
         >
           <span style={{ minWidth: 0 }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 7, font: `500 9px ${F.mono}`, letterSpacing: '.14em', opacity: .6 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 7, font: `500 11px ${F.mono}`, letterSpacing: '.14em', opacity: .6 }}>
               PROCHAIN PALIER
               {s.combo.n > 1 ? <span style={{ background: C.ink, color: C.lime, borderRadius: 99, padding: '3px 7px', opacity: 1, letterSpacing: '.06em' }}>COMBO ×{s.combo.n}</span> : null}
             </span>

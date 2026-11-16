@@ -40,6 +40,10 @@ export default function AvatarFrame({
   return (
     <span
       onClick={onTap ? () => onTap() : undefined}
+      role={onTap ? 'button' : undefined}
+      tabIndex={onTap ? 0 : undefined}
+      className={onTap ? 'nu-tap' : undefined}
+      onKeyDown={onTap ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(); } } : undefined}
       style={{
         display: 'block', position: 'relative', width: w, aspectRatio: `${ratio} / 1`,
         cursor: onTap ? 'pointer' : 'default', flex: 'none', ...style
@@ -108,7 +112,7 @@ export default function AvatarFrame({
             boxShadow: `0 8px 20px -12px ${accent}`
           }}
         >
-          <span style={{ font: `500 6.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.5)' }}>NIV</span>
+          <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>NIV</span>
           <span style={{ font: `800 16px/1 ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>{level}</span>
         </span>
       ) : null}
@@ -117,7 +121,7 @@ export default function AvatarFrame({
         <span
           style={{
             position: 'absolute', left: 0, right: 0, bottom: 8, zIndex: 7, textAlign: 'center',
-            font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.62)'
+            font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.62)'
           }}
         >
           {label}

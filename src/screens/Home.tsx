@@ -87,11 +87,11 @@ export default function Home({ nav }: { nav: Nav }) {
           <Logo size={19} word wordSize={14} color={C.ink} />
           <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(10,10,12,.38)' }}>{amb.k}</span>
+              <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(10,10,12,.62)' }}>{amb.k}</span>
               <span
                 style={{
-                  font: `700 8.5px ${F.mono}`, letterSpacing: '.12em',
-                  color: s.onFire ? '#fff' : 'rgba(10,10,12,.6)',
+                  font: `700 11px ${F.mono}`, letterSpacing: '.12em',
+                  color: s.onFire ? '#fff' : 'rgba(10,10,12,.62)',
                   background: s.onFire ? C.coral : 'rgba(255,255,255,.65)',
                   border: `1px solid ${s.onFire ? C.coral : 'rgba(10,10,12,.1)'}`,
                   borderRadius: 99, padding: '5px 10px'
@@ -110,7 +110,7 @@ export default function Home({ nav }: { nav: Nav }) {
                 boxShadow: '0 14px 26px -20px rgba(0,0,0,.9)'
               }}
             >
-              <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.2em', color: '#fff', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>NIV</span>
+              <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.2em', color: '#fff', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>NIV</span>
               <span style={{ font: `800 30px/1 ${F.display}`, color: C.lime, letterSpacing: '-.04em' }}>{lvl}</span>
             </Tap>
           </span>
@@ -128,12 +128,12 @@ export default function Home({ nav }: { nav: Nav }) {
 
           <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 10 }}>
             <div>
-              <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.2em', color: 'rgba(10,10,12,.4)' }}>{amb.hello}</span>
-              <span style={{ display: 'block', font: `800 27px/1 ${F.display}`, color: C.ink, letterSpacing: '-.035em', marginTop: 5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.2em', color: 'rgba(10,10,12,.62)' }}>{amb.hello}</span>
+              <span role="heading" aria-level={1} style={{ display: 'block', font: `800 27px/1 ${F.display}`, color: C.ink, letterSpacing: '-.035em', marginTop: 5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {firstName}
               </span>
               <Tap onTap={() => nav.go('profile')} style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 8 }}>
-                <span style={{ font: `500 10px ${F.mono}`, color: 'rgba(10,10,12,.45)', letterSpacing: '.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{s.profile.gamertag}</span>
+                <span style={{ font: `500 11px ${F.mono}`, color: 'rgba(10,10,12,.62)', letterSpacing: '.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{s.profile.gamertag}</span>
               </Tap>
             </div>
 
@@ -146,8 +146,8 @@ export default function Home({ nav }: { nav: Nav }) {
         {/* Expérience : la barre se remplit à chaque ouverture */}
         <div style={{ position: 'relative', marginTop: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
-            <span style={{ font: `500 8px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(10,10,12,.42)' }}>EXPÉRIENCE</span>
-            <span style={{ font: `700 10px ${F.mono}`, color: C.ink }}>{globalPct(s)} %</span>
+            <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.18em', color: 'rgba(10,10,12,.62)' }}>EXPÉRIENCE</span>
+            <span style={{ font: `700 11px ${F.mono}`, color: C.ink }}>{globalPct(s)} %</span>
           </div>
           <span style={{ display: 'block', height: 10, borderRadius: 99, background: 'rgba(10,10,12,.09)', overflow: 'hidden', marginTop: 8, position: 'relative' }}>
             <span
@@ -176,7 +176,7 @@ export default function Home({ nav }: { nav: Nav }) {
                 padding: '10px 11px', minHeight: 54, display: 'flex', flexDirection: 'column', justifyContent: 'center'
               }}
             >
-              <span style={{ font: `500 7.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(10,10,12,.4)' }}>{label}</span>
+              <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(10,10,12,.62)' }}>{label}</span>
               <span style={{ font: `800 17px/1 ${F.display}`, color: col, letterSpacing: '-.02em', marginTop: 5 }}>{value}</span>
             </Tap>
           ))}
@@ -196,7 +196,7 @@ export default function Home({ nav }: { nav: Nav }) {
             }}
           >
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: focus ? C.lime : 'rgba(255,255,255,.3)' }} />
-            <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: focus ? C.lime : 'rgba(255,255,255,.45)' }}>MODE FOCUS</span>
+            <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: focus ? C.lime : 'rgba(255,255,255,.55)' }}>MODE FOCUS</span>
           </Tap>
         </div>
 
@@ -216,12 +216,12 @@ export default function Home({ nav }: { nav: Nav }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', gap: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.lime, flex: 'none' }} />
-                <span style={{ font: `500 8.5px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {skillById(today.skill).name}
                 </span>
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 7, flex: 'none' }}>
-                <span style={{ font: `700 8.5px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.6)', border: `1px solid ${DIFFS[today.quest.diff].c}55`, padding: '4px 8px', borderRadius: 7 }}>
+                <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.6)', border: `1px solid ${DIFFS[today.quest.diff].c}55`, padding: '4px 8px', borderRadius: 7 }}>
                   {DIFFS[today.quest.diff].label}
                 </span>
                 <span style={{ font: `700 11px ${F.mono}`, color: C.lime, background: 'rgba(185,222,100,.12)', padding: '4px 9px', borderRadius: 99 }}>
@@ -233,7 +233,7 @@ export default function Home({ nav }: { nav: Nav }) {
               {today.quest.name}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: focus ? 20 : 16, position: 'relative', gap: 10 }}>
-              <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.5)' }}>
+              <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>
                 {isInstant(today.quest.rarity) ? 'Un tap suffit' : 'Preuve requise'}
               </span>
               <span style={{ font: `700 12px ${F.body}`, color: C.ink, background: C.lime, padding: '13px 24px', borderRadius: 99, minHeight: 46, display: 'flex', alignItems: 'center', flex: 'none' }}>VALIDER</span>
@@ -247,17 +247,17 @@ export default function Home({ nav }: { nav: Nav }) {
             <Kicker>MON POINT DU JOUR</Kicker>
             <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {noted ? (
-                <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.teal }}>NOTÉ</span>
+                <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.teal }}>NOTÉ</span>
               ) : (
                 /* Relance discrète : un point qui respire à partir du soir. */
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ width: 5, height: 5, borderRadius: '50%', background: hour >= 18 ? C.honey : 'rgba(255,255,255,.28)', animation: hour >= 18 ? 'nuHalo 3.2s ease-in-out infinite' : undefined }} />
-                  <span style={{ font: `500 9px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.35)' }}>PAS ENCORE</span>
+                  <span style={{ font: `500 11px ${F.mono}`, letterSpacing: '.1em', color: 'rgba(255,255,255,.55)' }}>PAS ENCORE</span>
                 </span>
               )}
               <Tap
                 onTap={() => setTrendsOpen(true)} haptic="soft"
-                style={{ minHeight: 28, display: 'flex', alignItems: 'center', font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.azur }}
+                style={{ minHeight: 28, display: 'flex', alignItems: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.azur }}
               >
                 TENDANCES →
               </Tap>
@@ -284,7 +284,7 @@ export default function Home({ nav }: { nav: Nav }) {
                 <span style={{ display: 'block', font: `800 17px ${F.display}`, color: '#fff', letterSpacing: '-.02em' }}>
                   {noted ? faceLabel(mine) : 'Comment va aujourd’hui ?'}
                 </span>
-                <span style={{ display: 'block', font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.5)', marginTop: 4, textWrap: 'pretty' }}>
+                <span style={{ display: 'block', font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 4, textWrap: 'pretty' }}>
                   {noted
                     ? [
                         mine.motivation ? 'motivation ' + mine.motivation + '/5' : null,
@@ -299,7 +299,7 @@ export default function Home({ nav }: { nav: Nav }) {
               </span>
               <span
                 style={{
-                  flex: 'none', font: `700 10px ${F.mono}`, letterSpacing: '.08em',
+                  flex: 'none', font: `700 11px ${F.mono}`, letterSpacing: '.08em',
                   color: noted ? 'rgba(255,255,255,.6)' : C.ink, background: noted ? 'rgba(255,255,255,.08)' : C.lime,
                   padding: '12px 15px', borderRadius: 99, minHeight: 44, display: 'flex', alignItems: 'center'
                 }}
@@ -330,7 +330,7 @@ export default function Home({ nav }: { nav: Nav }) {
                 </span>
               ))}
             </div>
-            <span style={{ position: 'relative', display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.35)', marginTop: 8 }}>
+            <span style={{ position: 'relative', display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)', marginTop: 8 }}>
               9 DERNIERS JOURS
             </span>
             </Tap>
@@ -349,12 +349,12 @@ export default function Home({ nav }: { nav: Nav }) {
           >
             <span style={{ font: `800 24px/1 ${F.display}`, color: s.combo.n >= 3 ? C.coral : '#fff', letterSpacing: '-.03em', flex: 'none' }}>×{s.combo.n}</span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', font: `500 8px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.42)' }}>COMBO EN COURS</span>
+              <span style={{ display: 'block', font: `500 11px ${F.mono}`, letterSpacing: '.16em', color: 'rgba(255,255,255,.55)' }}>COMBO EN COURS</span>
               <span style={{ display: 'block', font: `700 12px ${F.body}`, color: '#fff', marginTop: 3 }}>
                 {comboBonus(s.combo.n) ? `+${Math.round(comboBonus(s.combo.n) * 100)} % de PX tant que tu enchaînes` : 'Enchaîne pour déclencher le bonus'}
               </span>
             </span>
-            <span style={{ font: `700 10px ${F.mono}`, color: 'rgba(255,255,255,.4)', flex: 'none' }}>
+            <span style={{ font: `700 11px ${F.mono}`, color: 'rgba(255,255,255,.55)', flex: 'none' }}>
               {Math.max(1, Math.round((COMBO_WINDOW - (Date.now() - (s.combo.last || 0))) / 60e3))} MIN
             </span>
           </Tap>
@@ -373,10 +373,10 @@ export default function Home({ nav }: { nav: Nav }) {
               </div>
               <div style={{ marginTop: 14 }}><WeekStrip days={w.days} h={40} /></div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 13, gap: 10 }}>
-                <span style={{ font: `400 11.5px ${F.body}`, color: 'rgba(255,255,255,.5)' }}>
+                <span style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)' }}>
                   {w.streak > 1 ? `Série de ${w.streak} jours` : w.n ? `${w.n} validations` : 'Rien validé cette semaine'}
                 </span>
-                <span style={{ font: `700 9px ${F.mono}`, letterSpacing: '.1em', color: C.azur }}>VOIR LE BILAN →</span>
+                <span style={{ font: `700 11px ${F.mono}`, letterSpacing: '.1em', color: C.azur }}>VOIR LE BILAN →</span>
               </div>
             </Tap>
 
@@ -392,7 +392,7 @@ export default function Home({ nav }: { nav: Nav }) {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.ink} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>
                   </span>
                   <div style={{ font: `800 15px ${F.display}`, color: '#fff', marginTop: 13, letterSpacing: '-.01em', position: 'relative' }}>{title}</div>
-                  <div style={{ font: `400 11px ${F.body}`, color: 'rgba(255,255,255,.45)', marginTop: 4, position: 'relative' }}>{sub}</div>
+                  <div style={{ font: `400 12px ${F.body}`, color: 'rgba(255,255,255,.55)', marginTop: 4, position: 'relative' }}>{sub}</div>
                 </Tap>
               ))}
             </div>
@@ -413,7 +413,7 @@ export default function Home({ nav }: { nav: Nav }) {
         ) : (
           <Tap
             onTap={toggleFocus}
-            style={{ textAlign: 'center', font: `700 10px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.4)', minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ textAlign: 'center', font: `700 11px ${F.mono}`, letterSpacing: '.12em', color: 'rgba(255,255,255,.55)', minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             AFFICHER TOUT L’ACCUEIL
           </Tap>
